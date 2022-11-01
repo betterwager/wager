@@ -16,54 +16,30 @@ import {
   Input,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
   ModalBody,
   ModalFooter,
   GridItem,
-  VStack,
-  StackDivider,
-  Heading,
-  Link,
-  Image,
-  Flex,
-  Center,
   Box,
-  IconButton,
-  Text,
   Button,
-  Container,
 } from "@chakra-ui/react";
 import { Card, Form } from "react-bootstrap";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { DataStore } from '@aws-amplify/datastore';
-import { User } from './models';
-import { BsFillPlusCircleFill } from "react-icons/bs";
-import { MdAccountCircle } from "react-icons/md";
-import { RiMoneyDollarCircleFill } from "react-icons/ri";
-import uniqueHash from "unique-hash";
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import Sidebar from "./Sidebar.js"
-import Header from "./Header.js";
 import { getProvider, connect, NewWagerInstruction } from "./utils.js";
 import {
   Keypair,
   Connection,
   TransactionInstruction,
-  sendAndConfirmTransaction,
   Transaction,
   PublicKey,
-  LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import {
   useWallet,
   useConnection,
-  ConnectionProvider,
-  WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { Buffer } from "buffer";
-
-let OptionsList = [];
 
 function Dashboard(){
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.css';
-import 'antd/dist/antd.css';
 import {
   Modal,
   NumberInput,
@@ -14,27 +13,20 @@ import {
   Input,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
   ModalBody,
   ModalFooter,
   Flex,
 } from "@chakra-ui/react";
 import { DataStore } from '@aws-amplify/datastore';
 import { User } from './models';
-import { Accordion, Nav, Navbar, NavDropdown, Image, Jumbotron, Form, ListGroup, Container, Col, Row, Carousel, Card, Button, CardColumns } from 'react-bootstrap';
-import { FaBars } from 'react-icons/fa';
+import {Form, Container, Button} from 'react-bootstrap';
 import { Auth } from 'aws-amplify';
 import styled from 'styled-components';
 import logo from './assets/Wager.svg'
-import{  
-BrowserRouter as Router,
-  Route,
+import{ 
   NavLink as Link,
-  Switch,
-  Redirect,
-  useHistory
 } from "react-router-dom";
-import {HOME, ABOUT, DASHBOARD, LEADERBOARD, SETTINGS} from './App.js'
+import {HOME, DASHBOARD, LEADERBOARD} from './App.js'
 import {
   DashboardOutlined,
   CrownOutlined,
@@ -48,21 +40,17 @@ import {
   Keypair,
   Connection,
   TransactionInstruction,
-  sendAndConfirmTransaction,
   Transaction,
   PublicKey,
-  LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import {
   useWallet,
   useConnection,
-  ConnectionProvider,
-  WalletProvider,
 } from "@solana/wallet-adapter-react";
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { Layout, Menu } from 'antd';
-const { Header, Content, Footer, Sider } = Layout;
+const {Sider } = Layout;
 const { SubMenu } = Menu;
 const NavLink = styled(Link)`
   color: #fff;
@@ -339,7 +327,7 @@ let OptionsList = [];
         <div style = {{ marginLeft: '0px', padding: '0.5vw'}}><NavLink to = {HOME}><img height='40vh' className="img-responsive"  src={logo}  alt="logo"/></NavLink></div>
         </Container>
         <Menu style = {{backgroundColor: "#195F50"}} theme="dark" defaultSelectedKeys={((path === DASHBOARD) ? ['1'] : (path === LEADERBOARD ? ['2'] : [])) } mode="inline">
-          <SubMenu key="sub1" icon={<UserOutlined />}>
+          <SubMenu key="sub1" title = {email} icon={<UserOutlined />}>
             <Menu.Item onClick = {() => setAccIsOpen(true)}  key="8">Account Details</Menu.Item>
             <Menu.Item onClick = {() => handleSignOut}  key="9">Sign Out</Menu.Item>
           </SubMenu>

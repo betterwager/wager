@@ -1,15 +1,11 @@
 import React from "react";
 import {
-  Heading,
-  Link,
   Image,
   Flex,
   Center,
   Box,
-  IconButton,
   Text,
-  Button,
-  Container,
+  Button
 } from "@chakra-ui/react";
 import cover from "./assets/cover.png";
 import DASHBOARD from "./App.js";
@@ -36,7 +32,7 @@ function Home() {
           </Text>
           <Center>
             <a href="/Dashboard">
-              <Button bgColor="#2ec4b6" marginTop="2rem">
+              <Button href = {DASHBOARD} bgColor="#2ec4b6" marginTop="2rem">
                 Get Started
               </Button>
             </a>

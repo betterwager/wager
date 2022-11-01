@@ -1,13 +1,11 @@
 import React from "react";
 import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'antd/dist/antd.min.css';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import Dashboard from "./Dashboard.js";
 import Home from "./Home.js";
-import Login from "./Login.js";
-import Signup from "./Signup.js";
-import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import awsExports from './aws-exports.js';
 import {Amplify} from "aws-amplify"

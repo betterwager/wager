@@ -8,7 +8,6 @@ import {
   Button,
   Form
 } from "react-bootstrap";
-import { Auth, Hub } from 'aws-amplify';
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 
