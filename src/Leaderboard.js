@@ -61,6 +61,7 @@ const NavLink = styled(Link)`
 
 function Holder(){
     const [result, setResult] = useState([])
+    /*
     const api = () => {
             fetch('http://localhost:4000/api/users',{
                 method: "GET"
@@ -74,6 +75,7 @@ function Holder(){
     useEffect(() => {
         api();
     }, [])
+    */
     return (
         <Leaderboard arr = {result}/>
     )
