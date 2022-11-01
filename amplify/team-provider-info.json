@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-wager-dev-213218-authRole",
+      "UnauthRoleArn": "arn:aws:iam::934321160741:role/amplify-wager-dev-213218-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::934321160741:role/amplify-wager-dev-213218-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-wager-dev-213218-deployment",
+      "UnauthRoleName": "amplify-wager-dev-213218-unauthRole",
+      "StackName": "amplify-wager-dev-213218",
+      "StackId": "arn:aws:cloudformation:us-east-1:934321160741:stack/amplify-wager-dev-213218/3e3d4330-58c4-11ed-b1a7-0e60f5dce699",
+      "AmplifyAppId": "d3obrjq5wlrw6x"
+    },
+    "categories": {
+      "auth": {
+        "wager67d8cf8767d8cf87": {}
+      }
+    }
+  }
+}
