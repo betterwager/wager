@@ -25,6 +25,7 @@ import {
 import { Card, Form } from "react-bootstrap";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { withAuthenticator } from '@aws-amplify/ui-react';
+import uniqueHash from "unique-hash" 
 import '@aws-amplify/ui-react/styles.css';
 import Sidebar from "./Sidebar.js"
 import { getProvider, connect, NewWagerInstruction } from "./utils.js";
@@ -71,6 +72,8 @@ function Dashboard(){
   useEffect(() => {
     // Wallet detection
     connect(provider);
+
+    //GET ALL BETS FOR USER FROM WEB3
   })
   
 
@@ -130,7 +133,7 @@ function Dashboard(){
   };
 
   const handleJoinBet = async (id) => {
-    //use account info to join based on if bet in id is active
+    //use account info to join based on if bet in id is active - WEB3
   };
 
   const selectOption = (id, option) => {

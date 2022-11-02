@@ -72,8 +72,8 @@ let OptionsList = [];
     
     //API Calls
     useEffect(() => {
-      setEmail(Auth.user.attributes.email);
       const getUsers = async () => {
+        setEmail(Auth.user.attributes.email);
         const users = await DataStore.query(User, a => a.email("eq", email));
         console.log(users);
         if (users.length == 0){
