@@ -152,13 +152,14 @@ function Dashboard(){
         minHeight="100vh"
       >
         <GridItem
+          colSpan = {2}
           area={"nav"}
         >
           <Sidebar/>
         </GridItem>
 
         <GridItem
-          colSpan={10}
+          colSpan={19}
           pl = "2"
           bg="#F7F8FC"
           area={"header"}
@@ -179,7 +180,7 @@ function Dashboard(){
         
         <GridItem
           pl="2"
-          colSpan={10}
+          colSpan={19}
           bg="#F7F8FC"
           area={"main"}
         >
