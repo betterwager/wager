@@ -2,8 +2,32 @@ import { ModelInit, MutableModel } from "@aws-amplify/datastore";
 // @ts-ignore
 import { LazyLoading, LazyLoadingDisabled } from "@aws-amplify/datastore";
 
+type LeaderboardMetaData = {
+  readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
 type UserMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
+type EagerLeaderboard = {
+  readonly id: string;
+  readonly users?: string[] | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+type LazyLeaderboard = {
+  readonly id: string;
+  readonly users?: string[] | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+}
+
+export declare type Leaderboard = LazyLoading extends LazyLoadingDisabled ? EagerLeaderboard : LazyLeaderboard
+
+export declare const Leaderboard: (new (init: ModelInit<Leaderboard, LeaderboardMetaData>) => Leaderboard) & {
+  copyOf(source: Leaderboard, mutator: (draft: MutableModel<Leaderboard, LeaderboardMetaData>) => MutableModel<Leaderboard, LeaderboardMetaData> | void): Leaderboard;
 }
 
 type EagerUser = {

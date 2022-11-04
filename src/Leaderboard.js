@@ -6,6 +6,7 @@ import {
   Box
 } from "@chakra-ui/react";
 import Sidebar from './Sidebar.js'
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { withAuthenticator } from "@aws-amplify/ui-react";
 
 
@@ -62,6 +63,9 @@ function Leaderboard(){
           <br />
         
           <br />
+          
+
+
           {result.length != 0 && (
             <>
               <SimpleGrid columns={3}>
