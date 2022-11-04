@@ -238,7 +238,10 @@ function Dashboard(){
                 <Card.Text><text style = {{color: "#aaaaaa"}}>Status: </text>Created</Card.Text>
               </Col>
               <Col style = {{textAlign: "right"}}>
-              <Button colorScheme='purple' variant='outline'>Make Bet</Button>
+              <Button colorScheme='purple' variant='outline'  onClick={() =>{
+                        setBetIsOpen(true);
+                        setCurrentBet(0);
+                      }}>Make Bet</Button>
               </Col>
               </Row>
               </Card.Body>
@@ -442,7 +445,8 @@ function Dashboard(){
               </Grid>
               </Card.Footer>
             </Card>
-          
+
+            
 
             {userBets.map((bet, index) =>
               betComplete[index] ? (
@@ -573,7 +577,7 @@ function Dashboard(){
                             onChange={() => handlejoinCodeChange}
                           />
                         </FormControl>
-       
+                        <br/>
                         <FormControl isRequired>
                                 <FormLabel>Bet Option</FormLabel>
                                 <Select
@@ -585,7 +589,7 @@ function Dashboard(){
                                     <option value={3}>option 3</option>
                                 </Select>
                             </FormControl>
-
+                            <br/>
                             <FormControl isRequired>
                                 <FormLabel>Bet Value ($)</FormLabel>
                                 <NumberInput

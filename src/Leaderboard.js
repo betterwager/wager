@@ -83,10 +83,10 @@ function Leaderboard(){
           <TableContainer  style={{
             marginLeft: "4rem", backgroundColor: "white"
           }} maxWidth = "90%">
-          <Table  variant='simple'>
+          <Table  variant='striped'>
             <Thead>
               <Tr>
-                <Th>User</Th>
+                <Th>User 1</Th>
                 <Th>Trust Score</Th>
                 <Th>Open Bets</Th>
                 <Th>Total Bets</Th>
@@ -95,11 +95,46 @@ function Leaderboard(){
             </Thead>
             <Tbody>
               <Tr>
-                <Td>inches</Td>
-                <Td>millimetres (mm)</Td>
-                <Td>25.4</Td>
-                <Td>millimetres (mm)</Td>
-                <Td>millimetres (mm)</Td>
+                <Td>User 2</Td>
+                <Td>100</Td>
+                <Td>5</Td>
+                <Td>16</Td>
+                <Td>1050</Td>
+              </Tr>
+              <Tr>
+                <Td>User 3</Td>
+                <Td>100</Td>
+                <Td>5</Td>
+                <Td>16</Td>
+                <Td>1050</Td>
+              </Tr>
+              <Tr>
+                <Td>User 4</Td>
+                <Td>100</Td>
+                <Td>5</Td>
+                <Td>16</Td>
+                <Td>1050</Td>
+              </Tr>
+              <Tr>
+                <Td>User 5</Td>
+                <Td>100</Td>
+                <Td>5</Td>
+                <Td>16</Td>
+                <Td>1050</Td>
+              </Tr>
+              <Tr>
+                <Td>User 6</Td>
+                <Td>100</Td>
+                <Td>5</Td>
+                <Td>16</Td>
+                <Td>1050</Td>
+              </Tr>
+              <Tr>
+                <Td>User 7</Td>
+                <Td>100</Td>
+                <Td>5</Td>
+                <Td>16</Td>
+                <Td>1050</Td>
               </Tr>
             </Tbody>
           </Table>
