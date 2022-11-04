@@ -154,11 +154,11 @@ function Dashboard() {
       fontWeight="bold"
       minHeight="100vh"
     >
-      <GridItem area={"nav"}>
+      <GridItem colSpan={2} area={"nav"}>
         <Sidebar />
       </GridItem>
 
-      <GridItem colSpan={10} pl="2" bg="#F7F8FC" area={"header"}>
+      <GridItem colSpan={19} pl="2" bg="#F7F8FC" area={"header"}>
         <br />
         <div
           style={{
@@ -172,7 +172,7 @@ function Dashboard() {
         </div>
       </GridItem>
 
-      <GridItem pl="2" colSpan={10} bg="#F7F8FC" area={"main"}>
+      <GridItem pl="2" colSpan={19} bg="#F7F8FC" area={"main"}>
         <Container>
           <Row style={{ margin: "5%" }} xs={1} md={4} className="g-4">
             <Col>

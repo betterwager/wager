@@ -3,12 +3,20 @@ import {
   Grid,
   SimpleGrid,
   GridItem,
-  Box
+  Box,
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
 } from "@chakra-ui/react";
 import Sidebar from './Sidebar.js'
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid} from '@mui/x-data-grid';
 import { withAuthenticator } from "@aws-amplify/ui-react";
-
 
 function Leaderboard(){
   const [result, setResult] = useState([])
@@ -28,13 +36,15 @@ function Leaderboard(){
 
   
       <GridItem
+      
+          colSpan={2}
           area={"nav"}
         >
       <Sidebar/>
         </GridItem>
 
         <GridItem
-          colSpan={10}
+          colSpan={19}
           pl = "2"
           bg="#F7F8FC"
           area={"header"}
@@ -56,13 +66,50 @@ function Leaderboard(){
 
         <GridItem
           pl="2"
-          colSpan={10}
+          colSpan={19}
           bg="#F7F8FC"
           area={"main"}
         >
-          <br />
-        
-          <br />
+
+          <TableContainer  style={{
+            marginLeft: "4rem",
+          }} maxWidth = "90%">
+          <Table variant='simple'>
+            <Thead>
+              <Tr>
+                <Th>To convert</Th>
+                <Th>into</Th>
+                <Th isNumeric>multiply by</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              <Tr>
+                <Td>inches</Td>
+                <Td>millimetres (mm)</Td>
+                <Td isNumeric>25.4</Td>
+              </Tr>
+              <Tr>
+                <Td>feet</Td>
+                <Td>centimetres (cm)</Td>
+                <Td isNumeric>30.48</Td>
+              </Tr>
+              <Tr>
+                <Td>yards</Td>
+                <Td>metres (m)</Td>
+                <Td isNumeric>0.91444</Td>
+              </Tr>
+            </Tbody>
+            <Tfoot>
+              <Tr>
+                <Th>To convert</Th>
+                <Th>into</Th>
+                <Th isNumeric>multiply by</Th>
+              </Tr>
+            </Tfoot>
+          </Table>
+        </TableContainer>
+
+          
           
 
 
