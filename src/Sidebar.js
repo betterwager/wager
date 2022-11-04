@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import 'bootstrap/dist/css/bootstrap.css';
 import {
   Modal,
@@ -17,6 +17,19 @@ import {
   ModalFooter,
   Flex,
 } from "@chakra-ui/react";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
+import {
+  WalletModalProvider,
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+
+import { clusterApiUrl } from "@solana/web3.js";
 import { DataStore } from '@aws-amplify/datastore';
 import { User } from './models';
 import {Form, Container, Button} from 'react-bootstrap';
@@ -50,6 +63,7 @@ import {
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { Layout, Menu } from 'antd';
+require("@solana/wallet-adapter-react-ui/styles.css");
 const {Sider } = Layout;
 const { SubMenu } = Menu;
 const NavLink = styled(Link)`
@@ -69,7 +83,29 @@ let OptionsList = [];
 
   export function Sidebar(){
     
-    
+    const network = WalletAdapterNetwork.Devnet;
+
+    // You can also provide a custom RPC endpoint.
+    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  
+    const wallets = useMemo(
+      () => [
+        /**
+         * Wallets that implement either of these standards will be available automatically.
+         *
+         *   - Solana Mobile Stack Mobile Wallet Adapter Protocol
+         *     (https://github.com/solana-mobile/mobile-wallet-adapter)
+         *   - Solana Wallet Standard
+         *     (https://github.com/solana-labs/wallet-standard)
+         *
+         * If you wish to support a wallet that supports neither of those standards,
+         * instantiate its legacy wallet adapter here. Common legacy adapters can be found
+         * in the npm package `@solana/wallet-adapter-wallets`.
+         */
+        new PhantomWalletAdapter(),
+      ],
+      []
+    );
     //API Calls
     useEffect(() => {
       const getUsers = async () => {
@@ -94,17 +130,16 @@ let OptionsList = [];
       .catch(console.error);
     },[])
 
-    let network = "https://api.devnet.solana.com";
-    let connection = useConnection();
-    connection = new Connection(network);
-    let provider = getProvider(); // see "Detecting the Provider"
-  
-    let publicKey = useWallet();
+    let connection = useConnection();  
+    let {publicKey, sendTransaction} = useWallet();
     const systemProgram = new PublicKey("11111111111111111111111111111111");
     const rentSysvar = new PublicKey(
       "SysvarRent111111111111111111111111111111111"
     );
+    
     const programId = Keypair.generate();
+
+
 
     //State Variables
     const [toStart, setToStart] = useState(false);
@@ -198,7 +233,7 @@ let OptionsList = [];
         programId: programId.publicKey,
         keys: [
           {
-            pubkey: provider.publicKey,
+            pubkey: publicKey,
             isSigner: true,
             isWritable: true,
           },
@@ -233,14 +268,14 @@ let OptionsList = [];
       });
       let transaction = new Transaction().add(instruction);
       console.log(transaction);
-      transaction.recentBlockhash = await connection.getLatestBlockhash();
-      console.log("blockhas retreived");
-      transaction.feePayer = provider.publicKey;
-      console.log(transaction);
-      const signedTransaction = await provider.signTransaction(transaction);
-      const signature = await connection.sendRawTransaction(
-        signedTransaction.serialize()
-      );
+      // transaction.recentBlockhash = await connection.getLatestBlockhash();
+      // console.log("blockhas retreived");
+      // transaction.feePayer = provider.publicKey;
+      // console.log(transaction);
+      // const signedTransaction = await provider.signTransaction(transaction);
+      // const signature = await connection.sendRawTransaction(
+      //   signedTransaction.serialize()
+      // );
       /* const signature = await this.provider.signAndSendTransaction(transaction);
       console.log("success!");
       await this.connection.getSignatureStatus(signature); */
@@ -264,15 +299,12 @@ let OptionsList = [];
 
     useEffect(() => {
       // Wallet detection
-      connect(provider);
+      //connect(provider);
     })
 
 
-    const handleEmailChange = (e) => {
-      setEmail(e.target.value)
-    }
-
     const handleFirstNameChange = (e) => {
+      console.log("test")
       setFirstName(e.target.value)
     }
 
@@ -294,6 +326,8 @@ let OptionsList = [];
 
     const handleEditSubmit = async () =>{
       const name = firstName + " " + lastName
+      
+      console.log(toStart);
       if (toStart){
         await DataStore.save(
           new User({
@@ -321,7 +355,9 @@ let OptionsList = [];
 
       const path = window.location.pathname
       return(
-        <>
+        <ConnectionProvider endpoint={endpoint}>
+        <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
         <Sider style = {{position: 'fixed', height: '100vh', width:"10vw", backgroundColor: "#195F50"}}>
         <Container style = {{marginLeft: "1vh", marginTop: "3vh", marginBottom: "3vh", width: "100%", alignContent: "center"}}>
         <div style = {{ marginLeft: '0px', padding: '0.5vw'}}><NavLink to = {HOME}><img height='40vh' className="img-responsive"  src={logo}  alt="logo"/></NavLink></div>
@@ -522,14 +558,13 @@ let OptionsList = [];
             <ModalContent>
               <ModalHeader>Edit Account Information</ModalHeader>
               <Form
-              onSubmit={() => handleEditSubmit}
               >
               <ModalBody>
                 <Flex>
                 <FormControl isRequired>
                     <FormLabel>First Name</FormLabel>
                     <Input
-                      onChange={() => handleFirstNameChange}
+                      onChange={handleFirstNameChange}
                       placeholder="First name"
                     />
                 </FormControl>
@@ -541,9 +576,7 @@ let OptionsList = [];
                     />
                 </FormControl>
                 </Flex>
-                  
-
-                  <br />
+                   <br />
                     <FormControl isRequired>
                       <FormLabel>Phone Number</FormLabel>
                       <PhoneInput
@@ -556,20 +589,25 @@ let OptionsList = [];
                       <FormLabel>Date of Birth</FormLabel>
                       <Form.Control type="date" name="dob" onChange={(e) => handleBirthdateChange}/>
                     </FormControl>
-
+                    <br/>
                     <FormControl isRequired>
                     <FormLabel>Solana Wallet Address</FormLabel>
                     <Input
                       onChange={() => handleWalletChange}
                       placeholder="Wallet Address"
                     />
+                    <br/>
+                    <Flex>
+                    <WalletMultiButton onClick = {() => setEditIsOpen(false)} style={{margin: "1%"}}/>
+                    <WalletDisconnectButton onClick = {() => setEditIsOpen(false)}  style={{margin: "1%"}}/>
+                    </Flex>
                 </FormControl>
               </ModalBody>
               <ModalFooter>
                 <Button variant="ghost" mr={3} onClick={() => setEditIsOpen(false)}>
                   Close
                 </Button>
-                <Button type = "submit" colorScheme="blue">
+                <Button colorScheme="blue" onClick = {(e) => handleEditSubmit}>
                   Submit
                 </Button>
               </ModalFooter>
@@ -588,7 +626,7 @@ let OptionsList = [];
                 <>
                   <FormControl isRequired>
                     <FormLabel>Bet Code</FormLabel>
-                    <Input placeholder="Bet Code" />
+                    <Input placeholder="Bet Code" onChange = {() => handlejoinCodeChange()} />
                   </FormControl>
                 </>
               </ModalBody>
@@ -602,8 +640,9 @@ let OptionsList = [];
               </Form>
             </ModalContent>
           </Modal>
-
-      </>
+        </WalletModalProvider>
+        </WalletProvider>
+    </ConnectionProvider>
       );
   };
 

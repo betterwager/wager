@@ -1,19 +1,4 @@
 {
-<<<<<<< HEAD
-  "name": "wager",
-  "version": "1.0.0",
-  "description": "Social Betting App",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Wager",
-  "license": "ISC",
-  "dependencies": {
-    "react-bootstrap": "^2.5.0",
-    "react-phone-input-2": "^2.15.1",
-    "react-router-dom": "^6.4.2"
-=======
   "name": "wagerapp",
   "version": "0.1.0",
   "private": true,
@@ -69,6 +54,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
->>>>>>> 88d0a5da9ddd25da2a06d9c69a530e0886447654
   }
 }
