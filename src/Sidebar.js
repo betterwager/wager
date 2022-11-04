@@ -93,13 +93,13 @@ let OptionsList = [];
       getUsers()
       .catch(console.error);
     },[])
-
-    let network = "https://api.devnet.solana.com";
-    let connection = useConnection();
+    
+    /* let network = "https://api.devnet.solana.com";
     connection = new Connection(network);
-    let provider = getProvider(); // see "Detecting the Provider"
-  
-    let publicKey = useWallet();
+    let provider = getProvider(); // see "Detecting the Provider" */
+    
+    let connection = useConnection();
+    let {publicKey, sendTransaction} = useWallet();
     const systemProgram = new PublicKey("11111111111111111111111111111111");
     const rentSysvar = new PublicKey(
       "SysvarRent111111111111111111111111111111111"
@@ -185,24 +185,39 @@ let OptionsList = [];
       console.log(Buffer.from(betName));
   
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(betName)],
-        programId.publicKey
+        [Buffer.alloc(20, betName)],
+        programId
       );
       /*     console.log(name);
       console.log(this.provider.publicKey.toBase58());
       console.log(potPDA.toBase58());
       console.log(potBump);
       console.log(PublicKey.isOnCurve(potPDA)); */
+  
+        console.log([
+          {name : allOptions[0],vote_count : 0},
+          {name : allOptions[1],vote_count : 0},
+          {name : allOptions[2],vote_count : 0},
+          {name : allOptions[3],vote_count : 0},
+          {name : allOptions[4],vote_count : 0},
+          {name : allOptions[5],vote_count : 0},
+          {name : allOptions[6],vote_count : 0},
+          {name : allOptions[7],vote_count : 0},
+        ]);
+      
       //Create bet RPC Call(Send Transaction for Create Bet)
-      let instruction = new TransactionInstruction({
-        programId: programId.publicKey,
+      const instruction = new TransactionInstruction({
+        programId: programId,
         keys: [
           {
-            pubkey: provider.publicKey,
+            pubkey: publicKey,
             isSigner: true,
             isWritable: true,
           },
-          { pubkey: potPDA, isSigner: false, isWritable: true },
+          { 
+            pubkey: potPDA, 
+            isSigner: false, 
+            isWritable: true},
           {
             pubkey: systemProgram,
             isSigner: false,
@@ -220,32 +235,44 @@ let OptionsList = [];
           maxPlayers,
           minBet,
           maxBet,
-          allOptions[0],
-          allOptions[1],
-          allOptions[2],
-          allOptions[3],
-          allOptions[4],
-          allOptions[5],
-          allOptions[6],
-          allOptions[7],
-          time
+          //options,
+          [
+            {name : Buffer.from(allOptions[0]),vote_count : 0},
+            {name : Buffer.from(allOptions[1]),vote_count : 0},
+            {name : Buffer.from(allOptions[2]),vote_count : 0},
+            {name : Buffer.from(allOptions[3]),vote_count : 0},
+            {name : Buffer.from(allOptions[4]),vote_count : 0},
+            {name : Buffer.from(allOptions[5]),vote_count : 0},
+            {name : Buffer.from(allOptions[6]),vote_count : 0},
+            {name : Buffer.from(allOptions[7]),vote_count : 0},
+          ],
+          potBump,
+          //hours
         ),
       });
       let transaction = new Transaction().add(instruction);
       console.log(transaction);
-      transaction.recentBlockhash = await connection.getLatestBlockhash();
-      console.log("blockhas retreived");
-      transaction.feePayer = provider.publicKey;
-      console.log(transaction);
-      const signedTransaction = await provider.signTransaction(transaction);
-      const signature = await connection.sendRawTransaction(
-        signedTransaction.serialize()
+      console.log(connection);
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight },
+      } = await connection.getLatestBlockhashAndContext();
+      transaction.recentBlockhash = blockhash;
+      console.log("blockhash retreived");
+      const signature = await transactionSend(
+        transaction,
+        connection,
+        { minContextSlot }
       );
-      /* const signature = await this.provider.signAndSendTransaction(transaction);
-      console.log("success!");
-      await this.connection.getSignatureStatus(signature); */
-    };
+      await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      });
   
+      console.log(transaction);
+    };
+
     const handlejoinCodeChange = (e) => {
       setJoinCode(e.target.value);
     };

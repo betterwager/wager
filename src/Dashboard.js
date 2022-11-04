@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo} from "react";
 import { useState } from "react";
 import {
   Grid,
@@ -51,12 +51,12 @@ function Dashboard(){
   const [joinCode, setJoinCode] = useState("");
 
   //Vars
-  let network = "https://api.devnet.solana.com";
-  let connection = useConnection();
+  /* let network = "https://api.devnet.solana.com";
   connection = new Connection(network);
   let provider = getProvider(); // see "Detecting the Provider"
-
-  let publicKey = useWallet();
+  */
+  const connection = useConnection();
+  const {publicKey, sendTransaction}  = useWallet();
   const systemProgram = new PublicKey("11111111111111111111111111111111");
   const rentSysvar = new PublicKey(
     "SysvarRent111111111111111111111111111111111"
@@ -71,8 +71,14 @@ function Dashboard(){
   
   useEffect(() => {
     // Wallet detection
-    connect(provider);
-
+    const network = WalletAdapterNetwork.Devnet;
+    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+    const wallets = useMemo(
+      () => [
+        new PhantomWalletAdapter(),
+      ],
+      []
+      )
     //GET ALL BETS FOR USER FROM WEB3
   })
   
