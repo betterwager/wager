@@ -5,11 +5,11 @@ export const isPhantomInstalled = window.phantom?.solana?.isPhantom;
 
 export const getProvider = () => {
   if ("phantom" in window) {
-    const provider = window.phantom?.solana;
+    // //const provider = window.phantom?.solana;
 
-    if (provider?.isPhantom) {
-      return provider;
-    }
+    // if (provider?.isPhantom) {
+    //   //return provider;
+    // }
   }
 
   //window.open("https://phantom.app/", "_blank");
