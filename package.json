@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "wager",
   "version": "1.0.0",
   "description": "Social Betting App",
@@ -12,5 +13,62 @@
     "react-bootstrap": "^2.5.0",
     "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^6.4.2"
+=======
+  "name": "wagerapp",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@aws-amplify/ui-react": "^3.5.10",
+    "@chakra-ui/react": "^2.3.6",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@solana/buffer-layout": "^4.0.0",
+    "@solana/wallet-adapter-react": "^0.15.23",
+    "@solana/web3.js": "^1.66.2",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "antd": "^4.23.6",
+    "aws-amplify": "^4.3.42",
+    "bootstrap": "^5.2.2",
+    "buffer-layout": "^1.2.2",
+    "framer-motion": "^7.6.2",
+    "fs": "0.0.1-security",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.5.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.6.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-phone-input-2": "^2.15.1",
+    "react-router-dom": "^6.4.2",
+    "react-scripts": "5.0.1",
+    "styled-components": "^5.3.6",
+    "unique-hash": "^2.6.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+>>>>>>> 88d0a5da9ddd25da2a06d9c69a530e0886447654
   }
 }
