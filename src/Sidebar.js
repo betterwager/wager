@@ -63,6 +63,9 @@ import {
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { Layout, Menu } from 'antd';
+import uniqueHash from 'unique-hash';
+import { Buffer } from 'buffer';
+
 require("@solana/wallet-adapter-react-ui/styles.css");
 const {Sider } = Layout;
 const { SubMenu } = Menu;
@@ -90,22 +93,11 @@ let OptionsList = [];
   
     const wallets = useMemo(
       () => [
-        /**
-         * Wallets that implement either of these standards will be available automatically.
-         *
-         *   - Solana Mobile Stack Mobile Wallet Adapter Protocol
-         *     (https://github.com/solana-mobile/mobile-wallet-adapter)
-         *   - Solana Wallet Standard
-         *     (https://github.com/solana-labs/wallet-standard)
-         *
-         * If you wish to support a wallet that supports neither of those standards,
-         * instantiate its legacy wallet adapter here. Common legacy adapters can be found
-         * in the npm package `@solana/wallet-adapter-wallets`.
-         */
         new PhantomWalletAdapter(),
       ],
       []
     );
+    
     //API Calls
     useEffect(() => {
       const getUsers = async () => {
@@ -130,14 +122,14 @@ let OptionsList = [];
       .catch(console.error);
     },[])
 
-    let connection = useConnection();  
-    let {publicKey, sendTransaction} = useWallet();
+    const {connection} = useConnection();  
+    const {publicKey, sendTransaction} = useWallet();
     const systemProgram = new PublicKey("11111111111111111111111111111111");
     const rentSysvar = new PublicKey(
       "SysvarRent111111111111111111111111111111111"
     );
     
-    const programId = Keypair.generate();
+    const programId = new PublicKey("EEjpJXCfHEqcRyAxW6tr3MNZqpP2MjAErkezFyp4HEah");
 
 
 
@@ -195,6 +187,7 @@ let OptionsList = [];
       setMaxBet(e.target.value);
     };
     const handleOptionNewChange = (e) => {
+      console.log(e.target.value);
       setOption(e.target.value);
     };
   
@@ -205,12 +198,14 @@ let OptionsList = [];
         console.log(option);
         OptionsList.push(option);
       }
+      console.log(OptionsList)
       setAllOptions(OptionsList);
       setOption("");
     }
 
 
     const handleBetSubmit = async (e) => {
+      e.preventDefault();
       while (allOptions.length < 8) {
         let temp = allOptions;
         temp.push("zero");
@@ -219,12 +214,16 @@ let OptionsList = [];
       console.log(allOptions);
       console.log(Buffer.from(betName));
   
+      let hours = time; //TIME IN HOURS
+      let index = uniqueHash(betName + maxBet + allOptions);
+      console.log(Buffer.alloc(20, betName));
+  
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
         [Buffer.alloc(20, betName)],
         programId
       );
       /*     console.log(name);
-      console.log(this.provider.publicKey.toBase58());
+      console.log(provider.publicKey.toBase58());
       console.log(potPDA.toBase58());
       console.log(potBump);
       console.log(PublicKey.isOnCurve(potPDA)); */
@@ -294,7 +293,7 @@ let OptionsList = [];
       } = await connection.getLatestBlockhashAndContext();
       transaction.recentBlockhash = blockhash;
       console.log("blockhash retreived");
-      const signature = await transactionSend(
+      const signature = await sendTransaction(
         transaction,
         connection,
         { minContextSlot }
@@ -304,7 +303,6 @@ let OptionsList = [];
         lastValidBlockHeight,
         signature,
       });
-  
       console.log(transaction);
     };
 
@@ -312,7 +310,24 @@ let OptionsList = [];
       setJoinCode(e.target.value);
     };
 
-    const handleJoinBet = async (id) => {
+    const getAccounts = async () => {
+      console.log(connection);
+      const accounts = await connection.getParsedProgramAccounts(
+        programId, // new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+        {
+          filters: [
+            {
+              dataSize: 196, // number of bytes
+            },
+          ],
+        }
+        );
+        console.log(accounts);
+    }
+
+    const handleJoinBet = async (e) => {
+      e.preventDefault();
+      getAccounts();
       //use account info to join based on if bet in id is active
     };
 
@@ -382,8 +397,6 @@ let OptionsList = [];
 
       const path = window.location.pathname
       return(
-        <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
         <Sider style = {{position: 'fixed', height: '100vh', width:"10vw", backgroundColor: "#195F50"}}>
         <Container style = {{marginLeft: "1vh", marginTop: "3vh", marginBottom: "3vh", width: "100%", alignContent: "center"}}>
@@ -454,7 +467,7 @@ let OptionsList = [];
             <ModalContent>
               <ModalHeader>Create New Bet</ModalHeader>
               <Form
-              onSubmit={() => handleBetSubmit}
+              onSubmit={(e) => handleBetSubmit(e)}
               >
               <ModalBody>
                 <>
@@ -538,13 +551,13 @@ let OptionsList = [];
                     <FormControl isRequired>
                       <FormLabel>Options</FormLabel>
                       <Input
-                        onChange={() => handleOptionNewChange}
+                        onChange={(e) => handleOptionNewChange(e)}
                         placeholder="Enter Option"
                       />
                       <Button
                         variant="secondary"
-                        onClick={() => handleOptionEnter}
-                      >
+                        onClick={(e) => handleOptionEnter(e)}
+                        >
                         Log Option
                       </Button>
                       <br />
@@ -572,7 +585,7 @@ let OptionsList = [];
                 <Button variant="ghost" mr={3} onClick={() => setAddIsOpen(false)}>
                   Close
                 </Button>
-                <Button type="submit" colorScheme="blue">
+                <Button type="submit" colorScheme="blue" >
                   Wager!
                 </Button>
               </ModalFooter>
@@ -647,13 +660,13 @@ let OptionsList = [];
             <ModalContent>
               <ModalHeader>Join Bet</ModalHeader>
               <Form
-              onSubmit = {() => {}}
+              onSubmit = {(e) => {handleJoinBet(e)}}
               >
               <ModalBody>
                 <>
                   <FormControl isRequired>
                     <FormLabel>Bet Code</FormLabel>
-                    <Input placeholder="Bet Code" onChange = {() => handlejoinCodeChange()} />
+                    <Input placeholder="Bet Code" onChange = {(e) => handlejoinCodeChange(e)} />
                   </FormControl>
                 </>
               </ModalBody>
@@ -667,9 +680,7 @@ let OptionsList = [];
               </Form>
             </ModalContent>
           </Modal>
-        </WalletModalProvider>
-        </WalletProvider>
-    </ConnectionProvider>
+          </WalletModalProvider>
       );
   };
 

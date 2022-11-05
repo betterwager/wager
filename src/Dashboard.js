@@ -28,16 +28,33 @@ import { withAuthenticator } from "@aws-amplify/ui-react";
 import uniqueHash from "unique-hash";
 import "@aws-amplify/ui-react/styles.css";
 import Sidebar from "./Sidebar.js";
-import { getProvider, connect, NewWagerInstruction } from "./utils.js";
+import { getProvider, connect, NewWagerInstruction, MakeBetInstruction } from "./utils.js";
 import {
   Keypair,
   Connection,
   TransactionInstruction,
   Transaction,
   PublicKey,
+  clusterApiUrl,
 } from "@solana/web3.js";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+
+import {
+  WalletModalProvider,
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { Buffer } from "buffer";
+
+require("@solana/wallet-adapter-react-ui/styles.css");
+
 
 function Dashboard() {
   const [bets, setBets] = useState([]);
@@ -45,46 +62,49 @@ function Dashboard() {
   const [currentBet, setCurrentBet] = useState({});
   const [userBets, setUserBets] = useState([]);
   const [joinCode, setJoinCode] = useState("");
-
-  //Vars
-  /* let network = "https://api.devnet.solana.com";
-  connection = new Connection(network);
-  let provider = getProvider(); // see "Detecting the Provider"
-  */
-  const connection = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
-  const systemProgram = new PublicKey("11111111111111111111111111111111");
-  const rentSysvar = new PublicKey(
-    "SysvarRent111111111111111111111111111111111"
-  );
-  const programId = Keypair.generate();
-
-  const [betOption, setBetOption] = useState("");
-  const [betValue, setBetValue] = useState(0);
-
-  const [betIsOpen, setBetIsOpen] = useState(false);
-
-  useEffect(async () => {
+ const [betOption, setBetOption] = useState("");
+ const [betValue, setBetValue] = useState(0);
+ 
+ const [betIsOpen, setBetIsOpen] = useState(false);
+ 
+ const network = WalletAdapterNetwork.Devnet;
+ const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+ const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
+  
+  useEffect(() => {
     // Wallet detection
-    const network = WalletAdapterNetwork.Devnet;
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-    const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
+    console.log("I am here");
     //GET ALL BETS FOR USER FROM WEB3
-    const accounts = await connection.getParsedProgramAccounts(
-      programId, // new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
-      {
-        filters: [
-          {
-            dataSize: 26, // number of bytes
-          },
-        ],
-      }
-    );
-  });
+    /* async function  getAccounts() {
+      console.log(connection);
+      const accounts = await connection.getParsedProgramAccounts(
+        programId, // new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+        {
+          filters: [
+            {
+              dataSize: 26, // number of bytes
+            },
+          ],
+        }
+        );
+    } */
+    },
+    []);
 
-  const handlejoinCodeChange = (e) => {
-    setJoinCode(e.target.value);
-  };
+    //wallet/connection constants
+    console.log(wallets);
+    const {connection} = useConnection();
+    const { publicKey, sendTransaction } = useWallet();
+    const systemProgram = new PublicKey("11111111111111111111111111111111");
+    const rentSysvar = new PublicKey(
+      "SysvarRent111111111111111111111111111111111"
+    );
+
+    const programId = Keypair.generate();
+    
+    const handlejoinCodeChange = (e) => {
+      setJoinCode(e.target.value);
+    };
 
   const handleBetOption = (e) => {
     setBetOption(e.target.value);
@@ -94,49 +114,91 @@ function Dashboard() {
     setBetValue(e.target.value);
   };
 
-  const handleBetting = async (index) => {
+  const getAccounts = async () => {
+    console.log(connection);
+    const accounts = await connection.getParsedProgramAccounts(
+      programId, // new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+      {
+        filters: [
+          {
+            dataSize: 26, // number of bytes
+          },
+        ],
+      }
+      );
+      console.log(accounts);
+  }
+
+  const handleBetting = async (e, index) => {
+    e.preventDefault();
     let option = betOption;
     let value = value;
     let bet = userBets[index]; //bet object in contention
 
     //Sending Bet Transaction and Balance for Bet
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(bet)],
-      programId.publicKey
-    );
-    //Make bet RPC Call(Send Transaction for Make Bet)
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: false,
-          isWritable: false,
-        },
-        { pubkey: potPDA, isSigner: false, isWritable: true },
-        {
-          pubkey: systemProgram.toString(),
-          isSigner: false,
-          isWritable: false,
-        },
-        {
-          pubkey: rentSysvar.toString(),
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId.publicKey.toString(),
-      data: NewWagerInstruction(bet, value, option),
-    });
-    const transaction = new Transaction().add(instruction);
-    transaction.recentBlockhash = await connection.getLatestBlockhash();
-    transaction.feePayer = provider.publicKey;
-
-    const signature = await provider.signAndSendTransaction(transaction);
-    console.log("success!");
-    await connection.getSignatureStatus(signature);
-  };
-
-  const handleJoinBet = async (id) => {
+        //Sending Bet Transaction and Balance for Bet
+        let [potPDA, potBump] = await PublicKey.findProgramAddress(
+          [Buffer.from(bet)],
+          programId
+        );
+        let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+          [Buffer.from(bet)],
+          publicKey,
+          programId
+        );
+        //Make bet RPC Call(Send Transaction for Make Bet)
+        let instruction = new TransactionInstruction({
+          keys: [
+            {
+              pubkey: publicKey,
+              isSigner: true,
+              isWritable: true,
+            },
+            { 
+              pubkey: potPDA, 
+              isSigner: false, 
+              isWritable: true},
+            { 
+              pubkey: playerPDA, 
+              isSigner: false, 
+              isWritable: true},
+            {
+              pubkey: systemProgram,
+              isSigner: false,
+              isWritable: false,
+            },
+            {
+              pubkey: rentSysvar,
+              isSigner: false,
+              isWritable: false,
+            },
+          ],
+          programId: programId,
+          data: MakeBetInstruction(bet, value, option, playerBump),
+        });
+        const transaction = new Transaction().add(instruction);
+        console.log(transaction); 
+        console.log(connection);
+        getAccounts();
+        const {
+          context: { slot: minContextSlot },
+          value: { blockhash, lastValidBlockHeight },
+        } = await connection.getLatestBlockhashAndContext();
+        transaction.recentBlockhash = blockhash;
+        console.log("blockhash retreived");
+        const signature = await sendTransaction(
+          transaction,
+          connection,
+          { minContextSlot }
+          );
+          await connection.confirmTransaction({
+            blockhash,
+            lastValidBlockHeight,
+            signature,
+          });
+        };
+        
+        const handleJoinBet = async (id) => {
     //use account info to join based on if bet in id is active - WEB3
   };
 
@@ -145,6 +207,9 @@ function Dashboard() {
   };
 
   return (
+    <ConnectionProvider endpoint={endpoint}>
+    <WalletProvider wallets={wallets} autoConnect>
+    <WalletModalProvider>
     <Grid
       templateAreas={`"nav header"
                             "nav main"`}
@@ -155,7 +220,11 @@ function Dashboard() {
       minHeight="100vh"
     >
       <GridItem colSpan={2} area={"nav"}>
+      <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
         <Sidebar />
+      </WalletProvider>
+      </ConnectionProvider>
       </GridItem>
 
       <GridItem colSpan={19} pl="2" bg="#F7F8FC" area={"header"}>
@@ -554,14 +623,14 @@ function Dashboard() {
                     >
                       <ModalOverlay />
                       <ModalContent>
-                        <Form onSubmit={() => handleBetting(index)}>
+                        <Form onSubmit={(e) => handleBetting(e,index)}>
                           <ModalHeader>Make Bet</ModalHeader>
                           <ModalBody>
                             <>
                               <FormControl isRequired>
                                 <FormLabel>Bet Option</FormLabel>
                                 <Select
-                                  onChange={() => handleBetOption}
+                                  onChange={(e) => handleBetOption(e)}
                                   placeholder="Select option"
                                 >
                                   {bet.options.map((option) => (
@@ -623,7 +692,7 @@ function Dashboard() {
                     <FormControl isRequired>
                       <FormLabel>Bet Option</FormLabel>
                       <Select
-                        onChange={() => handleBetOption}
+                        onChange={(e) => handleBetOption(e)}
                         placeholder="Select option"
                       >
                         <option value={1}>option 1</option>
@@ -667,6 +736,9 @@ function Dashboard() {
         </Container>
       </GridItem>
     </Grid>
+    </WalletModalProvider>
+    </WalletProvider>
+    </ConnectionProvider>
   );
 }
 
@@ -674,7 +746,7 @@ function Dashboard() {
 
 */
 /*
-                        {this.state.bets.map((bet, index) => (
+                        {bets.map((bet, index) => (
                             <Card key = {bet.id} style = {{margin:"1rem", width: "90%"}}>
                                 <Card.Header>{bet.name}</Card.Header>
                                 <Card.Body> what bet, time, total players, money, total pot
