@@ -17,6 +17,9 @@ import {
   ModalFooter,
   Flex,
 } from "@chakra-ui/react";
+import * as queries from './graphql/queries';
+import * as mutations from './graphql/mutations';
+import * as subscriptions from './graphql/subscriptions';
 import {
   ConnectionProvider,
   WalletProvider,
@@ -33,7 +36,7 @@ import { clusterApiUrl } from "@solana/web3.js";
 import { DataStore } from '@aws-amplify/datastore';
 import { User } from './models';
 import {Form, Container, Button} from 'react-bootstrap';
-import { Auth } from 'aws-amplify';
+import { Auth, API } from 'aws-amplify';
 import styled from 'styled-components';
 import logo from './assets/Wager.svg'
 import{ 
@@ -110,7 +113,7 @@ let OptionsList = [];
     useEffect(() => {
       const getUsers = async () => {
         setEmail(Auth.user.attributes.email);
-        const users = await DataStore.query(User, a => a.email("eq", email));
+        const users = await API.graphql({query: queries.listUsers})
         console.log(users);
         if (users.length == 0){
           setToStart(true);
@@ -297,14 +300,7 @@ let OptionsList = [];
       Auth.signOut();
     }
 
-    useEffect(() => {
-      // Wallet detection
-      //connect(provider);
-    })
-
-
     const handleFirstNameChange = (e) => {
-      console.log("test")
       setFirstName(e.target.value)
     }
 
@@ -325,12 +321,13 @@ let OptionsList = [];
     }
 
     const handleEditSubmit = async () =>{
+      console.log("test")
       const name = firstName + " " + lastName
       
       console.log(toStart);
       if (toStart){
-        await DataStore.save(
-          new User({
+
+        let User = {
           "email": email,
           "name": name,
           "birthdate": birthdate,
@@ -340,16 +337,17 @@ let OptionsList = [];
           "bets": [],
           "wallet": wallet,
           "leaderboards": []
-        })
-      );
+        }
+        await API.graphql({query: mutations.createUser, variables: {input: User}})
       }else{
-      await DataStore.save(User.copyOf(user, item => {
-        item.email = email;
-        item.name = name;
-        item.birthdate = birthdate;
-        item.phoneNumber = phoneNumber;
-        item.wallet = wallet;
-      }));
+        let User = {
+          "email": email,
+          "name": name,
+          "birthdate": birthdate,
+          "phonenumber": phoneNumber,
+          "wallet": wallet
+        }
+      await API.graphql({query: mutations.updateUser, variables: {input: User}})
       }
     }
 
@@ -607,7 +605,7 @@ let OptionsList = [];
                 <Button variant="ghost" mr={3} onClick={() => setEditIsOpen(false)}>
                   Close
                 </Button>
-                <Button colorScheme="blue" onClick = {(e) => handleEditSubmit}>
+                <Button colorScheme="blue" onClick = {() => handleEditSubmit}>
                   Submit
                 </Button>
               </ModalFooter>
