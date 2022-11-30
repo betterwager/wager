@@ -86,46 +86,24 @@ let OptionsList = [];
 
   export function Sidebar(){
     
-    const network = WalletAdapterNetwork.Devnet;
 
-    // You can also provide a custom RPC endpoint.
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-  
-    const wallets = useMemo(
-      () => [
-        /**
-         * Wallets that implement either of these standards will be available automatically.
-         *
-         *   - Solana Mobile Stack Mobile Wallet Adapter Protocol
-         *     (https://github.com/solana-mobile/mobile-wallet-adapter)
-         *   - Solana Wallet Standard
-         *     (https://github.com/solana-labs/wallet-standard)
-         *
-         * If you wish to support a wallet that supports neither of those standards,
-         * instantiate its legacy wallet adapter here. Common legacy adapters can be found
-         * in the npm package `@solana/wallet-adapter-wallets`.
-         */
-        new PhantomWalletAdapter(),
-      ],
-      []
-    );
     //API Calls
     useEffect(() => {
       const getUsers = async () => {
         setEmail(Auth.user.attributes.email);
-        const users = await API.graphql({query: queries.listUsers})
-        console.log(users);
+        let users = await API.graphql({query: queries.listUsers})
+        users = users.data.listUsers.items
+        console.log(users[0].name)
         if (users.length == 0){
           setToStart(true);
         }else{
           setUser(users[0])
-          setEmail(users[0].email)
           setFirstName(users[0].name.split(" ")[0])
           setLastName(users[0].name.split(" ")[1])
           setBirthdate(users[0].birthdate)
-          setPhoneNumber(users[0].phoneNumber)
-          setTrustScore(users[0].trustScore)
-          setBettingScore(users[0].bettingScore)
+          setPhoneNumber(users[0].phonenumber)
+          setTrustScore(users[0].trustscore)
+          setBettingScore(users[0].bettingscore)
           setWallet(users[0].wallet)
         }
       }
@@ -159,6 +137,7 @@ let OptionsList = [];
 
     const [user, setUser] = useState({});
     const [betName, setBetName] = useState("");
+    const [leaderName, setLeaderName] = useState("");
     const [minPlayers, setMinPlayers] = useState(0);
     const [maxPlayers, setMaxPlayers] = useState(0);
     const [minBet, setMinBet] = useState(0.0);
@@ -170,13 +149,21 @@ let OptionsList = [];
     const [editIsOpen, setEditIsOpen] = useState(false);
     const [accIsOpen, setAccIsOpen] = useState(false);
     const [addIsOpen, setAddIsOpen] = useState(false);
+    const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
+
     const [joinIsOpen, setJoinIsOpen] = useState(false);
+    const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
     const [joinCode, setJoinCode] = useState("");
+    const [joinLeaderCode, setJoinLeaderCode] = useState("");
 
   //Handling Methods
     const handleBetNameChange = (e) => {
       setBetName(e.target.value);
     };
+
+    const handleLeaderNameChange = (e) => {
+      setLeaderName(e.target.value);
+    }
 
     const handleTimeChange = (e) => {
       setTime(e.target.value);
@@ -283,10 +270,18 @@ let OptionsList = [];
       console.log("success!");
       await this.connection.getSignatureStatus(signature); */
     };
+
+    const handleLeaderSubmit = (e) => {
+      //Create leaderboard
+    }
   
     const handlejoinCodeChange = (e) => {
       setJoinCode(e.target.value);
     };
+
+    const handlejoinLeaderCodeChange = (e) => {
+      setJoinLeaderCode(e.target.value);
+    }
 
     const handleJoinBet = async (id) => {
       //use account info to join based on if bet in id is active
@@ -321,11 +316,11 @@ let OptionsList = [];
     }
 
     const handleEditSubmit = async () =>{
-      console.log("test")
+      console.log(birthdate)
       const name = firstName + " " + lastName
       
       console.log(toStart);
-      if (toStart){
+      if (!toStart){
 
         let User = {
           "email": email,
@@ -353,9 +348,7 @@ let OptionsList = [];
 
       const path = window.location.pathname
       return(
-        <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
+        <>
         <Sider style = {{position: 'fixed', height: '100vh', width:"10vw", backgroundColor: "#195F50"}}>
         <Container style = {{marginLeft: "1vh", marginTop: "3vh", marginBottom: "3vh", width: "100%", alignContent: "center"}}>
         <div style = {{ marginLeft: '0px', padding: '0.5vw'}}><NavLink to = {HOME}><img height='40vh' className="img-responsive"  src={logo}  alt="logo"/></NavLink></div>
@@ -377,49 +370,13 @@ let OptionsList = [];
         </Menu>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <Menu style = {{backgroundColor: "#195F50"}} theme="dark" mode="inline">
-        <Menu.Item onClick = {() => setAddIsOpen(true)} icon={<PlusCircleOutlined />}  key="6">Create a Bet</Menu.Item>
-        <Menu.Item onClick = {() => setJoinIsOpen(true)} icon={<CheckOutlined />}  key="7">Join Bet</Menu.Item>
-        <Menu.Item icon={<ExclamationCircleOutlined />}  key="8"><a href = {HOME} >Contact Support</a></Menu.Item>
-        </Menu>
-      </Sider>
 
-        
-      <Modal isOpen={accIsOpen} onClose={() => setAccIsOpen(false)}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Account Details</ModalHeader>
-              <ModalBody>
-                <strong>Name: </strong> Kaustubh Sonawane {firstName}{" "}
-                {lastName}
-                <br />
-                <br />
-                <strong>Email: </strong> kaustubh.sonawane@utexas.edu {email} <br />
-                <br />
-                <strong>Phone Number: </strong> kaustubh.sonawane@utexas.edu {phoneNumber} <br />
-                <br />
-                <strong>Wallet: </strong> kaustubh.sonawane@utexas.edu {wallet} <br />
-                <br />
-                <strong>Trust Score: </strong> 0.85 {trustScore}{" "}
-                <br />
-                <br />
-                <strong>Betting Score: </strong> $85{bettingScore}{" "}
-                <br />
-              </ModalBody>
-
-              <ModalFooter>
-                <Button variant="ghost" mr={3} onClick={() => setAccIsOpen(false)}>
-                  Close
-                </Button>
-                <Button mr={3} onClick={() => {
-                  setAccIsOpen(false);
-                  setEditIsOpen(true);
-                }}>
-                  Edit
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-
+        {path == DASHBOARD ?
+        (
+          <>
+          <Menu.Item onClick = {() => setAddIsOpen(true)} icon={<PlusCircleOutlined />}  key="6">Create a Bet</Menu.Item>
+          <Menu.Item onClick = {() => setJoinIsOpen(true)} icon={<CheckOutlined />}  key="7">Join Bet</Menu.Item>  
+          
           <Modal isOpen={addIsOpen} onClose={() => setAddIsOpen(false)}>
             <ModalOverlay />
             <ModalContent>
@@ -509,12 +466,13 @@ let OptionsList = [];
                     <FormControl isRequired>
                       <FormLabel>Options</FormLabel>
                       <Input
-                        onChange={() => handleOptionNewChange}
+                        onChange={handleOptionNewChange}
+                        value = {option}
                         placeholder="Enter Option"
                       />
                       <Button
                         variant="secondary"
-                        onClick={() => handleOptionEnter}
+                        onClick={ handleOptionEnter}
                       >
                         Log Option
                       </Button>
@@ -551,68 +509,6 @@ let OptionsList = [];
             </ModalContent>
           </Modal>
 
-      <Modal isOpen={editIsOpen} onClose={() => setEditIsOpen(false)}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Edit Account Information</ModalHeader>
-              <Form
-              >
-              <ModalBody>
-                <Flex>
-                <FormControl isRequired>
-                    <FormLabel>First Name</FormLabel>
-                    <Input
-                      onChange={handleFirstNameChange}
-                      placeholder="First name"
-                    />
-                </FormControl>
-                <FormControl isRequired>
-                    <FormLabel>Last Name</FormLabel>
-                    <Input
-                      onChange={() => handleLastNameChange}
-                      placeholder="Last name"
-                    />
-                </FormControl>
-                </Flex>
-                   <br />
-                    <FormControl isRequired>
-                      <FormLabel>Phone Number</FormLabel>
-                      <PhoneInput
-                      placeholder="Enter phone number"
-                      value = {phoneNumber}
-                      onChange={() => handlePhoneNumberChange}/>
-                    </FormControl>
-                    <br/>
-                    <FormControl isRequired>
-                      <FormLabel>Date of Birth</FormLabel>
-                      <Form.Control type="date" name="dob" onChange={(e) => handleBirthdateChange}/>
-                    </FormControl>
-                    <br/>
-                    <FormControl isRequired>
-                    <FormLabel>Solana Wallet Address</FormLabel>
-                    <Input
-                      onChange={() => handleWalletChange}
-                      placeholder="Wallet Address"
-                    />
-                    <br/>
-                    <Flex>
-                    <WalletMultiButton onClick = {() => setEditIsOpen(false)} style={{margin: "1%"}}/>
-                    <WalletDisconnectButton onClick = {() => setEditIsOpen(false)}  style={{margin: "1%"}}/>
-                    </Flex>
-                </FormControl>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="ghost" mr={3} onClick={() => setEditIsOpen(false)}>
-                  Close
-                </Button>
-                <Button colorScheme="blue" onClick = {() => handleEditSubmit}>
-                  Submit
-                </Button>
-              </ModalFooter>
-              </Form>
-            </ModalContent>
-          </Modal>
-
           <Modal isOpen={joinIsOpen} onClose={() => setJoinIsOpen(false)}>
             <ModalOverlay />
             <ModalContent>
@@ -638,9 +534,178 @@ let OptionsList = [];
               </Form>
             </ModalContent>
           </Modal>
-        </WalletModalProvider>
-        </WalletProvider>
-    </ConnectionProvider>
+
+          </>
+        )
+          :
+        (
+        <>
+          <Menu.Item onClick = {() => setAddLeaderIsOpen(true)} icon={<PlusCircleOutlined />}  key="6">Create a Leaderboard</Menu.Item>
+          <Menu.Item onClick = {() => setJoinLeaderIsOpen(true)} icon={<CheckOutlined />}  key="7">Join Leaderboard</Menu.Item>
+        
+          <Modal isOpen={addLeaderIsOpen} onClose={() => setAddLeaderIsOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Create New Leaderboard</ModalHeader>
+              <Form
+              onSubmit={() => handleLeaderSubmit}
+              >
+              <ModalBody>
+                <>
+                  <FormControl isRequired>
+                    <FormLabel>Leaderboard Name</FormLabel>
+                    <Input
+                      onChange={() => handleLeaderNameChange}
+                      placeholder="Bet name"
+                    />
+                  </FormControl>
+                </>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="ghost" mr={3} onClick={() => setAddLeaderIsOpen(false)}>
+                  Close
+                </Button>
+                <Button type="submit" colorScheme="blue">
+                  Create
+                </Button>
+              </ModalFooter>
+              </Form>
+            </ModalContent>
+          </Modal>
+
+          <Modal isOpen={joinLeaderIsOpen} onClose={() => setJoinLeaderIsOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Join Leaderboard</ModalHeader>
+              <Form
+              onSubmit = {() => {}}
+              >
+              <ModalBody>
+                <>
+                  <FormControl isRequired>
+                    <FormLabel>Leaderboard Code</FormLabel>
+                    <Input placeholder="Bet Code" onChange = {() => handlejoinLeaderCodeChange()} />
+                  </FormControl>
+                </>
+              </ModalBody>
+
+              <ModalFooter>
+                <Button variant="ghost" mr={3} onClick={() => setJoinLeaderIsOpen(false)}>
+                  Close
+                </Button>
+                <Button type = "submit" colorScheme="blue">Join</Button>
+              </ModalFooter>
+              </Form>
+            </ModalContent>
+          </Modal>
+        </>
+        )}
+        <Menu.Item icon={<ExclamationCircleOutlined />}  key="8"><a href = {HOME} >Contact Support</a></Menu.Item>
+        </Menu>
+      </Sider>
+
+        
+      <Modal isOpen={accIsOpen} onClose={() => setAccIsOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Account Details</ModalHeader>
+              <ModalBody>
+                <strong>Name: </strong> {firstName}{" "}
+                {lastName}
+                <br />
+                <br />
+                <strong>Email: </strong> {email} <br />
+                <br />
+                <strong>Phone Number: </strong> {phoneNumber} <br />
+                <br />
+                <strong>Wallet: </strong> {wallet} <br />
+                <br />
+                <strong>Trust Score: </strong> 0.85 {trustScore}{" "}
+                <br />
+                <br />
+                <strong>Betting Score: </strong> $85{bettingScore}{" "}
+                <br />
+              </ModalBody>
+
+              <ModalFooter>
+                <Button variant="ghost" mr={3} onClick={() => setAccIsOpen(false)}>
+                  Close
+                </Button>
+                <Button mr={3} onClick={() => {
+                  setAccIsOpen(false);
+                  setEditIsOpen(true);
+                }}>
+                  Edit
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+
+      <Modal isOpen={editIsOpen} onClose={() => setEditIsOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Edit Account Information</ModalHeader>
+              <Form
+              >
+              <ModalBody>
+                <Flex>
+                <FormControl isRequired>
+                    <FormLabel>First Name</FormLabel>
+                    <Input
+                      onChange={handleFirstNameChange}
+                      value = {firstName}
+                      placeholder="First name"
+                    />
+                </FormControl>
+                <FormControl isRequired>
+                    <FormLabel>Last Name</FormLabel>
+                    <Input
+                      onChange={handleLastNameChange}
+                      placeholder="Last name"
+                    />
+                </FormControl>
+                </Flex>
+                   <br />
+                    <FormControl isRequired>
+                      <FormLabel>Phone Number</FormLabel>
+                      <PhoneInput
+                      placeholder="Enter phone number"
+                      value = {phoneNumber}
+                      onChange={phone => setPhoneNumber(phone)}/>
+                    </FormControl>
+                    <br/>
+                    <FormControl isRequired>
+                      <FormLabel>Date of Birth</FormLabel>
+                      <Form.Control type="date" name="dob" onChange={handleBirthdateChange}/>
+                    </FormControl>
+                    <br/>
+                    <FormControl isRequired>
+                    <FormLabel>Solana Wallet Address</FormLabel>
+                    <Input
+                      onChange={handleWalletChange}
+                      placeholder="Wallet Address"
+                    />
+                    <br/>
+                    <Flex>
+                    <WalletMultiButton onClick = {() => setEditIsOpen(false)} style={{margin: "1%"}}/>
+                    <WalletDisconnectButton onClick = {() => setEditIsOpen(false)}  style={{margin: "1%"}}/>
+                    </Flex>
+                </FormControl>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="ghost" mr={3} onClick={() => setEditIsOpen(false)}>
+                  Close
+                </Button>
+                <Button colorScheme="blue" onClick = {handleEditSubmit}>
+                  Submit
+                </Button>
+              </ModalFooter>
+              </Form>
+            </ModalContent>
+          </Modal>
+
+        </>
+
       );
   };
 
