@@ -8,6 +8,8 @@ import {
   Thead,
   Tbody,
   Tfoot,
+  FormControl,
+  Select,
   Tr,
   Th,
   Td,
@@ -78,7 +80,12 @@ function Leaderboard(){
             fontSize: "20px",
           }}>
 
-          <h1>All Wagers</h1>
+          <FormControl style = {{border: "black", maxWidth: "40%", color: "black"}} colorScheme = "green">
+            <Select onChange = {(value) => setCurrentBoard(value)} variant = "filled">
+              <option value = "Leaderboard 1">Leaderboard 1</option>
+              <option value = "Leaderboard 2">Leaderboard 2</option>
+            </Select>
+          </FormControl>
           </div>
           <TableContainer  style={{
             marginLeft: "4rem", backgroundColor: "white"

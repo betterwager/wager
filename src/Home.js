@@ -14,6 +14,7 @@ import {
   Container,
   FormControl,
   FormErrorMessage,
+  Flex,
 } from "@chakra-ui/react";
 import { FaDice } from "react-icons/fa";
 import dash from "./assets/Dashboard.png";
@@ -61,7 +62,7 @@ const Home = (props) => {
             w={"full"}
             h={"100vh"}
           >
-            <Stack direction={"column"} align={"center"} w={"70%"}>
+            <Flex direction={"column"} align={"center"} w={"70%"}>
               <Icon h={"10%"} w={"10%"} as={FaDice} color="#195F50" />
               <Text fontSize="6xl" as="b" color="#195F50">
                 Wager
@@ -92,7 +93,7 @@ const Home = (props) => {
                 </InputGroup>
                 <FormErrorMessage>Invalid Email</FormErrorMessage>
               </FormControl>
-            </Stack>
+            </Flex>
             <Box w={"60%"}>
               <Image src={dash}></Image>
             </Box>
