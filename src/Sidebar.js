@@ -139,8 +139,8 @@ export function Sidebar(){
     const [user, setUser] = useState({});
     const [betName, setBetName] = useState("");
     const [leaderName, setLeaderName] = useState("");
-    const [minPlayers, setMinPlayers] = useState(0);
-    const [maxPlayers, setMaxPlayers] = useState(0);
+    const [minPlayers, setMinPlayers] = useState(2);
+    const [maxPlayers, setMaxPlayers] = useState(2);
     const [minBet, setMinBet] = useState(0.0);
     const [maxBet, setMaxBet] = useState(0.0);
     const [allOptions, setAllOptions] = useState([]);
@@ -158,6 +158,17 @@ export function Sidebar(){
     const [joinLeaderCode, setJoinLeaderCode] = useState("");
 
   //Handling Methods
+    const clearBetState = () => {
+      setBetName("");
+      setMinPlayers(2);
+      setMaxPlayers(2);
+      setMinBet(0.0);
+      setMaxBet(0.0);
+      setOption("");
+      OptionsList = [];
+      setTime(0);
+    }
+
     const handleBetNameChange = (e) => {
       setBetName(e.target.value);
     };
@@ -167,29 +178,30 @@ export function Sidebar(){
     }
 
     const handleTimeChange = (e) => {
-      setTime(e.target.value);
+      setTime(e.value);
     };
 
     const handleminPlayersChange = (e) => {
-      setMinPlayers(e.target.value);
+      setMinPlayers(e.value);
     };
 
     const handlemaxPlayersChange = (e) => {
-      setMaxPlayers(e.target.value);
+      setMaxPlayers(e.value);
     };
 
     const handleminBetChange = (e) => {
-      setMinBet(e.target.value);
+      setMinBet(e.value);
     };
 
     const handlemaxBetChange = (e) => {
-      setMaxBet(e.target.value);
+      setMaxBet(e.value);
     };
     const handleOptionNewChange = (e) => {
       setOption(e.target.value);
     };
   
     const handleOptionEnter = () => {
+      if (OptionsList.indexOf(option) == -1){      
       if (option === "DELETE" || option == "") {
         OptionsList.splice(OptionsList.length - 1);
       } else {
@@ -198,6 +210,7 @@ export function Sidebar(){
       }
       setAllOptions(OptionsList);
       setOption("");
+    }
     }
 
 
@@ -383,14 +396,14 @@ export function Sidebar(){
             <ModalContent>
               <ModalHeader>Create New Bet</ModalHeader>
               <Form
-              onSubmit={() => handleBetSubmit}
+              onSubmit={handleBetSubmit}
               >
               <ModalBody>
                 <>
                   <FormControl isRequired>
                     <FormLabel>Bet Name</FormLabel>
                     <Input
-                      onChange={() => handleBetNameChange}
+                      onChange={handleBetNameChange}
                       placeholder="Bet name"
                     />
                   </FormControl>
@@ -400,7 +413,8 @@ export function Sidebar(){
                     <FormControl isRequired>
                       <FormLabel>Minimum Players</FormLabel>
                       <NumberInput
-                        onChange={() => handleminPlayersChange}
+                        onChange={handleminPlayersChange}
+                        value = {minPlayers}
                         min={2}
                       >
                         <NumberInputField />
@@ -414,7 +428,8 @@ export function Sidebar(){
                     <FormControl isRequired>
                       <FormLabel>Maximum Players</FormLabel>
                       <NumberInput
-                        onChange={() => handlemaxPlayersChange}
+                        onChange={handlemaxPlayersChange}
+                        value = {maxPlayers}
                         min={2}
                       >
                         <NumberInputField />
@@ -431,7 +446,8 @@ export function Sidebar(){
                     <FormControl isRequired>
                       <FormLabel>Minimum Bet ($)</FormLabel>
                       <NumberInput
-                        onChange={() => handleminBetChange}
+                        onChange={handleminBetChange}
+                        value = {minBet}
                         min={0.0}
                         precision={2}
                         step={0.5}
@@ -447,7 +463,8 @@ export function Sidebar(){
                     <FormControl isRequired>
                       <FormLabel>Maximum Bet ($)</FormLabel>
                       <NumberInput
-                        onChange={() => handlemaxBetChange}
+                        onChange={handlemaxBetChange}
+                        value = {maxBet}
                         min={0.0}
                         precision={2}
                         step={0.5}
@@ -464,7 +481,7 @@ export function Sidebar(){
                   <br />
 
                   <Flex>
-                    <FormControl isRequired>
+                    <FormControl>
                       <FormLabel>Options</FormLabel>
                       <Input
                         onChange={handleOptionNewChange}
@@ -490,7 +507,8 @@ export function Sidebar(){
                   <FormControl isRequired>
                     <FormLabel>Hours to Bet</FormLabel>
                     <NumberInput
-                      onChange={() => handleTimeChange}
+                      onChange={handleTimeChange}
+                      value = {time}
                       placeholder="Enter Option"
                     >
                       <NumberInputField />
@@ -499,7 +517,10 @@ export function Sidebar(){
                 </>
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" mr={3} onClick={() => setAddIsOpen(false)}>
+                <Button variant="ghost" mr={3} onClick={() => {
+                  setAddIsOpen(false);
+                  clearBetState();
+                }}>
                   Close
                 </Button>
                 <Button type="submit" colorScheme="blue">

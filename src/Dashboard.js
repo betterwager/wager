@@ -73,17 +73,17 @@ function Dashboard(){
 
   const [betIsOpen, setBetIsOpen] = useState(false);
 
+  const getBets = async () => {
+    let allBets = await connection.getParsedProgramAccounts(
+      programId,
+      {
+        //add filters
+      }
+    )
+    console.log(allBets);
+  }
 
   useEffect(() => {
-    const getBets = async () => {
-      let allBets = await connection.getParsedProgramAccounts(
-        programId,
-        {
-          //add filters
-        }
-      )
-      console.log(allBets);
-    }
     getBets()
       .catch(console.error);
   },[]);
@@ -204,7 +204,7 @@ function Dashboard(){
           area={"main"}
         >
           <Container >
-          <Row  style = {{margin: "5%"}} xs={1} md={4} className="g-4">
+          <Row  style = {{margin: "5%"}} xs={1} md={5} className="g-4">
             <Col>
             <Card style={{ width: "90%", textAlign: "center"}}>
               <Card.Body>
@@ -236,6 +236,16 @@ function Dashboard(){
                 <Card.Title><strong>2</strong></Card.Title>
               </Card.Body>
             </Card>            
+            </Col>
+            <Col>
+            <a onClick = {getBets}>
+            <Card  style={{ width: "90%", textAlign: "center" }}>
+              <Card.Body>
+              <Card.Text style = {{color: "#888888"}}></Card.Text>
+                <Card.Title><strong>Refresh</strong></Card.Title>
+              </Card.Body>
+            </Card>          
+              </a>  
             </Col>
           </Row>
 
@@ -640,6 +650,11 @@ function Dashboard(){
           </InfiniteScroll>
           </Container>
         </GridItem>
+        <Row>
+                <div className = "holder">
+                    <h1><a href = "/#">K</a></h1>
+                </div>
+        </Row>
       </Grid>
     );
   
