@@ -41,6 +41,7 @@ import {
   useConnection,
 } from "@solana/wallet-adapter-react";
 import { Buffer } from "buffer";
+import { ConsoleLogger } from "@aws-amplify/core";
 
 function Dashboard(){
 
@@ -49,6 +50,10 @@ function Dashboard(){
   const [currentBet, setCurrentBet] = useState({});
   const [userBets, setUserBets] = useState([]);
   const [joinCode, setJoinCode] = useState("");
+
+
+
+
 
   //Vars
   let network = "https://api.devnet.solana.com";
@@ -61,13 +66,27 @@ function Dashboard(){
   const rentSysvar = new PublicKey(
     "SysvarRent111111111111111111111111111111111"
   );
-  const programId = Keypair.generate();
+  const programId = new PublicKey("EEjpJXCfHEqcRyAxW6tr3MNZqpP2MjAErkezFyp4HEah");
 
   const [betOption, setBetOption] = useState("");
   const [betValue, setBetValue] = useState(0);
 
   const [betIsOpen, setBetIsOpen] = useState(false);
 
+
+  useEffect(() => {
+    const getBets = async () => {
+      let allBets = await connection.getParsedProgramAccounts(
+        programId,
+        {
+          //add filters
+        }
+      )
+      console.log(allBets);
+    }
+    getBets()
+      .catch(console.error);
+  },[]);
   
   useEffect(() => {
     // Wallet detection

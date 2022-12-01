@@ -84,7 +84,8 @@ const NavLink = styled(Link)`
 let OptionsList = [];
 
 
-  export function Sidebar(){
+
+export function Sidebar(){
     
 
     //API Calls
