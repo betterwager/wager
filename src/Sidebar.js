@@ -571,7 +571,7 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Minimum Players</FormLabel>
                             <NumberInput
-                              onChange={handleminPlayersChange}
+                              onChange={(e) => handleminPlayersChange(e)}
                               value={minPlayers}
                               min={2}
                             >
@@ -586,7 +586,7 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Maximum Players</FormLabel>
                             <NumberInput
-                              onChange={handlemaxPlayersChange}
+                              onChange={(e) => handlemaxPlayersChange(e)}
                               value={maxPlayers}
                               min={2}
                             >
@@ -604,7 +604,7 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Minimum Bet ($)</FormLabel>
                             <NumberInput
-                              onChange={handleminBetChange}
+                              onChange={(e) => handleminBetChange(e)}
                               value={minBet}
                               min={0.0}
                               precision={2}
@@ -621,7 +621,7 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Maximum Bet ($)</FormLabel>
                             <NumberInput
-                              onChange={handlemaxBetChange}
+                              onChange={(e) => handlemaxBetChange(e)}
                               value={maxBet}
                               min={0.0}
                               precision={2}
