@@ -337,7 +337,7 @@ export function Sidebar() {
     //let option = betOption;
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
-    //Sending Bet Transaction and Balance for Bet
+    console.log(publicKey.toString());
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
       [Buffer.alloc(20, joinCode)],

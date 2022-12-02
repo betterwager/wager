@@ -122,7 +122,7 @@ export function MakeBetInstruction(name, option_index, playerBump, amount) {
 export function VoteInstruction(option_index) {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
-    BufferLayout.u8("option_index"),
+    BufferLayout.u8("outcome"),
   ]);
   const data = Buffer.alloc(layout.span);
   layout.encode(

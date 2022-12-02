@@ -28,7 +28,7 @@ import { withAuthenticator } from "@aws-amplify/ui-react";
 import uniqueHash from "unique-hash";
 import "@aws-amplify/ui-react/styles.css";
 import Sidebar from "./Sidebar.js";
-import { getProvider, connect, MakeBetInstruction } from "./utils.js";
+import { getProvider, connect, MakeBetInstruction, VoteInstruction } from "./utils.js";
 import {
   Keypair,
   Connection,
@@ -46,7 +46,7 @@ function Dashboard() {
   const [bets, setBets] = useState([]);
   const [betComplete, setBetComplete] = useState([]);
   const [currentBet, setCurrentBet] = useState({});
-  const [userBets, setUserBets] = useState([]);
+  const [betAddresses, setBetAddresses] = useState([]);
   const [joinCode, setJoinCode] = useState("");
 
   //Vars
@@ -91,6 +91,7 @@ function Dashboard() {
   const [betIsOpen, setBetIsOpen] = useState(false);
 
   const getBets = useCallback(async () => {
+    let allBetAddresses = [];
     let allBets = await connection.getParsedProgramAccounts(programId, {
       filters: [
         {
@@ -99,9 +100,12 @@ function Dashboard() {
       ],
     });
     allBets.forEach(function (accountInfo, index) {
+      allBetAddresses[index] = accountInfo.pubkey
       allBets[index] = wagerLayout.decode(accountInfo.account.data);
     });
     console.log(allBets);
+    console.log(allBetAddresses);
+    setBetAddresses(allBetAddresses);
     setBets(allBets);
   }, []);
 
@@ -125,7 +129,7 @@ function Dashboard() {
     e.preventDefault();
     let option = betOption;
     let value = betValue;
-    let bet = userBets[index]; //bet object in contention
+    //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
       [Buffer.alloc(20, joinCode)],
@@ -185,11 +189,47 @@ function Dashboard() {
     //use account info to join based on if bet in id is active - WEB3
   };
 
-  const selectOption = (e, index) => {
+  const selectOption = async (e, index) => {
+    e.preventDefault();
     let optionChose = e.target.value
     console.log(optionChose);
     //use bet id and option to process vote for user
-
+    let potPDA = betAddresses[index];
+    
+    //Make bet RPC Call(Send Transaction for Make Bet)
+    let instruction = new TransactionInstruction({
+      keys: [
+        {
+          pubkey: publicKey,
+          isSigner: true,
+          isWritable: true,
+        },
+        {
+          pubkey: potPDA,
+          isSigner: false,
+          isWritable: true,
+        },
+      ],
+      programId: programId,
+      data: VoteInstruction(optionChose),
+    });
+    const transaction = new Transaction().add(instruction);
+    console.log(transaction);
+    console.log(connection);
+    const {
+      context: { slot: minContextSlot },
+      value: { blockhash, lastValidBlockHeight },
+    } = await connection.getLatestBlockhashAndContext();
+    transaction.recentBlockhash = blockhash;
+    console.log("blockhash retreived");
+    const signature = await sendTransaction(transaction, connection, {
+      minContextSlot,
+    });
+    await connection.confirmTransaction({
+      blockhash,
+      lastValidBlockHeight,
+      signature,
+    });
   };
 
   return (
@@ -416,9 +456,9 @@ function Dashboard() {
                       variant="outline"
                       placeholder="Select option"
                       >
-                        <option value={1}>option 1</option>
-                        <option value={2}>option 2</option>
-                        <option value={3}>option 3</option>
+                        <option value={0}>option 1</option>
+                        <option value={1}>option 2</option>
+                        <option value={2}>option 3</option>
                       </Select>
                   </Col>
                 </Row>
