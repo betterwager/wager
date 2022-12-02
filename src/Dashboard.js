@@ -68,6 +68,7 @@ function Dashboard(){
 
 
   const wagerLayout = BufferLayout.struct([
+    //BufferLayout.seq(BufferLayout.u8, 32, "address"),
     BufferLayout.u32("balance"),
     BufferLayout.seq(
       BufferLayout.struct([
@@ -91,6 +92,7 @@ function Dashboard(){
   const [betIsOpen, setBetIsOpen] = useState(false);
 
   const getBets = useCallback(async () => {
+    let tempAddress = programId;
     let allBets = await connection.getParsedProgramAccounts(
       programId,
       {
@@ -102,7 +104,9 @@ function Dashboard(){
       }
     )
     allBets.forEach(function(accountInfo, index) {
+      tempAddress = allBets[index].pubkey;
       allBets[index] = wagerLayout.decode(accountInfo.account.data);
+      allBets[index].address = tempAddress;
     });
     console.log(allBets);
     setBets(allBets);
