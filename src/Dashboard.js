@@ -601,7 +601,7 @@ function Dashboard() {
                                 mr={3}
                                 onClick={() => {
                                   setBetIsOpen(true);
-                                  setCurrentBet(0);
+                                  setCurrentBet(index);
                                 }}
                               >
                                 Make Bet
