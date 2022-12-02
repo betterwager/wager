@@ -185,7 +185,9 @@ function Dashboard() {
     //use account info to join based on if bet in id is active - WEB3
   };
 
-  const selectOption = (index, option) => {
+  const selectOption = (e, index) => {
+    let optionChose = e.target.value
+    console.log(optionChose);
     //use bet id and option to process vote for user
 
   };
@@ -410,7 +412,7 @@ function Dashboard() {
                     <Select
                       style={{ margin: "1%" }}
                       colorScheme="purple"
-                      
+                      onChange = {e => selectOption(e,1)}
                       variant="outline"
                       placeholder="Select option"
                       >
@@ -709,6 +711,7 @@ function Dashboard() {
                               <Select
                               style={{ margin: "1%" }}
                               colorScheme="purple"
+                              onChange = {selectOption(index)}
                               variant="outline"
                               placeholder="Select option"
                               >
