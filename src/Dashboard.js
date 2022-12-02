@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback} from "react";
 import { useState } from "react";
 import {
   Grid,
@@ -40,6 +40,7 @@ import {
   useWallet,
   useConnection,
 } from "@solana/wallet-adapter-react";
+import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
 import { ConsoleLogger } from "@aws-amplify/core";
 
@@ -65,12 +66,31 @@ function Dashboard(){
   );
   const programId = new PublicKey("EEjpJXCfHEqcRyAxW6tr3MNZqpP2MjAErkezFyp4HEah");
 
+
+  const wagerLayout = BufferLayout.struct([
+    BufferLayout.u32("balance"),
+    BufferLayout.seq(
+      BufferLayout.struct([
+        BufferLayout.seq(
+          BufferLayout.u8(), 20, "name"), 
+          BufferLayout.u16("vote_count"),
+    ]), 8, "options"),
+    BufferLayout.u32("min_bet"),
+    BufferLayout.u32("max_bet"),
+    BufferLayout.u16("min_players"),
+    BufferLayout.u16("max_players"),
+    BufferLayout.u16("player_count"),
+    BufferLayout.u16("vote_count"),
+    BufferLayout.u8("bump_seed"),
+    BufferLayout.u8("state"),
+  ]);
+
   const [betOption, setBetOption] = useState("");
   const [betValue, setBetValue] = useState(0);
 
   const [betIsOpen, setBetIsOpen] = useState(false);
 
-  const getBets = async () => {
+  const getBets = useCallback(async () => {
     let allBets = await connection.getParsedProgramAccounts(
       programId,
       {
@@ -81,20 +101,17 @@ function Dashboard(){
         ],
       }
     )
+    allBets.forEach(function(accountInfo, index) {
+      allBets[index] = wagerLayout.decode(accountInfo.account.data);
+    });
     console.log(allBets);
-  }
+    setBets(allBets);
+  }, []);
 
   useEffect(() => {
     getBets()
       .catch(console.error);
-  },[]);
-  
-  useEffect(() => {
-    // Wallet detection
-    //connect(provider);
-
-    //GET ALL BETS FOR USER FROM WEB3
-  })
+  },[getBets]);
   
 
   const handlejoinCodeChange = (e) => {
@@ -257,14 +274,9 @@ function Dashboard(){
             </Card>            
             </Col>
             <Col>
-            <a onClick = {getBets}>
-            <Card  style={{ width: "90%", textAlign: "center" }}>
-              <Card.Body>
-              <Card.Text style = {{color: "#888888"}}></Card.Text>
-                <Card.Title><strong>Refresh</strong></Card.Title>
-              </Card.Body>
-            </Card>          
-              </a>  
+            <Button colorScheme='purple' variant='outline'  onClick={() =>{
+                        getBets();
+                      }}>Refresh</Button>
             </Col>
           </Row>
 
@@ -272,10 +284,15 @@ function Dashboard(){
           
 
           <InfiniteScroll
-            dataLength={bets.length}
-            next={bets}
-            hasMore={false}
+            dataLength={bets.length + 3}
+            next={getBets}
+            hasMore={true}
             loader={<h4>Loading...</h4>}
+            endMessage={
+              <p style={{ textAlign: 'center' }}>
+                <b>Yay! You have seen it all</b>
+              </p>
+            }
           >
 
             <Card style = {{margin: "1rem"}}>
@@ -494,29 +511,7 @@ function Dashboard(){
               </Card.Footer>
             </Card>
 
-            
-
-            {userBets.map((bet, index) =>
-              betComplete[index] ? (
-                <>
-                  <Card id={bet.id} style={{ margin: "1rem", width: "90%" }}>
-                    <Card.Header>ID: {bet.id}</Card.Header>
-                    <Card.Title>{bet.name}</Card.Title>
-                    <SimpleGrid columns={2} spacing={10}>
-                      <Box>
-                        Position: {bet.currentOption} <br />
-                        Stake: {bet.stake} <br />
-                      </Box>
-                      <Box>
-                        Total Pot: {bet.total} <br />
-                        Total Players: {bet.playerCount} <br />
-                        <br />
-                      </Box>
-                    </SimpleGrid>
-                    
-                  </Card>
-                </>
-              ) : (
+            {bets.map((bet, index) =>
                 <Card id={bet.id} style={{ margin: "1rem", width: "90%" }}>
                   <Card.Header>ID: {bet.id}</Card.Header>
 
@@ -610,7 +605,6 @@ function Dashboard(){
                     </Modal>
                   </Card.Footer>
                 </Card>
-              )
             )}
             <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
                   <ModalOverlay />
