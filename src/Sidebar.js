@@ -51,7 +51,7 @@ import {
   ExclamationCircleOutlined,
   CheckOutlined
 } from '@ant-design/icons';
-import { getProvider, connect, NewWagerInstruction } from "./utils.js";
+import { getProvider, connect, NewWagerInstruction, JoinBetInstruction} from "./utils.js";
 import {
   Keypair,
   Connection,
@@ -63,6 +63,7 @@ import {
   useWallet,
   useConnection,
 } from "@solana/wallet-adapter-react";
+import { Buffer } from 'buffer';
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { Layout, Menu } from 'antd';
@@ -112,14 +113,14 @@ export function Sidebar(){
       .catch(console.error);
     },[])
 
-    let connection = useConnection();  
+    let {connection} = useConnection();  
     let {publicKey, sendTransaction} = useWallet();
     const systemProgram = new PublicKey("11111111111111111111111111111111");
     const rentSysvar = new PublicKey(
       "SysvarRent111111111111111111111111111111111"
     );
     
-    const programId = Keypair.generate();
+    const programId = new PublicKey("EEjpJXCfHEqcRyAxW6tr3MNZqpP2MjAErkezFyp4HEah");
 
 
 
@@ -215,6 +216,7 @@ export function Sidebar(){
 
 
     const handleBetSubmit = async (e) => {
+      e.preventDefault();
       while (allOptions.length < 8) {
         let temp = allOptions;
         temp.push("zero");
@@ -223,25 +225,55 @@ export function Sidebar(){
       console.log(allOptions);
       console.log(Buffer.from(betName));
   
+      let hours = time; //TIME IN HOURS
+      //let index = uniqueHash(betName + maxBet + allOptions);
+      console.log(Buffer.alloc(20, betName));
+  
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(betName)],
-        programId.publicKey
+        [Buffer.alloc(20, betName)],
+        programId
+      );
+
+      let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+        [Buffer.alloc(20, betName), publicKey.toBytes()],
+        programId
       );
       /*     console.log(name);
-      console.log(this.provider.publicKey.toBase58());
+      console.log(provider.publicKey.toBase58());
       console.log(potPDA.toBase58());
       console.log(potBump);
       console.log(PublicKey.isOnCurve(potPDA)); */
+  
+        console.log([
+          {name : allOptions[0],vote_count : 0},
+          {name : allOptions[1],vote_count : 0},
+          {name : allOptions[2],vote_count : 0},
+          {name : allOptions[3],vote_count : 0},
+          {name : allOptions[4],vote_count : 0},
+          {name : allOptions[5],vote_count : 0},
+          {name : allOptions[6],vote_count : 0},
+          {name : allOptions[7],vote_count : 0},
+        ]);
+      
       //Create bet RPC Call(Send Transaction for Create Bet)
-      let instruction = new TransactionInstruction({
-        programId: programId.publicKey,
+      const instruction = new TransactionInstruction({
+        programId: programId,
         keys: [
           {
             pubkey: publicKey,
             isSigner: true,
             isWritable: true,
           },
-          { pubkey: potPDA, isSigner: false, isWritable: true },
+          { 
+            pubkey: potPDA, 
+            isSigner: false, 
+            isWritable: true
+          },
+          { 
+            pubkey: playerPDA, 
+            isSigner: false, 
+            isWritable: true
+          },
           {
             pubkey: systemProgram,
             isSigner: false,
@@ -259,30 +291,41 @@ export function Sidebar(){
           maxPlayers,
           minBet,
           maxBet,
-          allOptions[0],
-          allOptions[1],
-          allOptions[2],
-          allOptions[3],
-          allOptions[4],
-          allOptions[5],
-          allOptions[6],
-          allOptions[7],
-          time
+          //options,
+          [
+            {name : Buffer.from(allOptions[0]),vote_count : 0},
+            {name : Buffer.from(allOptions[1]),vote_count : 0},
+            {name : Buffer.from(allOptions[2]),vote_count : 0},
+            {name : Buffer.from(allOptions[3]),vote_count : 0},
+            {name : Buffer.from(allOptions[4]),vote_count : 0},
+            {name : Buffer.from(allOptions[5]),vote_count : 0},
+            {name : Buffer.from(allOptions[6]),vote_count : 0},
+            {name : Buffer.from(allOptions[7]),vote_count : 0},
+          ],
+          potBump,
+          //hours
         ),
       });
       let transaction = new Transaction().add(instruction);
       console.log(transaction);
-      // transaction.recentBlockhash = await connection.getLatestBlockhash();
-      // console.log("blockhas retreived");
-      // transaction.feePayer = provider.publicKey;
-      // console.log(transaction);
-      // const signedTransaction = await provider.signTransaction(transaction);
-      // const signature = await connection.sendRawTransaction(
-      //   signedTransaction.serialize()
-      // );
-      /* const signature = await this.provider.signAndSendTransaction(transaction);
-      console.log("success!");
-      await this.connection.getSignatureStatus(signature); */
+      console.log(connection);
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight },
+      } = await connection.getLatestBlockhashAndContext();
+      transaction.recentBlockhash = blockhash;
+      console.log("blockhash retreived");
+      const signature = await sendTransaction(
+        transaction,
+        connection,
+        { minContextSlot }
+      );
+      await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      });
+      console.log(transaction);
     };
 
     const handleLeaderSubmit = (e) => {
@@ -297,9 +340,75 @@ export function Sidebar(){
       setJoinLeaderCode(e.target.value);
     }
 
-    const handleJoinBet = async (id) => {
-      //use account info to join based on if bet in id is active
-    };
+    const handleJoinBet = async (e) => {
+      e.preventDefault();
+      //let option = betOption;
+      //let value = value;
+      //let joinCode = joinCode; //bet object in contention
+      //Sending Bet Transaction and Balance for Bet
+          //Sending Bet Transaction and Balance for Bet
+          let [potPDA, potBump] = await PublicKey.findProgramAddress(
+            [Buffer.alloc(20, joinCode)],
+            programId
+          );
+          console.log([[Buffer.from(joinCode)],
+          publicKey.toBytes(),
+          programId.toBytes()]);
+          let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+            [Buffer.alloc(20, joinCode), publicKey.toBytes()],
+            programId
+          );
+          //Make bet RPC Call(Send Transaction for Make Bet)
+          let instruction = new TransactionInstruction({
+            keys: [
+              {
+                pubkey: publicKey,
+                isSigner: true,
+                isWritable: true,
+              },
+              { 
+                pubkey: potPDA, 
+                isSigner: false, 
+                isWritable: true},
+              { 
+                pubkey: playerPDA, 
+                isSigner: false, 
+                isWritable: true},
+              {
+                pubkey: systemProgram,
+                isSigner: false,
+                isWritable: false,
+              },
+              {
+                pubkey: rentSysvar,
+                isSigner: false,
+                isWritable: false,
+              },
+            ],
+            programId: programId,
+            data: JoinBetInstruction(joinCode),
+          });
+          const transaction = new Transaction().add(instruction);
+          console.log(transaction); 
+          console.log(connection);
+          const {
+            context: { slot: minContextSlot },
+            value: { blockhash, lastValidBlockHeight },
+          } = await connection.getLatestBlockhashAndContext();
+          transaction.recentBlockhash = blockhash;
+          console.log("blockhash retreived");
+          const signature = await sendTransaction(
+            transaction,
+            connection,
+            { minContextSlot }
+            );
+            await connection.confirmTransaction({
+              blockhash,
+              lastValidBlockHeight,
+              signature,
+            });
+        //use account info to join based on if bet in id is active
+      };
 
     const selectOption = (id, option) => {
       //use bet id and option
@@ -396,7 +505,7 @@ export function Sidebar(){
             <ModalContent>
               <ModalHeader>Create New Bet</ModalHeader>
               <Form
-              onSubmit={handleBetSubmit}
+              onSubmit={(e) => handleBetSubmit(e)}
               >
               <ModalBody>
                 <>
@@ -536,13 +645,13 @@ export function Sidebar(){
             <ModalContent>
               <ModalHeader>Join Bet</ModalHeader>
               <Form
-              onSubmit = {() => {}}
+              onSubmit = {(e) => handleJoinBet(e)}
               >
               <ModalBody>
                 <>
                   <FormControl isRequired>
                     <FormLabel>Bet Code</FormLabel>
-                    <Input placeholder="Bet Code" onChange = {() => handlejoinCodeChange()} />
+                    <Input placeholder="Bet Code" onChange = {(e) => handlejoinCodeChange(e)} />
                   </FormControl>
                 </>
               </ModalBody>

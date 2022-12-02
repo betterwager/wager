@@ -28,7 +28,7 @@ import { withAuthenticator } from '@aws-amplify/ui-react';
 import uniqueHash from "unique-hash" 
 import '@aws-amplify/ui-react/styles.css';
 import Sidebar from "./Sidebar.js"
-import { getProvider, connect, NewWagerInstruction } from "./utils.js";
+import { getProvider, connect, MakeBetInstruction } from "./utils.js";
 import {
   Keypair,
   Connection,
@@ -51,17 +51,14 @@ function Dashboard(){
   const [userBets, setUserBets] = useState([]);
   const [joinCode, setJoinCode] = useState("");
 
-
-
-
-
   //Vars
-  let network = "https://api.devnet.solana.com";
-  let connection = useConnection();
+  /* let network = "https://api.devnet.solana.com";
   connection = new Connection(network);
-  let provider = getProvider(); // see "Detecting the Provider"
+  let provider = getProvider(); // see "Detecting the Provider" */
 
-  let publicKey = useWallet();
+  const {connection} = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+
   const systemProgram = new PublicKey("11111111111111111111111111111111");
   const rentSysvar = new PublicKey(
     "SysvarRent111111111111111111111111111111111"
@@ -77,7 +74,11 @@ function Dashboard(){
     let allBets = await connection.getParsedProgramAccounts(
       programId,
       {
-        //add filters
+        filters: [
+          {
+            dataSize : 198,
+          },
+        ],
       }
     )
     console.log(allBets);
@@ -90,7 +91,7 @@ function Dashboard(){
   
   useEffect(() => {
     // Wallet detection
-    connect(provider);
+    //connect(provider);
 
     //GET ALL BETS FOR USER FROM WEB3
   })
@@ -106,50 +107,68 @@ function Dashboard(){
   };
 
   const handleBetValue = (e) => {
-    setBetValue(e.target.value);
+    setBetValue(e);
   };
 
-  const handleBetting = async (index) => {
+  const handleBetting = async (e, index) => {
+    e.preventDefault();
     let option = betOption;
-    let value = value;
+    let value = betValue;
     let bet = userBets[index]; //bet object in contention
-
-    //Sending Bet Transaction and Balance for Bet
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(bet)],
-      programId.publicKey
-    );
-    //Make bet RPC Call(Send Transaction for Make Bet)
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: false,
-          isWritable: false,
-        },
-        { pubkey: potPDA, isSigner: false, isWritable: true },
-        {
-          pubkey: systemProgram.toString(),
-          isSigner: false,
-          isWritable: false,
-        },
-        {
-          pubkey: rentSysvar.toString(),
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId.publicKey.toString(),
-      data: NewWagerInstruction(bet, value, option),
-    });
-    const transaction = new Transaction().add(instruction);
-    transaction.recentBlockhash = await connection.getLatestBlockhash();
-    transaction.feePayer = provider.publicKey;
-
-    const signature = await provider.signAndSendTransaction(transaction);
-    console.log("success!");
-    await connection.getSignatureStatus(signature);
-  };
+        //Sending Bet Transaction and Balance for Bet
+        let [potPDA, potBump] = await PublicKey.findProgramAddress(
+          [Buffer.alloc(20, joinCode)],
+          programId
+        );
+        let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+          [Buffer.alloc(20, joinCode), publicKey.toBytes()],
+          programId
+        );
+        //Make bet RPC Call(Send Transaction for Make Bet)
+        let instruction = new TransactionInstruction({
+          keys: [
+            {
+              pubkey: publicKey,
+              isSigner: true,
+              isWritable: true,
+            },
+            { 
+              pubkey: potPDA, 
+              isSigner: false, 
+              isWritable: true},
+            { 
+              pubkey: playerPDA, 
+              isSigner: false, 
+              isWritable: true},
+            {
+              pubkey: systemProgram,
+              isSigner: false,
+              isWritable: false,
+            },  
+          ],
+          programId: programId,
+          data: MakeBetInstruction(joinCode, betValue, 0, playerBump),
+        });
+        const transaction = new Transaction().add(instruction);
+        console.log(transaction); 
+        console.log(connection);
+        const {
+          context: { slot: minContextSlot },
+          value: { blockhash, lastValidBlockHeight },
+        } = await connection.getLatestBlockhashAndContext();
+        transaction.recentBlockhash = blockhash;
+        console.log("blockhash retreived");
+        const signature = await sendTransaction(
+          transaction,
+          connection,
+          { minContextSlot }
+          );
+          await connection.confirmTransaction({
+            blockhash,
+            lastValidBlockHeight,
+            signature,
+          });
+        };
 
   const handleJoinBet = async (id) => {
     //use account info to join based on if bet in id is active - WEB3
@@ -556,7 +575,7 @@ function Dashboard(){
                             <FormControl isRequired>
                               <FormLabel>Bet Value ($)</FormLabel>
                               <NumberInput
-                                onChange={() => handleBetValue}
+                                onChange={(e) => handleBetValue(e)}
                                 min={0.0}
                                 precision={2}
                                 step={0.5}
@@ -603,7 +622,7 @@ function Dashboard(){
                           <FormLabel>Bet Code</FormLabel>
                           <Input
                             placeholder="Bet Code"
-                            onChange={() => handlejoinCodeChange}
+                            onChange={(e) => handlejoinCodeChange(e)}
                           />
                         </FormControl>
                         <br/>
@@ -622,7 +641,7 @@ function Dashboard(){
                             <FormControl isRequired>
                                 <FormLabel>Bet Value ($)</FormLabel>
                                 <NumberInput
-                                onChange={() => handleBetValue}
+                                onChange={(e) => handleBetValue(e)}
                                 min={0.0}
                                 precision={2}
                                 step={0.5}
@@ -640,7 +659,7 @@ function Dashboard(){
                       <Button variant="ghost" mr={3} onClick={() => setBetIsOpen(false)}>
                         Close
                       </Button>
-                      <Button colorScheme="blue" onClick={() => handleJoinBet}>
+                      <Button colorScheme="blue" onClick={(e) => handleBetting(e)}>
                         Wager!
                       </Button>
                     </ModalFooter>

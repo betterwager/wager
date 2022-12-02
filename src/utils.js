@@ -32,89 +32,103 @@ export function NewWagerInstruction(
   max_players,
   min_bet,
   max_bet,
-  option1,
-  option2,
-  option3,
-  option4,
-  option5,
-  option6,
-  option7,
-  option8,
-  timeframe
+  options,
+  bump_seed
 ) {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
     BufferLayout.seq(BufferLayout.u8(), 20, "name"),
-    BufferLayout.u16("min_players"),
-    BufferLayout.u16("max_players"),
+    BufferLayout.u32("balance"),
+    BufferLayout.seq(
+      BufferLayout.struct([
+        BufferLayout.seq(
+          BufferLayout.u8(), 20, "name"), 
+          BufferLayout.u16("vote_count"),
+    ]), 8, "options"),
     BufferLayout.u32("min_bet"),
     BufferLayout.u32("max_bet"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option1"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option2"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option3"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option4"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option5"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option6"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option7"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option8"),
-    BufferLayout.u8("timeframe"),
+    BufferLayout.u16("min_players"),
+    BufferLayout.u16("max_players"),
+    BufferLayout.u16("player_count"),
+    BufferLayout.u16("vote_count"),
+    BufferLayout.u8("bump_seed"),
+    BufferLayout.u8("state"),
   ]);
   const data = Buffer.alloc(layout.span);
+  console.log(Buffer.from(options));
   layout.encode(
     {
       instruction: 0,
-      name: Buffer.from(name),
-      min_players: min_players,
-      max_players: max_players,
+      name: Buffer.alloc(20, name),
+      balance: 0,
+      options : options,
       min_bet: min_bet,
       max_bet: max_bet,
-      option1: Buffer.from(option1),
-      option2: Buffer.from(option2),
-      option3: Buffer.from(option3),
-      option4: Buffer.from(option4),
-      option5: Buffer.from(option5),
-      option6: Buffer.from(option6),
-      option7: Buffer.from(option7),
-      option8: Buffer.from(option8),
-      timeframe: timeframe,
+      min_players: min_players,
+      max_players: max_players,
+      player_count: 0,
+      vote_count: 0,
+      bump_seed: bump_seed,
+      state: 1,
     },
     data
   );
-  //console.log(data);
+  console.log(data);
   return data;
 }
 
-export function MakeBetInstruction(name, amount, option) {
+export function JoinBetInstruction(bet_identifier) {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
-    BufferLayout.seq(BufferLayout.u8(), 20, "name"),
-    BufferLayout.u32("amount"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option"),
+    BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
   ]);
   const data = Buffer.alloc(layout.span);
   layout.encode(
     {
       instruction: 1,
-      name: Buffer.from(name),
-      amount: amount,
-      option: Buffer.from(option),
+      bet_identifier: Buffer.alloc(20, bet_identifier),
     },
     data
   );
-  //console.log(data);
+  console.log(data);
   return data;
 }
 
-export function VoteInstruction(option) {
+export function MakeBetInstruction(name, option_index, playerBump, amount) {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
-    BufferLayout.seq(BufferLayout.u8(), 10, "option"),
+    BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
+    BufferLayout.u8("option_index"),
+    BufferLayout.u32("amount"),
+    BufferLayout.u8("voted"),
+    BufferLayout.u8("bump_seed"),
   ]);
   const data = Buffer.alloc(layout.span);
   layout.encode(
     {
       instruction: 2,
-      option: Buffer.from(option),
+      bet_identifier: Buffer.alloc(20, name),
+      option_index: option_index,
+      amount: amount,
+      voted: 0,
+      bump_seed : playerBump,
+    },
+    data
+  );
+  console.log(data);
+  return data;
+}
+
+export function VoteInstruction(option_index) {
+  const layout = BufferLayout.struct([
+    BufferLayout.u8("instruction"),
+    BufferLayout.u8("option_index"),
+  ]);
+  const data = Buffer.alloc(layout.span);
+  layout.encode(
+    {
+      instruction: 3,
+      option_index: option_index,
     },
     data
   );
