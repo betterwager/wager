@@ -711,7 +711,7 @@ function Dashboard() {
                               <Select
                               style={{ margin: "1%" }}
                               colorScheme="purple"
-                              onChange = {selectOption(index)}
+                              onChange = {e => selectOption(e,1)}
                               variant="outline"
                               placeholder="Select option"
                               >
