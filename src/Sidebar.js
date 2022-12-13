@@ -116,7 +116,7 @@ export function Sidebar() {
   );
 
   const programId = new PublicKey(
-    "EEjpJXCfHEqcRyAxW6tr3MNZqpP2MjAErkezFyp4HEah"
+    "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
   );
 
   //State Variables

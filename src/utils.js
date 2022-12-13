@@ -6,7 +6,6 @@ export const isPhantomInstalled = window.phantom?.solana?.isPhantom;
 export const getProvider = () => {
   if ("phantom" in window) {
     // //const provider = window.phantom?.solana;
-
     // if (provider?.isPhantom) {
     //   //return provider;
     // }
@@ -41,10 +40,12 @@ export function NewWagerInstruction(
     BufferLayout.u32("balance"),
     BufferLayout.seq(
       BufferLayout.struct([
-        BufferLayout.seq(
-          BufferLayout.u8(), 20, "name"), 
-          BufferLayout.u16("vote_count"),
-    ]), 8, "options"),
+        BufferLayout.seq(BufferLayout.u8(), 20, "name"),
+        BufferLayout.u16("vote_count"),
+      ]),
+      8,
+      "options"
+    ),
     BufferLayout.u32("min_bet"),
     BufferLayout.u32("max_bet"),
     BufferLayout.u16("min_players"),
@@ -61,7 +62,7 @@ export function NewWagerInstruction(
       instruction: 0,
       name: Buffer.alloc(20, name),
       balance: 0,
-      options : options,
+      options: options,
       min_bet: min_bet,
       max_bet: max_bet,
       min_players: min_players,
@@ -111,7 +112,7 @@ export function MakeBetInstruction(name, option_index, playerBump, amount) {
       option_index: option_index,
       amount: amount,
       voted: 0,
-      bump_seed : playerBump,
+      bump_seed: playerBump,
     },
     data
   );
@@ -128,7 +129,7 @@ export function VoteInstruction(option_index) {
   layout.encode(
     {
       instruction: 3,
-      option_index: option_index,
+      outcome: option_index,
     },
     data
   );
