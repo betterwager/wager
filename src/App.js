@@ -1,18 +1,17 @@
+//React Imports
 import {React, useMemo} from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+//Styling Imports
 import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'antd/dist/antd.min.css';
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import '@aws-amplify/ui-react/styles.css';
 import { ChakraProvider } from "@chakra-ui/react";
+
+//Web3 Imports
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
-import Dashboard from "./Dashboard.js";
-import Home from "./Home.js";
-import '@aws-amplify/ui-react/styles.css';
-import awsExports from './aws-exports.js';
-import {Amplify} from "aws-amplify"
-import Leaderboard from "./Leaderboard.js";
-
 import {
   ConnectionProvider,
   WalletProvider,
@@ -23,6 +22,16 @@ import {
   WalletDisconnectButton,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
+
+//AWS Imports
+import awsExports from './aws-exports.js';
+import {Amplify} from "aws-amplify"
+
+//Internal Imports
+import Dashboard from "./Dashboard.js";
+import Home from "./Home.js";
+import Leaderboard from "./Leaderboard.js";
+
 
 Amplify.configure(awsExports);
 
@@ -56,24 +65,23 @@ function App(){
     ],
     []
   );
-    return (
-      
-        <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-        <ChakraProvider>
-        <Router>
-          <Routes>
-            <Route exact path={HOME} element={<Home />} />
-            <Route exact path={DASHBOARD} element={<Dashboard />} />
-            <Route exact path={LEADERBOARD} element={<Leaderboard />} />
-          </Routes>
-        </Router>
-        </ChakraProvider>
-        </WalletModalProvider>
-        </WalletProvider>
-        </ConnectionProvider>
 
+    return (
+        <ConnectionProvider endpoint={endpoint}>
+          <WalletProvider wallets={wallets} autoConnect>
+            <WalletModalProvider>
+              <ChakraProvider>
+              <Router>
+                <Routes>
+                  <Route exact path={HOME} element={<Home />} />
+                  <Route exact path={DASHBOARD} element={<Dashboard />} />
+                  <Route exact path={LEADERBOARD} element={<Leaderboard />} />
+                </Routes>
+              </Router>
+              </ChakraProvider>
+            </WalletModalProvider>
+          </WalletProvider>
+        </ConnectionProvider>
     );
 }
 

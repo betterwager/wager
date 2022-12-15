@@ -22,8 +22,9 @@ import dash from "./assets/Dashboard.png";
 const Home = (props) => {
   const [email, setEmail] = useState("");
   const toast = useToast();
+
+  //Check Email Validity & Send to API
   const handleSubmit = async (e) => {
-    //check email validity
     let error = !email
       .toLowerCase()
       .match(

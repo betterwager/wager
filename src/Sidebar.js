@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useCallback, useState, useMemo } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import {
   Modal,
@@ -17,6 +17,7 @@ import {
   ModalFooter,
   Flex,
 } from "@chakra-ui/react";
+import {QRCodeSVG} from 'qrcode.react';
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscriptions from "./graphql/subscriptions";
@@ -85,41 +86,6 @@ const NavLink = styled(Link)`
 let OptionsList = [];
 
 export function Sidebar() {
-  //API Calls
-  useEffect(() => {
-    const getUsers = async () => {
-      setEmail(Auth.user.attributes.email);
-      let users = await API.graphql({ query: queries.listUsers });
-      users = users.data.listUsers.items;
-      console.log(users[0].name);
-      if (users.length == 0) {
-        setToStart(true);
-      } else {
-        setUser(users[0]);
-        setFirstName(users[0].name.split(" ")[0]);
-        setLastName(users[0].name.split(" ")[1]);
-        setBirthdate(users[0].birthdate);
-        setPhoneNumber(users[0].phonenumber);
-        setTrustScore(users[0].trustscore);
-        setBettingScore(users[0].bettingscore);
-        setWallet(users[0].wallet);
-      }
-    };
-    getUsers().catch(console.error);
-  }, []);
-
-  let { connection } = useConnection();
-  let { publicKey, sendTransaction } = useWallet();
-  const systemProgram = new PublicKey("11111111111111111111111111111111");
-  const rentSysvar = new PublicKey(
-    "SysvarRent111111111111111111111111111111111"
-  );
-
-  const programId = new PublicKey(
-    "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
-  );
-
-  //State Variables
   const [toStart, setToStart] = useState(false);
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -132,7 +98,9 @@ export function Sidebar() {
   const [leaderboards, setLeaderboards] = useState("");
 
   const [user, setUser] = useState({});
+  const [userID, setUserID] = useState("");
   const [betName, setBetName] = useState("");
+  const [betCode, setBetCode] = useState("");
   const [leaderName, setLeaderName] = useState("");
   const [minPlayers, setMinPlayers] = useState(2);
   const [maxPlayers, setMaxPlayers] = useState(2);
@@ -145,12 +113,66 @@ export function Sidebar() {
   const [editIsOpen, setEditIsOpen] = useState(false);
   const [accIsOpen, setAccIsOpen] = useState(false);
   const [addIsOpen, setAddIsOpen] = useState(false);
+  const [addSuccessIsOpen, setAddSuccessIsOpen] = useState(false);
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
 
   const [joinIsOpen, setJoinIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
+  
   const [joinCode, setJoinCode] = useState("");
   const [joinLeaderCode, setJoinLeaderCode] = useState("");
+
+  //API Calls
+
+  const getUsers = async () => {
+    const users = await API.graphql({ query: queries.listUsers })
+    return users
+    }
+
+  useEffect(() => {
+    getUsers().catch(console.error)
+    .then((users) => {
+      console.log(users)
+      let email = Auth.user.attributes.email;
+      users = users.data.listUsers.items;
+      let currentUser;
+      for (var i = 0; i < users.length; i ++){
+        if (users[i].email == email){
+          currentUser = users[i]
+          break
+        }
+      }
+      setEmail(email);
+      setUser(currentUser);
+      let names = currentUser.name.split(" ")
+      setFirstName(names[0]);
+      setLastName(names[1]);
+      setBirthdate(currentUser.birthdate);
+      setPhoneNumber(currentUser.phonenumber);
+      setTrustScore(currentUser.trustscore);
+      setBettingScore(currentUser.bettingscore);
+      setWallet(currentUser.wallet);
+      
+    console.log(window.location.pathname);
+    const queryParameters = new URLSearchParams(window.location.search)
+    if (queryParameters.has("bet")){
+      setJoinCode(queryParameters.get("bet"))
+      setJoinIsOpen(true)
+    }
+    })
+    
+    }, []);
+
+  let { connection } = useConnection();
+  let { publicKey, sendTransaction } = useWallet();
+  const systemProgram = new PublicKey("11111111111111111111111111111111");
+  const rentSysvar = new PublicKey(
+    "SysvarRent111111111111111111111111111111111"
+  );
+
+  const programId = new PublicKey(
+    "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
+  );
 
   //Handling Methods
   const clearBetState = () => {
@@ -177,19 +199,20 @@ export function Sidebar() {
   };
 
   const handleminPlayersChange = (e) => {
-    setMinPlayers(e.value);
+    setMinPlayers(e);
   };
 
   const handlemaxPlayersChange = (e) => {
-    setMaxPlayers(e.value);
+    console.log(e)
+    setMaxPlayers(e);
   };
 
   const handleminBetChange = (e) => {
-    setMinBet(e.value);
+    setMinBet(e);
   };
 
   const handlemaxBetChange = (e) => {
-    setMaxBet(e.value);
+    setMaxBet(e);
   };
   const handleOptionNewChange = (e) => {
     setOption(e.target.value);
@@ -210,114 +233,124 @@ export function Sidebar() {
 
   const handleBetSubmit = async (e) => {
     e.preventDefault();
-    while (allOptions.length < 8) {
-      let temp = allOptions;
-      temp.push("zero");
-      setAllOptions(temp);
-    }
-    console.log(allOptions);
-    console.log(Buffer.from(betName));
+    console.log(betName)
+    console.log(minPlayers)
+    console.log(minBet)
+    if (maxPlayers >= minPlayers && maxBet >= minBet && allOptions != []){
+      while (allOptions.length < 8) {
+        let temp = allOptions;
+        temp.push("zero");
+        setAllOptions(temp);
+      }
+      console.log(allOptions);
+      console.log(Buffer.from(betName));
 
-    let hours = time; //TIME IN HOURS
-    //let index = uniqueHash(betName + maxBet + allOptions);
-    console.log(Buffer.alloc(20, betName));
+      let hours = time; //TIME IN HOURS
+      //let index = uniqueHash(betName + maxBet + allOptions);
+      console.log(Buffer.alloc(20, betName));
 
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, betName)],
-      programId
-    );
+      let [potPDA, potBump] = await PublicKey.findProgramAddress(
+        [Buffer.alloc(20, betName)],
+        programId
+      );
 
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, betName), publicKey.toBytes()],
-      programId
-    );
-    /*     console.log(name);
-      console.log(provider.publicKey.toBase58());
-      console.log(potPDA.toBase58());
-      console.log(potBump);
-      console.log(PublicKey.isOnCurve(potPDA)); */
+      let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+        [Buffer.alloc(20, betName), publicKey.toBytes()],
+        programId
+      );
+      /*     console.log(name);
+        console.log(provider.publicKey.toBase58());
+        console.log(potPDA.toBase58());
+        console.log(potBump);
+        console.log(PublicKey.isOnCurve(potPDA)); */
 
-    console.log([
-      { name: allOptions[0], vote_count: 0 },
-      { name: allOptions[1], vote_count: 0 },
-      { name: allOptions[2], vote_count: 0 },
-      { name: allOptions[3], vote_count: 0 },
-      { name: allOptions[4], vote_count: 0 },
-      { name: allOptions[5], vote_count: 0 },
-      { name: allOptions[6], vote_count: 0 },
-      { name: allOptions[7], vote_count: 0 },
-    ]);
+      console.log([
+        { name: allOptions[0], vote_count: 0 },
+        { name: allOptions[1], vote_count: 0 },
+        { name: allOptions[2], vote_count: 0 },
+        { name: allOptions[3], vote_count: 0 },
+        { name: allOptions[4], vote_count: 0 },
+        { name: allOptions[5], vote_count: 0 },
+        { name: allOptions[6], vote_count: 0 },
+        { name: allOptions[7], vote_count: 0 },
+      ]);
 
-    //Create bet RPC Call(Send Transaction for Create Bet)
-    const instruction = new TransactionInstruction({
-      programId: programId,
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
-        {
-          pubkey: potPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: playerPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: systemProgram,
-          isSigner: false,
-          isWritable: false,
-        },
-        {
-          pubkey: rentSysvar,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      data: NewWagerInstruction(
-        betName,
-        minPlayers,
-        maxPlayers,
-        minBet,
-        maxBet,
-        //options,
-        [
-          { name: Buffer.from(allOptions[0]), vote_count: 0 },
-          { name: Buffer.from(allOptions[1]), vote_count: 0 },
-          { name: Buffer.from(allOptions[2]), vote_count: 0 },
-          { name: Buffer.from(allOptions[3]), vote_count: 0 },
-          { name: Buffer.from(allOptions[4]), vote_count: 0 },
-          { name: Buffer.from(allOptions[5]), vote_count: 0 },
-          { name: Buffer.from(allOptions[6]), vote_count: 0 },
-          { name: Buffer.from(allOptions[7]), vote_count: 0 },
+      //Create bet RPC Call(Send Transaction for Create Bet)
+      const instruction = new TransactionInstruction({
+        programId: programId,
+        keys: [
+          {
+            pubkey: publicKey,
+            isSigner: true,
+            isWritable: true,
+          },
+          {
+            pubkey: potPDA,
+            isSigner: false,
+            isWritable: true,
+          },
+          {
+            pubkey: playerPDA,
+            isSigner: false,
+            isWritable: true,
+          },
+          {
+            pubkey: systemProgram,
+            isSigner: false,
+            isWritable: false,
+          },
+          {
+            pubkey: rentSysvar,
+            isSigner: false,
+            isWritable: false,
+          },
         ],
-        potBump
-        //hours
-      ),
-    });
-    let transaction = new Transaction().add(instruction);
-    console.log(transaction);
-    console.log(connection);
-    const {
-      context: { slot: minContextSlot },
-      value: { blockhash, lastValidBlockHeight },
-    } = await connection.getLatestBlockhashAndContext();
-    transaction.recentBlockhash = blockhash;
-    console.log("blockhash retreived");
-    const signature = await sendTransaction(transaction, connection, {
-      minContextSlot,
-    });
-    await connection.confirmTransaction({
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    });
-    console.log(transaction);
-    setAddIsOpen(false);
+        data: NewWagerInstruction(
+          betName,
+          minPlayers,
+          maxPlayers,
+          minBet,
+          maxBet,
+          //Options
+          [
+            { name: Buffer.from(allOptions[0]), vote_count: 0 },
+            { name: Buffer.from(allOptions[1]), vote_count: 0 },
+            { name: Buffer.from(allOptions[2]), vote_count: 0 },
+            { name: Buffer.from(allOptions[3]), vote_count: 0 },
+            { name: Buffer.from(allOptions[4]), vote_count: 0 },
+            { name: Buffer.from(allOptions[5]), vote_count: 0 },
+            { name: Buffer.from(allOptions[6]), vote_count: 0 },
+            { name: Buffer.from(allOptions[7]), vote_count: 0 },
+          ],
+          potBump
+          //Hours
+        ),
+      });
+      let transaction = new Transaction().add(instruction);
+      console.log(transaction);
+      console.log(connection);
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight },
+      } = await connection.getLatestBlockhashAndContext();
+      transaction.recentBlockhash = blockhash;
+      console.log("blockhash retreived");
+      const signature = await sendTransaction(transaction, connection, {
+        minContextSlot,
+      });
+      await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      });
+      console.log(transaction);
+      setBetCode(betName);
+      setAddIsOpen(false);
+      setAddSuccessIsOpen(true);
+    }
+    else{
+      alert("Invalid Bet Parameters");
+    }
   };
 
   const handleLeaderSubmit = (e) => {
@@ -433,42 +466,31 @@ export function Sidebar() {
   };
 
   const handleEditSubmit = async () => {
-    console.log(birthdate);
+    console.log(wallet);
     const name = firstName + " " + lastName;
 
-    console.log(toStart);
-    if (!toStart) {
-      let User = {
-        email: email,
-        name: name,
-        birthdate: birthdate,
-        phonenumber: phoneNumber,
-        trustscore: 0,
-        bettingscore: 0,
-        bets: [],
-        wallet: wallet,
-        leaderboards: [],
-      };
-      await API.graphql({
-        query: mutations.createUser,
-        variables: { input: User },
-      });
-    } else {
-      let User = {
+      let newUser = {
+        id: user.id,
         email: email,
         name: name,
         birthdate: birthdate,
         phonenumber: phoneNumber,
         wallet: wallet,
+        trustscore: user.trustscore,
+        bettingscore: user.bettingscore,
+        bets: user.bets,
+        leaderboards: user.leaderboards,
+        _version: user._version
       };
-      await API.graphql({
+      
+      console.log(newUser);
+      const promise = await API.graphql({
         query: mutations.updateUser,
-        variables: { input: User },
+        variables: { input: newUser },
       });
-    }
-  };
+      console.log(promise);
+  }
 
-  const path = window.location.pathname;
   return (
     <>
       <Sider
@@ -503,7 +525,7 @@ export function Sidebar() {
           style={{ backgroundColor: "#195F50" }}
           theme="dark"
           defaultSelectedKeys={
-            path === DASHBOARD ? ["1"] : path === LEADERBOARD ? ["2"] : []
+            window.location.pathname == DASHBOARD ? ["1"] : ["2"]
           }
           mode="inline"
         >
@@ -532,7 +554,7 @@ export function Sidebar() {
         <br />
         <br />
         <Menu style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
-          {path == DASHBOARD ? (
+          {window.location.pathname == DASHBOARD ? (
             <>
               <Menu.Item
                 onClick={() => {
@@ -571,8 +593,7 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Minimum Players</FormLabel>
                             <NumberInput
-                              onChange={(e) => handleminPlayersChange(e)}
-                              value={minPlayers}
+                              onChange={handleminPlayersChange}
                               min={2}
                             >
                               <NumberInputField />
@@ -586,9 +607,8 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Maximum Players</FormLabel>
                             <NumberInput
-                              onChange={(e) => handlemaxPlayersChange(e)}
-                              value={maxPlayers}
-                              min={2}
+                              onChange={handlemaxPlayersChange}
+                              min={minPlayers}
                             >
                               <NumberInputField />
                               <NumberInputStepper>
@@ -604,8 +624,7 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Minimum Bet ($)</FormLabel>
                             <NumberInput
-                              onChange={(e) => handleminBetChange(e)}
-                              value={minBet}
+                              onChange={handleminBetChange}
                               min={0.0}
                               precision={2}
                               step={0.5}
@@ -621,9 +640,8 @@ export function Sidebar() {
                           <FormControl isRequired>
                             <FormLabel>Maximum Bet ($)</FormLabel>
                             <NumberInput
-                              onChange={(e) => handlemaxBetChange(e)}
-                              value={maxBet}
-                              min={0.0}
+                              onChange={handlemaxBetChange}
+                              min={minBet}
                               precision={2}
                               step={0.5}
                             >
@@ -694,6 +712,31 @@ export function Sidebar() {
                 </ModalContent>
               </Modal>
 
+
+              <Modal isOpen={addSuccessIsOpen} onClose={() => setAddSuccessIsOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Bet Created!</ModalHeader>
+                    <ModalBody>
+                        <h1 style = {{fontSize: "20px"}}>Bet Code: {betCode}</h1><br/>
+                        <QRCodeSVG value= {window.location.href + "?bet=" + betCode} />,
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button
+                        variant="ghost"
+                        mr={3}
+                        onClick={() => {
+                          setAddSuccessIsOpen(false);
+                          setBetCode("");
+                        }}
+                      >
+                        Close
+                      </Button>
+                    </ModalFooter>
+                </ModalContent>
+              </Modal>
+
+
               <Modal isOpen={joinIsOpen} onClose={() => setJoinIsOpen(false)}>
                 <ModalOverlay />
                 <ModalContent>
@@ -705,7 +748,8 @@ export function Sidebar() {
                           <FormLabel>Bet Code</FormLabel>
                           <Input
                             placeholder="Bet Code"
-                            onChange={(e) => handlejoinCodeChange(e)}
+                            value={joinCode}
+                            onChange={handlejoinCodeChange}
                           />
                         </FormControl>
                       </>
@@ -836,9 +880,9 @@ export function Sidebar() {
             <br />
             <strong>Wallet: </strong> {wallet} <br />
             <br />
-            <strong>Trust Score: </strong> 0.85 {trustScore} <br />
+            <strong>Trust Score: </strong> {trustScore} <br />
             <br />
-            <strong>Betting Score: </strong> $85{bettingScore} <br />
+            <strong>Betting Score: </strong> {bettingScore} <br />
           </ModalBody>
 
           <ModalFooter>
@@ -877,6 +921,7 @@ export function Sidebar() {
                   <FormLabel>Last Name</FormLabel>
                   <Input
                     onChange={handleLastNameChange}
+                    value = {lastName}
                     placeholder="Last name"
                   />
                 </FormControl>
@@ -896,6 +941,7 @@ export function Sidebar() {
                 <Form.Control
                   type="date"
                   name="dob"
+                  value = {birthdate}
                   onChange={handleBirthdateChange}
                 />
               </FormControl>
@@ -904,6 +950,7 @@ export function Sidebar() {
                 <FormLabel>Solana Wallet Address</FormLabel>
                 <Input
                   onChange={handleWalletChange}
+                  value = {wallet}
                   placeholder="Wallet Address"
                 />
                 <br />

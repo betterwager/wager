@@ -1,8 +1,11 @@
+//React Imports
 import React, { useEffect, useCallback } from "react";
 import { useState } from "react";
+
+//Styling Imports
+import "@aws-amplify/ui-react/styles.css";
 import {
   Grid,
-  SimpleGrid,
   Modal,
   NumberInput,
   NumberInputField,
@@ -19,21 +22,13 @@ import {
   ModalBody,
   ModalFooter,
   GridItem,
-  Box,
   Button,
 } from "@chakra-ui/react";
-import { Card, Form, Row, Col, Container } from "react-bootstrap";
+import { Card, Row, Col, Container } from "react-bootstrap";
+import { RepeatIcon } from "@chakra-ui/icons";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { withAuthenticator } from "@aws-amplify/ui-react";
-import uniqueHash from "unique-hash";
-import "@aws-amplify/ui-react/styles.css";
-import Sidebar from "./Sidebar.js";
-import {
-  getProvider,
-  connect,
-  MakeBetInstruction,
-  VoteInstruction,
-} from "./utils.js";
+
+//Web3 Imports
 import {
   Keypair,
   Connection,
@@ -44,15 +39,36 @@ import {
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
+
+//AWS Imports
+import { withAuthenticator } from "@aws-amplify/ui-react";
+import uniqueHash from "unique-hash";
 import { ConsoleLogger } from "@aws-amplify/core";
-import { RepeatIcon } from "@chakra-ui/icons";
+
+//Internal Imports
+import Sidebar from "./Sidebar.js";
+import {
+  getProvider,
+  connect,
+  MakeBetInstruction,
+  VoteInstruction,
+} from "./utils.js";
 
 function Dashboard() {
-  const [bets, setBets] = useState([]);
-  const [betComplete, setBetComplete] = useState([]);
+  //Retrieved Web3 Bets for User
+  const [allUserBets, setUserBets] = useState([]);
+  //Current Wagered Bet
   const [currentBet, setCurrentBet] = useState({});
+  //All User Bet Addresses for Display
   const [betAddresses, setBetAddresses] = useState([]);
+  //Join Code for entering a new Bet
   const [joinCode, setJoinCode] = useState("");
+  //Chosen User Option for a Bet
+  const [betOption, setBetOption] = useState("");
+  //Amount Bet on specific bet
+  const [betValue, setBetValue] = useState(0);
+  //Open Betting Modal
+  const [betIsOpen, setBetIsOpen] = useState(false);
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -90,10 +106,6 @@ function Dashboard() {
     BufferLayout.u8("state"),
   ]);
 
-  const [betOption, setBetOption] = useState("");
-  const [betValue, setBetValue] = useState(0);
-
-  const [betIsOpen, setBetIsOpen] = useState(false);
 
   const getBets = useCallback(async () => {
     let allBetAddresses = [];
@@ -111,7 +123,7 @@ function Dashboard() {
     console.log(allBets);
     console.log(allBetAddresses);
     setBetAddresses(allBetAddresses);
-    setBets(allBets);
+    setUserBets(allBets);
   }, []);
 
   useEffect(() => {
@@ -200,7 +212,6 @@ function Dashboard() {
     console.log(optionChose);
     //use bet id and option to process vote for user
     let potPDA = betAddresses[index];
-
     //Make bet RPC Call(Send Transaction for Make Bet)
     let instruction = new TransactionInstruction({
       keys: [
@@ -302,7 +313,7 @@ function Dashboard() {
                     Active Bets
                   </Card.Text>
                   <Card.Title>
-                    <strong>{bets.length}</strong>
+                    <strong>{allUserBets.length}</strong>
                   </Card.Title>
                 </Card.Body>
               </Card>
@@ -343,7 +354,7 @@ function Dashboard() {
             </Col>
           </Row>
           <InfiniteScroll
-            dataLength={bets.length}
+            dataLength={allUserBets.length}
             next={getBets}
             hasMore={false}
             loader={<h4>Loading...</h4>}
@@ -625,7 +636,7 @@ function Dashboard() {
               </Card>{" "}
             </Container>
 
-            {bets.map((bet, index) => {
+            {allUserBets.map((bet, index) => {
               switch (bet.state) {
                 case 1:
                   return (
@@ -1007,7 +1018,7 @@ function Dashboard() {
                     <FormControl isRequired>
                       <FormLabel>Bet Value ($)</FormLabel>
                       <NumberInput
-                        onChange={(e) => handleBetValue(e)}
+                        onChange={handleBetValue}
                         min={0.0}
                         precision={2}
                         step={0.5}
