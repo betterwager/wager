@@ -41,6 +41,10 @@ import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
 
 //AWS Imports
+import * as queries from "./graphql/queries";
+import * as mutations from "./graphql/mutations";
+import * as subscriptions from "./graphql/subscriptions";
+import { Auth, API } from "aws-amplify";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import uniqueHash from "unique-hash";
 import { ConsoleLogger } from "@aws-amplify/core";
@@ -55,6 +59,8 @@ import {
 } from "./utils.js";
 
 function Dashboard() {
+  //AWS Object of User
+  const [currentUser, setCurrentUser] = useState({});
   //Retrieved Web3 Bets for User
   const [allUserBets, setUserBets] = useState([]);
   //Current Wagered Bet
@@ -106,6 +112,27 @@ function Dashboard() {
     BufferLayout.u8("state"),
   ]);
 
+
+  const getUsers = async () => {
+    const users = await API.graphql({ query: queries.listUsers })
+    return users
+  }
+
+  useEffect(() => {
+    getUsers().catch(console.error)
+    .then((users) => {
+      console.log(users)
+      users = users.data.listUsers.items;
+      let email = Auth.user.attributes.email;
+      let user;
+      for (var i = 0; i < users.length; i ++){
+        if (users[i].email == email){
+          user = users[i]
+          break
+        }
+      }
+      setCurrentUser(user);
+    })},[])
 
   const getBets = useCallback(async () => {
     let allBetAddresses = [];
@@ -259,7 +286,7 @@ function Dashboard() {
       minHeight="100vh"
     >
       <GridItem colSpan={2} area={"nav"}>
-        <Sidebar />
+        <Sidebar user = {currentUser}/>
       </GridItem>
 
       <GridItem colSpan={19} pl="2" bg="#F7F8FC" area={"header"}>

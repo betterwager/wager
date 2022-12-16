@@ -6,6 +6,7 @@ export const getLeaderboard = /* GraphQL */ `
     getLeaderboard(id: $id) {
       id
       users
+      name
       createdAt
       updatedAt
       _version
@@ -24,6 +25,7 @@ export const listLeaderboards = /* GraphQL */ `
       items {
         id
         users
+        name
         createdAt
         updatedAt
         _version
@@ -51,6 +53,7 @@ export const syncLeaderboards = /* GraphQL */ `
       items {
         id
         users
+        name
         createdAt
         updatedAt
         _version

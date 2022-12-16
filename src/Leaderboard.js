@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Grid,
   SimpleGrid,
@@ -19,11 +19,89 @@ import {
 import Sidebar from './Sidebar.js'
 import { DataGrid} from '@mui/x-data-grid';
 import { withAuthenticator } from "@aws-amplify/ui-react";
+import * as queries from "./graphql/queries";
+import * as mutations from "./graphql/mutations";
+import * as subscriptions from "./graphql/subscriptions";
+import { Auth, API } from "aws-amplify";
 
 function Leaderboard(){
+  const [allUsers, setAllUsers] = useState([])
   const [result, setResult] = useState([])
-  const [currentBoard, setCurrentBoard] = useState(null);
+  const [boards, setBoards] = useState([])
+  const [boardNames, setBoardNames] = useState([])
+  const [boardIDs, setBoardIDs] = useState([])
+  const [currentUser, setCurrentUser] = useState({})
+  const [currentBoard, setCurrentBoard] = useState([]);
+  const [boardUsers, setBoardUsers] = useState([])
   const path = window.location.pathname
+
+  const getUsers = async () => {
+    const users = await API.graphql({ query: queries.listUsers })
+    return users
+  }
+  const getBoards = useCallback(async () => {
+    const boards = await API.graphql({ query: queries.listLeaderboards})
+    return boards
+  })
+
+  useEffect(() => {
+    let allBoards;
+    getBoards().catch(console.error)
+    .then((boards) => {
+      allBoards = boards.data.listLeaderboards.items
+      allBoards = allBoards.filter(board => board.users.includes(Auth.user.attributes.email))
+    })
+    .then(
+    getUsers().catch(console.error)
+    .then((users) => {
+      console.log(users)
+      users = users.data.listUsers.items;
+      setAllUsers(users)
+      let email = Auth.user.attributes.email;
+      let currentUser = users.find(x => x.email == email);
+
+      setCurrentUser(currentUser);
+      if (allBoards.length > 0){
+        let boardNames = []
+        let boardID = []
+        for (var i = 0; i < allBoards.length; i ++){
+          if (allBoards[i].users.includes(email)){
+            boardNames.push(allBoards[i].name)
+            boardID.push(allBoards[i].id)
+          }
+        }
+        setBoardNames(boardNames)
+        setBoardIDs(boardID)
+        let board = allBoards[0].users
+        setCurrentBoard(board)
+        let boardUserList = []
+        for (var i = 0; i < board.length; i ++){
+          boardUserList.push(users.find(user => user.email == board[i]))
+        }
+        setBoardUsers(boardUserList)
+        console.log(boardUserList)
+        setBoards(allBoards);
+        console.log(boardNames)
+        console.log(allBoards)
+      }
+    }))},[])
+
+
+    const handleCurrentBoard = (e) => {
+      let ID = e.target.value
+      for (var i = 0; i < boards.length; i++){
+        if (boards[i].id == ID){
+          setCurrentBoard(boards[i].users)  
+          break;
+        }
+      }
+      let board = boards[i].users
+      let boardUserList = []
+      for (var i = 0; i < board.length; i ++){
+        boardUserList.push(allUsers.find(user => user.email == board[i]))
+      }
+      setBoardUsers(boardUserList)
+    }
 
     return (
       <Grid
@@ -36,7 +114,6 @@ function Leaderboard(){
         minHeight="100vh"
       >
 
-  
       <GridItem
       
           colSpan={2}
@@ -81,75 +158,41 @@ function Leaderboard(){
           }}>
 
           <FormControl style = {{border: "black", maxWidth: "40%", color: "black"}} colorScheme = "green">
-            <Select onChange = {(value) => setCurrentBoard(value)} variant = "filled">
-              <option value = "Leaderboard 1">Leaderboard 1</option>
-              <option value = "Leaderboard 2">Leaderboard 2</option>
+            <Select onChange = {handleCurrentBoard} variant = "filled">
+              {boardNames.map((name, index) => (
+                <option key = {index} value = {boardIDs[index]}>{name}</option>
+              ))}
             </Select>
           </FormControl>
           </div>
+          {currentBoard == null ? (<></>) :
+          (
           <TableContainer  style={{
-            marginLeft: "4rem", backgroundColor: "white"
-          }} maxWidth = "90%">
-          <Table  variant='striped'>
-            <Thead>
-              <Tr>
-                <Th>User 1</Th>
-                <Th>Trust Score</Th>
-                <Th>Open Bets</Th>
-                <Th>Total Bets</Th>
-                <Th>Earnings</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              <Tr>
-                <Td>User 2</Td>
-                <Td>100</Td>
-                <Td>5</Td>
-                <Td>16</Td>
-                <Td>1050</Td>
-              </Tr>
-              <Tr>
-                <Td>User 3</Td>
-                <Td>100</Td>
-                <Td>5</Td>
-                <Td>16</Td>
-                <Td>1050</Td>
-              </Tr>
-              <Tr>
-                <Td>User 4</Td>
-                <Td>100</Td>
-                <Td>5</Td>
-                <Td>16</Td>
-                <Td>1050</Td>
-              </Tr>
-              <Tr>
-                <Td>User 5</Td>
-                <Td>100</Td>
-                <Td>5</Td>
-                <Td>16</Td>
-                <Td>1050</Td>
-              </Tr>
-              <Tr>
-                <Td>User 6</Td>
-                <Td>100</Td>
-                <Td>5</Td>
-                <Td>16</Td>
-                <Td>1050</Td>
-              </Tr>
-              <Tr>
-                <Td>User 7</Td>
-                <Td>100</Td>
-                <Td>5</Td>
-                <Td>16</Td>
-                <Td>1050</Td>
-              </Tr>
-            </Tbody>
-          </Table>
-        </TableContainer>
-
-          
-          
-
+              marginLeft: "4rem", backgroundColor: "white"
+            }} maxWidth = "90%">
+            <Table  variant='striped'>
+              <Thead>
+                <Tr>
+                  <Th>User</Th>
+                  <Th>Trust Score</Th>
+                  <Th>Name</Th>
+                  <Th>Bet Score</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {boardUsers.map((user, index) => (
+                <Tr>
+                  <Td>{currentBoard[index]}</Td>
+                  <Td>{user.trustscore}</Td>
+                  <Td>{user.name}</Td>
+                  <Td>{user.bettingscore}</Td>
+                </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </TableContainer>
+          )
+          }
 
           {result.length != 0 && (
             <>

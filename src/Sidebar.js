@@ -85,7 +85,7 @@ const NavLink = styled(Link)`
 
 let OptionsList = [];
 
-export function Sidebar() {
+export function Sidebar(props) {
   const [toStart, setToStart] = useState(false);
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -95,7 +95,7 @@ export function Sidebar() {
   const [trustScore, setTrustScore] = useState("");
   const [bettingScore, setBettingScore] = useState("");
   const [wallet, setWallet] = useState("");
-  const [leaderboards, setLeaderboards] = useState("");
+  const [leaderboards, setLeaderboards] = useState([]);
 
   const [user, setUser] = useState({});
   const [userID, setUserID] = useState("");
@@ -115,6 +115,8 @@ export function Sidebar() {
   const [addIsOpen, setAddIsOpen] = useState(false);
   const [addSuccessIsOpen, setAddSuccessIsOpen] = useState(false);
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
+  const [addLeaderSuccessIsOpen, setAddLeaderSuccessIsOpen] = useState(false);
+  const [newUser, setNewUser] = useState(false);
 
   const [joinIsOpen, setJoinIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
@@ -127,41 +129,42 @@ export function Sidebar() {
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers })
     return users
-    }
-
+  }
   useEffect(() => {
     getUsers().catch(console.error)
     .then((users) => {
-      console.log(users)
       let email = Auth.user.attributes.email;
-      users = users.data.listUsers.items;
-      let currentUser;
-      for (var i = 0; i < users.length; i ++){
-        if (users[i].email == email){
-          currentUser = users[i]
-          break
+      setEmail(email)
+      let currentUser = users.data.listUsers.items.find(x => x.email == email);
+      setUser(currentUser)
+      if (currentUser != null){
+        console.log(currentUser);
+        let names = currentUser.name.split(" ")
+        setFirstName(names[0]);
+        setLastName(names[1]);
+        setBirthdate(currentUser.birthdate);
+        setPhoneNumber(currentUser.phonenumber);
+        setLeaderboards(currentUser.leaderboards);
+        setTrustScore(currentUser.trustscore);
+        setBettingScore(currentUser.bettingscore);
+        setWallet(currentUser.wallet);
+
+        console.log(window.location.pathname);
+        const queryParameters = new URLSearchParams(window.location.search)
+        if (queryParameters.has("bet")){
+          setJoinCode(queryParameters.get("bet"))
+          setJoinIsOpen(true)
         }
+        if (queryParameters.has("leaderboard")){
+          setJoinLeaderCode(queryParameters.get("leaderboard"))
+          setJoinLeaderIsOpen(true)
+        }
+      }else{
+        setEditIsOpen(true);
+        setNewUser(true);
       }
-      setEmail(email);
-      setUser(currentUser);
-      let names = currentUser.name.split(" ")
-      setFirstName(names[0]);
-      setLastName(names[1]);
-      setBirthdate(currentUser.birthdate);
-      setPhoneNumber(currentUser.phonenumber);
-      setTrustScore(currentUser.trustscore);
-      setBettingScore(currentUser.bettingscore);
-      setWallet(currentUser.wallet);
-      
-    console.log(window.location.pathname);
-    const queryParameters = new URLSearchParams(window.location.search)
-    if (queryParameters.has("bet")){
-      setJoinCode(queryParameters.get("bet"))
-      setJoinIsOpen(true)
-    }
-    })
-    
-    }, []);
+
+  })},[])
 
   let { connection } = useConnection();
   let { publicKey, sendTransaction } = useWallet();
@@ -191,6 +194,7 @@ export function Sidebar() {
   };
 
   const handleLeaderNameChange = (e) => {
+    console.log(e);
     setLeaderName(e.target.value);
   };
 
@@ -344,7 +348,7 @@ export function Sidebar() {
         signature,
       });
       console.log(transaction);
-      setBetCode(betName);
+      setJoinCode(betName);
       setAddIsOpen(false);
       setAddSuccessIsOpen(true);
     }
@@ -353,8 +357,42 @@ export function Sidebar() {
     }
   };
 
-  const handleLeaderSubmit = (e) => {
-    //Create leaderboard
+  const handleLeaderSubmit = async (e) => {  
+    let board = {
+      users: [Auth.user.attributes.email],
+      name: leaderName
+    }
+    const leaderboard = await API.graphql({
+      query: mutations.createLeaderboard,
+      variables: { input: board }
+    })
+
+    let currentBoards = user.leaderboards;
+    console.log(user);
+    currentBoards.push(leaderboard.data.createLeaderboard.id)
+    
+    const fullName = firstName + " " + lastName;
+  
+    let newUser = {
+      id: user.id,
+      email: email,
+      name: fullName,
+      birthdate: birthdate,
+      phonenumber: phoneNumber,
+      wallet: wallet,
+      trustscore: user.trustscore,
+      bettingscore: user.bettingscore,
+      bets: user.bets,
+      leaderboards: currentBoards,
+      _version: user._version
+    };
+
+    const userUpdate = await API.graphql({
+      query: mutations.updateUser,
+      variables: { input: newUser },
+    });
+
+    setAddLeaderSuccessIsOpen(true);
   };
 
   const handlejoinCodeChange = (e) => {
@@ -469,6 +507,7 @@ export function Sidebar() {
     console.log(wallet);
     const name = firstName + " " + lastName;
 
+    if (user != null){
       let newUser = {
         id: user.id,
         email: email,
@@ -489,6 +528,83 @@ export function Sidebar() {
         variables: { input: newUser },
       });
       console.log(promise);
+      
+    }else{
+      let newUser = {
+        email: email,
+        name: name,
+        birthdate: birthdate,
+        phonenumber: phoneNumber,
+        trustscore: 100,
+        bettingscore: 0,
+        bets: [],
+        wallet: wallet,
+        leaderboards: []
+      };
+      
+      console.log(newUser);
+      const promise = await API.graphql({
+        query: mutations.createUser,
+        variables: { input: newUser },
+      });
+      console.log(promise);
+      setNewUser(false);
+    }
+  }
+
+  const handleJoinLeaderSubmit = async () => {
+    let currentBoards = user.leaderboards;
+    console.log(user);
+    if (!currentBoards.includes(joinLeaderCode)){
+      currentBoards.push(joinLeaderCode)
+    
+      const fullName = firstName + " " + lastName;
+    
+      let newUser = {
+        id: user.id,
+        email: email,
+        name: fullName,
+        birthdate: birthdate,
+        phonenumber: phoneNumber,
+        wallet: wallet,
+        trustscore: user.trustscore,
+        bettingscore: user.bettingscore,
+        bets: user.bets,
+        leaderboards: currentBoards,
+        _version: user._version
+      };
+  
+      const userUpdate = await API.graphql({
+        query: mutations.updateUser,
+        variables: { input: newUser },
+      })
+  
+      console.log("user update")
+      console.log(userUpdate)
+    }
+    
+    const currentLeaderboard = await API.graphql({
+      query: queries.getLeaderboard,
+      variables: {id: joinLeaderCode}
+    })
+
+    let current = currentLeaderboard.data.getLeaderboard
+    console.log(current)
+    let currentUsers = current.users
+    if (!currentUsers.includes(email)){
+      currentUsers.push(email)
+
+      let board = {
+        id: current.id,
+        users: currentUsers,
+        name: current.name
+      }
+  
+      const leaderboard = await API.graphql({
+        query: mutations.updateLeaderboard,
+        variables: { input: board }
+      })
+    }
   }
 
   return (
@@ -718,8 +834,8 @@ export function Sidebar() {
                 <ModalContent>
                   <ModalHeader>Bet Created!</ModalHeader>
                     <ModalBody>
-                        <h1 style = {{fontSize: "20px"}}>Bet Code: {betCode}</h1><br/>
-                        <QRCodeSVG value= {window.location.href + "?bet=" + betCode} />,
+                        <h1 style = {{fontSize: "20px"}}>Bet Code: {joinCode}</h1><br/>
+                        <QRCodeSVG value= {window.location.href + "?bet=" + joinCode} />,
                     </ModalBody>
                     <ModalFooter>
                       <Button
@@ -727,7 +843,7 @@ export function Sidebar() {
                         mr={3}
                         onClick={() => {
                           setAddSuccessIsOpen(false);
-                          setBetCode("");
+                          setJoinCode("");
                         }}
                       >
                         Close
@@ -795,13 +911,13 @@ export function Sidebar() {
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader>Create New Leaderboard</ModalHeader>
-                  <Form onSubmit={() => handleLeaderSubmit}>
+                  <Form>
                     <ModalBody>
                       <>
                         <FormControl isRequired>
                           <FormLabel>Leaderboard Name</FormLabel>
                           <Input
-                            onChange={() => handleLeaderNameChange}
+                            onChange={handleLeaderNameChange}
                             placeholder="Bet name"
                           />
                         </FormControl>
@@ -815,11 +931,35 @@ export function Sidebar() {
                       >
                         Close
                       </Button>
-                      <Button type="submit" colorScheme="blue">
+                      <Button onClick={handleLeaderSubmit} colorScheme="blue">
                         Create
                       </Button>
                     </ModalFooter>
                   </Form>
+                </ModalContent>
+              </Modal>
+
+              
+              <Modal isOpen={addLeaderSuccessIsOpen} onClose={() => setAddLeaderSuccessIsOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Leaderboard Created!</ModalHeader>
+                    <ModalBody>
+                        <h1 style = {{fontSize: "20px"}}>Bet Code: {joinLeaderCode}</h1><br/>
+                        <QRCodeSVG value= {window.location.href + "?leaderboard=" + joinLeaderCode} />,
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button
+                        variant="ghost"
+                        mr={3}
+                        onClick={() => {
+                          setAddLeaderSuccessIsOpen(false);
+                          setJoinLeaderCode("");
+                        }}
+                      >
+                        Close
+                      </Button>
+                    </ModalFooter>
                 </ModalContent>
               </Modal>
 
@@ -830,14 +970,15 @@ export function Sidebar() {
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader>Join Leaderboard</ModalHeader>
-                  <Form onSubmit={() => {}}>
+                  <Form>
                     <ModalBody>
                       <>
                         <FormControl isRequired>
                           <FormLabel>Leaderboard Code</FormLabel>
                           <Input
-                            placeholder="Bet Code"
-                            onChange={() => handlejoinLeaderCodeChange()}
+                            placeholder="Leaderboard Code"
+                            value = {joinLeaderCode}
+                            onChange={handlejoinLeaderCodeChange}
                           />
                         </FormControl>
                       </>
@@ -851,7 +992,7 @@ export function Sidebar() {
                       >
                         Close
                       </Button>
-                      <Button type="submit" colorScheme="blue">
+                      <Button onClick = {handleJoinLeaderSubmit} colorScheme="blue">
                         Join
                       </Button>
                     </ModalFooter>
@@ -902,10 +1043,13 @@ export function Sidebar() {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={editIsOpen} onClose={() => setEditIsOpen(false)}>
+      <Modal isOpen={editIsOpen} onClose={() => {
+        if (!newUser)
+          setEditIsOpen(false)
+        }}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Edit Account Information</ModalHeader>
+          <ModalHeader>Account Information</ModalHeader>
           <Form>
             <ModalBody>
               <Flex>
@@ -954,15 +1098,21 @@ export function Sidebar() {
                   placeholder="Wallet Address"
                 />
                 <br />
+                <br/>
                 <Flex>
                   <WalletMultiButton
-                    onClick={() => setEditIsOpen(false)}
+                    onClick={() => {
+                    if (!newUser)
+                      setEditIsOpen(false)
+                    }}
                     style={{ margin: "1%" }}
                   />
+                  {/*
                   <WalletDisconnectButton
                     onClick={() => setEditIsOpen(false)}
                     style={{ margin: "1%" }}
                   />
+                  */} 
                 </Flex>
               </FormControl>
             </ModalBody>
