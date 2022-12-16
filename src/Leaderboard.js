@@ -39,28 +39,20 @@ function Leaderboard(){
     const users = await API.graphql({ query: queries.listUsers })
     return users
   }
-  const getBoards = useCallback(async () => {
+  const getBoards = async () => {
     const boards = await API.graphql({ query: queries.listLeaderboards})
     return boards
-  })
+  }
 
   useEffect(() => {
-    let allBoards;
+    let allBoards,email;
     getBoards().catch(console.error)
     .then((boards) => {
+      console.log(boards)
       allBoards = boards.data.listLeaderboards.items
       allBoards = allBoards.filter(board => board.users.includes(Auth.user.attributes.email))
-    })
-    .then(
-    getUsers().catch(console.error)
-    .then((users) => {
-      console.log(users)
-      users = users.data.listUsers.items;
-      setAllUsers(users)
-      let email = Auth.user.attributes.email;
-      let currentUser = users.find(x => x.email == email);
-
-      setCurrentUser(currentUser);
+      setBoards(allBoards);
+      email = Auth.user.attributes.email;
       if (allBoards.length > 0){
         let boardNames = []
         let boardID = []
@@ -68,23 +60,36 @@ function Leaderboard(){
           if (allBoards[i].users.includes(email)){
             boardNames.push(allBoards[i].name)
             boardID.push(allBoards[i].id)
+            
+            console.log(allBoards[i])
           }
         }
         setBoardNames(boardNames)
+        console.log(boardNames)
         setBoardIDs(boardID)
         let board = allBoards[0].users
         setCurrentBoard(board)
-        let boardUserList = []
-        for (var i = 0; i < board.length; i ++){
-          boardUserList.push(users.find(user => user.email == board[i]))
-        }
-        setBoardUsers(boardUserList)
-        console.log(boardUserList)
-        setBoards(allBoards);
         console.log(boardNames)
         console.log(allBoards)
       }
-    }))},[])
+    })
+
+    getUsers().catch(console.error)
+    .then((users) => {
+      console.log(users)
+      users = users.data.listUsers.items;
+      setAllUsers(users)
+      let currentUser = users.find(x => x.email == email);
+      let boardUserList = []
+      let board = allBoards[0].users
+      for (var i = 0; i < board.length; i ++){
+        boardUserList.push(users.find(user => user.email == board[i]))
+      }
+      setBoardUsers(boardUserList)
+      console.log(boardUserList)
+      setCurrentUser(currentUser);
+      
+})},[])
 
 
     const handleCurrentBoard = (e) => {

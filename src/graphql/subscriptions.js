@@ -8,7 +8,6 @@ export const onCreateLeaderboard = /* GraphQL */ `
     onCreateLeaderboard(filter: $filter) {
       id
       users
-      name
       createdAt
       updatedAt
       _version
@@ -24,7 +23,6 @@ export const onUpdateLeaderboard = /* GraphQL */ `
     onUpdateLeaderboard(filter: $filter) {
       id
       users
-      name
       createdAt
       updatedAt
       _version
@@ -40,7 +38,6 @@ export const onDeleteLeaderboard = /* GraphQL */ `
     onDeleteLeaderboard(filter: $filter) {
       id
       users
-      name
       createdAt
       updatedAt
       _version
