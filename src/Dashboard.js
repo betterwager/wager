@@ -151,6 +151,10 @@ function Dashboard() {
     console.log(allBetAddresses);
     setBetAddresses(allBetAddresses);
     setUserBets(allBets);
+    console.log(allBets[0].options[0].name)
+    let news;
+    console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
+
   }, []);
 
   useEffect(() => {
@@ -274,6 +278,7 @@ function Dashboard() {
       signature,
     });
   };
+
 
   return (
     <Grid
@@ -803,8 +808,13 @@ function Dashboard() {
                                 variant="outline"
                                 placeholder="Select option"
                               >
-                                <option value={0}>Yes</option>
-                                <option value={1}>No</option>
+                                {bet.options.map((option) => {
+                                  let name = String.fromCharCode.apply(String, option.name)
+                                  if (name !== "zero"){
+                                    return (<option value={name}>name</option>)
+                                  }
+                                }
+                                )}
                               </Select>
                             </Col>
                           </Row>

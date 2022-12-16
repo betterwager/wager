@@ -126,6 +126,7 @@ export function Sidebar(props) {
 
   //API Calls
 
+
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers })
     return users
@@ -152,6 +153,7 @@ export function Sidebar(props) {
         console.log(window.location.pathname);
         const queryParameters = new URLSearchParams(window.location.search)
         if (queryParameters.has("bet")){
+          betAPICall(queryParameters.get("bet"));
           setJoinCode(queryParameters.get("bet"))
           setJoinIsOpen(true)
         }
@@ -165,6 +167,11 @@ export function Sidebar(props) {
       }
 
   })},[])
+
+  const betAPICall = async (betParam) => {
+    //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
+    //Param: betParam is the url parameter
+  }
 
   let { connection } = useConnection();
   let { publicKey, sendTransaction } = useWallet();

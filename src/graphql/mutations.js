@@ -9,6 +9,7 @@ export const createLeaderboard = /* GraphQL */ `
     createLeaderboard(input: $input, condition: $condition) {
       id
       users
+      name
       createdAt
       updatedAt
       _version
@@ -25,6 +26,7 @@ export const updateLeaderboard = /* GraphQL */ `
     updateLeaderboard(input: $input, condition: $condition) {
       id
       users
+      name
       createdAt
       updatedAt
       _version
@@ -41,6 +43,7 @@ export const deleteLeaderboard = /* GraphQL */ `
     deleteLeaderboard(input: $input, condition: $condition) {
       id
       users
+      name
       createdAt
       updatedAt
       _version
