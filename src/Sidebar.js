@@ -17,7 +17,7 @@ import {
   ModalFooter,
   Flex,
 } from "@chakra-ui/react";
-import {QRCodeSVG} from 'qrcode.react';
+import {QRCodeCanvas} from 'qrcode.react';
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
 import * as subscriptions from "./graphql/subscriptions";
@@ -40,7 +40,7 @@ import { Form, Container, Button } from "react-bootstrap";
 import { Auth, API } from "aws-amplify";
 import styled from "styled-components";
 import logo from "./assets/Wager.svg";
-import { NavLink as Link } from "react-router-dom";
+import { Navigate, NavLink as Link } from "react-router-dom";
 import { HOME, DASHBOARD, LEADERBOARD } from "./App.js";
 import {
   DashboardOutlined,
@@ -94,7 +94,6 @@ export function Sidebar(props) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [trustScore, setTrustScore] = useState("");
   const [bettingScore, setBettingScore] = useState("");
-  const [wallet, setWallet] = useState("");
   const [leaderboards, setLeaderboards] = useState([]);
 
   const [user, setUser] = useState({});
@@ -148,7 +147,6 @@ export function Sidebar(props) {
         setLeaderboards(currentUser.leaderboards);
         setTrustScore(currentUser.trustscore);
         setBettingScore(currentUser.bettingscore);
-        setWallet(currentUser.wallet);
 
         console.log(window.location.pathname);
         const queryParameters = new URLSearchParams(window.location.search)
@@ -369,14 +367,20 @@ export function Sidebar(props) {
       users: [Auth.user.attributes.email],
       name: leaderName
     }
+    let id;
     const leaderboard = await API.graphql({
       query: mutations.createLeaderboard,
       variables: { input: board }
     })
+    .then((res) => {
+      console.log(res)
+      id = res.data.createLeaderboard.id
+      setJoinLeaderCode(id)
+    })
 
-    let currentBoards = user.leaderboards;
-    console.log(user);
-    currentBoards.push(leaderboard.data.createLeaderboard.id)
+    let currentBoards = user.leaderboards
+    console.log(user.leaderboards);
+    currentBoards.push(id)
     
     const fullName = firstName + " " + lastName;
   
@@ -386,7 +390,6 @@ export function Sidebar(props) {
       name: fullName,
       birthdate: birthdate,
       phonenumber: phoneNumber,
-      wallet: wallet,
       trustscore: user.trustscore,
       bettingscore: user.bettingscore,
       bets: user.bets,
@@ -397,16 +400,49 @@ export function Sidebar(props) {
     const userUpdate = await API.graphql({
       query: mutations.updateUser,
       variables: { input: newUser },
-    });
+    })
+    .then(() => {
+      setAddLeaderIsOpen(false);
+      setAddLeaderSuccessIsOpen(true);
+    })
 
-    setAddLeaderSuccessIsOpen(true);
   };
 
   const handlejoinCodeChange = (e) => {
     setJoinCode(e.target.value);
   };
 
+  const downloadQRCode = () => {
+    // Generate download with use canvas and stream
+    const canvas = document.getElementById("qr-gen1");
+    const pngUrl = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    let downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    downloadLink.download = `${joinCode}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
+  const downloadQRCodeLeader = () => {
+    console.log(joinLeaderCode)
+    // Generate download with use canvas and stream
+    const canvas = document.getElementById("qr-gen2");
+    const pngUrl = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    let downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    downloadLink.download = `${joinLeaderCode}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
   const handlejoinLeaderCodeChange = (e) => {
+    console.log(e);
     setJoinLeaderCode(e.target.value);
   };
 
@@ -506,12 +542,7 @@ export function Sidebar(props) {
     setPhoneNumber(e.target.value);
   };
 
-  const handleWalletChange = (e) => {
-    setWallet(e.target.value);
-  };
-
   const handleEditSubmit = async () => {
-    console.log(wallet);
     const name = firstName + " " + lastName;
 
     if (user != null){
@@ -521,7 +552,6 @@ export function Sidebar(props) {
         name: name,
         birthdate: birthdate,
         phonenumber: phoneNumber,
-        wallet: wallet,
         trustscore: user.trustscore,
         bettingscore: user.bettingscore,
         bets: user.bets,
@@ -533,8 +563,11 @@ export function Sidebar(props) {
       const promise = await API.graphql({
         query: mutations.updateUser,
         variables: { input: newUser },
-      });
-      console.log(promise);
+      })   
+      .then((res) => {
+        console.log(res);
+        setEditIsOpen(false);
+      })
       
     }else{
       let newUser = {
@@ -545,7 +578,6 @@ export function Sidebar(props) {
         trustscore: 100,
         bettingscore: 0,
         bets: [],
-        wallet: wallet,
         leaderboards: []
       };
       
@@ -553,18 +585,22 @@ export function Sidebar(props) {
       const promise = await API.graphql({
         query: mutations.createUser,
         variables: { input: newUser },
-      });
-      console.log(promise);
-      setNewUser(false);
+      })
+      .then((res) => {
+        console.log(res);
+        setNewUser(false);
+        setEditIsOpen(false);
+      })
     }
   }
 
   const handleJoinLeaderSubmit = async () => {
     let currentBoards = user.leaderboards;
     console.log(user);
+    console.log(Array.from(currentBoards))
     if (!currentBoards.includes(joinLeaderCode)){
+
       currentBoards.push(joinLeaderCode)
-    
       const fullName = firstName + " " + lastName;
     
       let newUser = {
@@ -573,7 +609,6 @@ export function Sidebar(props) {
         name: fullName,
         birthdate: birthdate,
         phonenumber: phoneNumber,
-        wallet: wallet,
         trustscore: user.trustscore,
         bettingscore: user.bettingscore,
         bets: user.bets,
@@ -827,7 +862,7 @@ export function Sidebar(props) {
                       >
                         Close
                       </Button>
-                      <Button type="submit" colorScheme="blue">
+                      <Button type="submit" variant="primary">
                         Wager!
                       </Button>
                     </ModalFooter>
@@ -842,7 +877,14 @@ export function Sidebar(props) {
                   <ModalHeader>Bet Created!</ModalHeader>
                     <ModalBody>
                         <h1 style = {{fontSize: "20px"}}>Bet Code: {joinCode}</h1><br/>
-                        <QRCodeSVG value= {window.location.href + "?bet=" + joinCode} />,
+                        <QRCodeCanvas 
+                        id="qr-gen1"
+                        includeMargin={true}
+                        value= {window.location.href + "?bet=" + joinCode} />
+
+                        <Button onClick={downloadQRCode}>
+                            Download QR Code
+                        </Button>
                     </ModalBody>
                     <ModalFooter>
                       <Button
@@ -886,7 +928,7 @@ export function Sidebar(props) {
                       >
                         Close
                       </Button>
-                      <Button type="submit" colorScheme="blue">
+                      <Button type="submit" variant="primary">
                         Wager!
                       </Button>
                     </ModalFooter>
@@ -938,7 +980,7 @@ export function Sidebar(props) {
                       >
                         Close
                       </Button>
-                      <Button onClick={handleLeaderSubmit} colorScheme="blue">
+                      <Button onClick={handleLeaderSubmit} variant="primary">
                         Create
                       </Button>
                     </ModalFooter>
@@ -953,7 +995,13 @@ export function Sidebar(props) {
                   <ModalHeader>Leaderboard Created!</ModalHeader>
                     <ModalBody>
                         <h1 style = {{fontSize: "20px"}}>Bet Code: {joinLeaderCode}</h1><br/>
-                        <QRCodeSVG value= {window.location.href + "?leaderboard=" + joinLeaderCode} />,
+                        <QRCodeCanvas 
+                        id="qr-gen2"
+                        includeMargin={true}
+                        value= {window.location.href + "?leaderboard=" + joinLeaderCode} />
+                        <Button onClick={downloadQRCodeLeader}>
+                            Download QR Code
+                        </Button>
                     </ModalBody>
                     <ModalFooter>
                       <Button
@@ -999,7 +1047,7 @@ export function Sidebar(props) {
                       >
                         Close
                       </Button>
-                      <Button onClick = {handleJoinLeaderSubmit} colorScheme="blue">
+                      <Button onClick = {handleJoinLeaderSubmit} variant="primary">
                         Join
                       </Button>
                     </ModalFooter>
@@ -1025,8 +1073,6 @@ export function Sidebar(props) {
             <strong>Email: </strong> {email} <br />
             <br />
             <strong>Phone Number: </strong> {phoneNumber} <br />
-            <br />
-            <strong>Wallet: </strong> {wallet} <br />
             <br />
             <strong>Trust Score: </strong> {trustScore} <br />
             <br />
@@ -1097,15 +1143,7 @@ export function Sidebar(props) {
                 />
               </FormControl>
               <br />
-              <FormControl isRequired>
-                <FormLabel>Solana Wallet Address</FormLabel>
-                <Input
-                  onChange={handleWalletChange}
-                  value = {wallet}
-                  placeholder="Wallet Address"
-                />
-                <br />
-                <br/>
+              <FormLabel>Solana Wallet Connection</FormLabel>
                 <Flex>
                   <WalletMultiButton
                     onClick={() => {
@@ -1114,14 +1152,13 @@ export function Sidebar(props) {
                     }}
                     style={{ margin: "1%" }}
                   />
-                  {/*
+                  
                   <WalletDisconnectButton
                     onClick={() => setEditIsOpen(false)}
                     style={{ margin: "1%" }}
                   />
-                  */} 
+                   
                 </Flex>
-              </FormControl>
             </ModalBody>
             <ModalFooter>
               <Button
@@ -1131,7 +1168,7 @@ export function Sidebar(props) {
               >
                 Close
               </Button>
-              <Button colorScheme="blue" onClick={handleEditSubmit}>
+              <Button variant="primary" onClick={handleEditSubmit}>
                 Submit
               </Button>
             </ModalFooter>

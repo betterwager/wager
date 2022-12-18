@@ -162,7 +162,7 @@ function Leaderboard(){
             fontSize: "20px",
           }}>
 
-          <FormControl style = {{border: "black", maxWidth: "40%", color: "black"}} colorScheme = "green">
+          <FormControl style = {{border: "black", maxWidth: "40%", color: "black"}}>
             <Select onChange = {handleCurrentBoard} variant = "filled">
               {boardNames.map((name, index) => (
                 <option key = {index} value = {boardIDs[index]}>{name}</option>
@@ -186,7 +186,7 @@ function Leaderboard(){
               </Thead>
               <Tbody>
                 {boardUsers.map((user, index) => (
-                <Tr>
+                <Tr key = {index}>
                   <Td>{currentBoard[index]}</Td>
                   <Td>{user.trustscore}</Td>
                   <Td>{user.name}</Td>
