@@ -95,6 +95,7 @@ export function Sidebar(props) {
   const [trustScore, setTrustScore] = useState("");
   const [bettingScore, setBettingScore] = useState("");
   const [leaderboards, setLeaderboards] = useState([]);
+  const [allBoards, setAllBoards] = useState([])
 
   const [user, setUser] = useState({});
   const [userID, setUserID] = useState("");
@@ -116,6 +117,7 @@ export function Sidebar(props) {
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
   const [addLeaderSuccessIsOpen, setAddLeaderSuccessIsOpen] = useState(false);
   const [newUser, setNewUser] = useState(false);
+  const [walletIsOpen, setWalletIsOpen] = useState(true)
 
   const [joinIsOpen, setJoinIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
@@ -130,41 +132,67 @@ export function Sidebar(props) {
     const users = await API.graphql({ query: queries.listUsers })
     return users
   }
+  const getBoards = async () => {
+    const boards = await API.graphql({ query: queries.listLeaderboards})
+    return boards
+  }
+
   useEffect(() => {
-    getUsers().catch(console.error)
-    .then((users) => {
-      let email = Auth.user.attributes.email;
-      setEmail(email)
-      let currentUser = users.data.listUsers.items.find(x => x.email == email);
-      setUser(currentUser)
-      if (currentUser != null){
-        console.log(currentUser);
-        let names = currentUser.name.split(" ")
-        setFirstName(names[0]);
-        setLastName(names[1]);
-        setBirthdate(currentUser.birthdate);
-        setPhoneNumber(currentUser.phonenumber);
-        setLeaderboards(currentUser.leaderboards);
-        setTrustScore(currentUser.trustscore);
-        setBettingScore(currentUser.bettingscore);
+    let allBoards;
+    getBoards().catch(console.error)
+    .then((boards) => {
+      allBoards = boards.data.listLeaderboards.items
+      allBoards = allBoards.map(board => board.id)
+      
+      console.log(allBoards)
+      setAllBoards(allBoards);
+      getUsers().catch(console.error)
+      .then((users) => {
+        let email = Auth.user.attributes.email;
+        setEmail(email)
+        let currentUser = users.data.listUsers.items.find(x => x.email == email);
+        setUser(currentUser)
+        if (currentUser != null){
+          console.log(currentUser);
+          let names = currentUser.name.split(" ")
+          setFirstName(names[0]);
+          setLastName(names[1]);
+          setBirthdate(currentUser.birthdate);
+          setPhoneNumber(currentUser.phonenumber);
+          setLeaderboards(currentUser.leaderboards);
+          setTrustScore(currentUser.trustscore);
+          setBettingScore(currentUser.bettingscore);
 
-        console.log(window.location.pathname);
-        const queryParameters = new URLSearchParams(window.location.search)
-        if (queryParameters.has("bet")){
-          betAPICall(queryParameters.get("bet"));
-          setJoinCode(queryParameters.get("bet"))
-          setJoinIsOpen(true)
+          console.log(window.location.pathname);
+          const queryParameters = new URLSearchParams(window.location.search)
+          if (queryParameters.has("bet")){
+            betAPICall(queryParameters.get("bet"));
+            setJoinCode(queryParameters.get("bet"))
+            setJoinIsOpen(true)
+          }
+          if (queryParameters.has("leaderboard")){
+            setJoinLeaderCode(queryParameters.get("leaderboard"))
+            setJoinLeaderIsOpen(true)
+          }
+        }else{
+          setEditIsOpen(true);
+          setNewUser(true);
         }
-        if (queryParameters.has("leaderboard")){
-          setJoinLeaderCode(queryParameters.get("leaderboard"))
-          setJoinLeaderIsOpen(true)
-        }
-      }else{
-        setEditIsOpen(true);
-        setNewUser(true);
-      }
-
+        setWalletIsOpen(false)
+      })
   })},[])
+
+  useEffect(() => {
+    console.log(publicKey)
+    console.log(walletIsOpen)
+    if (publicKey == null && !editIsOpen && !walletIsOpen){
+      setWalletIsOpen(true)
+      setEditIsOpen(true)
+    }
+    if (publicKey == null && !walletIsOpen){
+      setEditIsOpen(true);
+    }
+  })
 
   const betAPICall = async (betParam) => {
     //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
@@ -363,6 +391,7 @@ export function Sidebar(props) {
   };
 
   const handleLeaderSubmit = async (e) => {  
+    if (leaderName != ""){
     let board = {
       users: [Auth.user.attributes.email],
       name: leaderName
@@ -405,7 +434,9 @@ export function Sidebar(props) {
       setAddLeaderIsOpen(false);
       setAddLeaderSuccessIsOpen(true);
     })
-
+  }else{
+    alert("Fill out all fields")
+  }
   };
 
   const handlejoinCodeChange = (e) => {
@@ -543,8 +574,9 @@ export function Sidebar(props) {
   };
 
   const handleEditSubmit = async () => {
+    if (publicKey != null){
     const name = firstName + " " + lastName;
-
+    if (firstName != "" && lastName != "" && phoneNumber != "" && birthdate != ""){
     if (user != null){
       let newUser = {
         id: user.id,
@@ -590,15 +622,23 @@ export function Sidebar(props) {
         console.log(res);
         setNewUser(false);
         setEditIsOpen(false);
+        setWalletIsOpen(false);
       })
+    }
+  }else{
+    alert("Fill out all fields")
+  }
+    }else{
+      alert("Connect Solana Wallet")
     }
   }
 
   const handleJoinLeaderSubmit = async () => {
+    if (joinLeaderCode != ""){
     let currentBoards = user.leaderboards;
     console.log(user);
     console.log(Array.from(currentBoards))
-    if (!currentBoards.includes(joinLeaderCode)){
+    if (!currentBoards.includes(joinLeaderCode) && allBoards.includes(joinLeaderCode)){
 
       currentBoards.push(joinLeaderCode)
       const fullName = firstName + " " + lastName;
@@ -623,7 +663,7 @@ export function Sidebar(props) {
   
       console.log("user update")
       console.log(userUpdate)
-    }
+    
     
     const currentLeaderboard = await API.graphql({
       query: queries.getLeaderboard,
@@ -647,6 +687,11 @@ export function Sidebar(props) {
         variables: { input: board }
       })
     }
+    }else{
+      alert("Invalid Leaderboard Code")
+    }}else{
+      alert("Fill out all fields")
+  }
   }
 
   return (
@@ -1099,6 +1144,7 @@ export function Sidebar(props) {
       <Modal isOpen={editIsOpen} onClose={() => {
         if (!newUser)
           setEditIsOpen(false)
+        setWalletIsOpen(false)
         }}>
         <ModalOverlay />
         <ModalContent>
@@ -1147,14 +1193,16 @@ export function Sidebar(props) {
                 <Flex>
                   <WalletMultiButton
                     onClick={() => {
-                    if (!newUser)
                       setEditIsOpen(false)
+                      setWalletIsOpen(true)
                     }}
                     style={{ margin: "1%" }}
                   />
                   
                   <WalletDisconnectButton
-                    onClick={() => setEditIsOpen(false)}
+                    onClick={() => {
+                      setEditIsOpen(false);
+                      setWalletIsOpen(false);}}
                     style={{ margin: "1%" }}
                   />
                    
@@ -1164,7 +1212,11 @@ export function Sidebar(props) {
               <Button
                 variant="ghost"
                 mr={3}
-                onClick={() => setEditIsOpen(false)}
+                onClick={() => {
+                  if (publicKey != null && !newUser){
+                    setEditIsOpen(false)
+                  }
+                }}
               >
                 Close
               </Button>

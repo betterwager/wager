@@ -810,9 +810,8 @@ function Dashboard() {
                               >
                                 {bet.options.map((option) => {
                                   let name = String.fromCharCode.apply(String, option.name)
-                                  if (name !== "zero"){
-                                    return (<option value={name}>name</option>)
-                                  }
+                                  console.log(name);
+                                  return (<option value={name}>name</option>)
                                 }
                                 )}
                               </Select>
