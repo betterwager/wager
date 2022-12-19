@@ -93,6 +93,7 @@ function Dashboard() {
   );
 
   const wagerLayout = BufferLayout.struct([
+    BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
     BufferLayout.u32("balance"),
     BufferLayout.seq(
       BufferLayout.struct([
@@ -107,6 +108,7 @@ function Dashboard() {
     BufferLayout.u16("min_players"),
     BufferLayout.u16("max_players"),
     BufferLayout.u16("player_count"),
+    BufferLayout.nu64("time"),
     BufferLayout.u16("vote_count"),
     BufferLayout.u8("bump_seed"),
     BufferLayout.u8("state"),
@@ -134,32 +136,40 @@ function Dashboard() {
       setCurrentUser(user);
     })},[])
 
-  const getBets = useCallback(async () => {
+  const getBets = useCallback(async (publicKey) => {
+    let tempAddress = {};
+    let tempBet = {};
     let allBetAddresses = [];
     let allBets = await connection.getParsedProgramAccounts(programId, {
       filters: [
         {
-          dataSize: 198,
+          dataSize: 226,
         },
       ],
     });
-    allBets.forEach(function (accountInfo, index) {
-      allBetAddresses[index] = accountInfo.pubkey;
-      allBets[index] = wagerLayout.decode(accountInfo.account.data);
+    allBets.forEach(async function (accountInfo, index) {
+      tempBet = wagerLayout.decode(accountInfo.account.data);
+      console.log(tempBet);
+      tempAddress = PublicKey.findProgramAddressSync([tempBet.bet_identifier, publicKey.toBytes()], programId); //{
+      console.log(tempAddress);
+      await connection.getAccountInfo(tempAddress[0]).then(playerAccountInfo => {
+        if (playerAccountInfo.lamports != 0) {
+          allBetAddresses[index] = accountInfo.pubkey;
+          allBets[index] = tempBet;
+          console.log(allBets);
+          console.log(allBetAddresses);
+          setBetAddresses(allBetAddresses);
+          setUserBets(allBets);
+        }
+        });
     });
-    console.log(allBets);
-    console.log(allBetAddresses);
-    setBetAddresses(allBetAddresses);
-    setUserBets(allBets);
-    console.log(allBets[0].options[0].name)
-    let news;
-    console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
-
-  }, []);
+    //let news;
+    //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
+  }, [publicKey]);
 
   useEffect(() => {
-    getBets().catch(console.error);
-  }, [getBets]);
+    getBets(publicKey).catch(console.error);
+  }, [getBets,publicKey]);
 
   const handlejoinCodeChange = (e) => {
     setJoinCode(e.target.value);

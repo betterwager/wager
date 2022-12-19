@@ -129,6 +129,7 @@ export function Sidebar(props) {
 
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers })
+    console.log(users);
     return users
   }
   useEffect(() => {
@@ -171,6 +172,63 @@ export function Sidebar(props) {
   const betAPICall = async (betParam) => {
     //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
     //Param: betParam is the url parameter
+    let [potPDA, potBump] = await PublicKey.findProgramAddress(
+        [Buffer.alloc(20, betParam)],
+        programId
+      );
+
+      let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+        [Buffer.alloc(20, betParam), publicKey.toBytes()],
+        programId
+      );
+    let instruction = new TransactionInstruction({
+      keys: [
+        {
+          pubkey: publicKey,
+          isSigner: true,
+          isWritable: true,
+        },
+        {
+          pubkey: potPDA,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: playerPDA,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: systemProgram,
+          isSigner: false,
+          isWritable: false,
+        },
+        {
+          pubkey: rentSysvar,
+          isSigner: false,
+          isWritable: false,
+        },
+      ],
+      programId: programId,
+      data: JoinBetInstruction(betParam),
+    });
+    const transaction = new Transaction().add(instruction);
+    console.log(transaction);
+    console.log(connection);
+    const {
+      context: { slot: minContextSlot },
+      value: { blockhash, lastValidBlockHeight },
+    } = await connection.getLatestBlockhashAndContext();
+    transaction.recentBlockhash = blockhash;
+    console.log("blockhash retreived");
+    const signature = await sendTransaction(transaction, connection, {
+      minContextSlot,
+    });
+    await connection.confirmTransaction({
+      blockhash,
+      lastValidBlockHeight,
+      signature,
+    });
   }
 
   let { connection } = useConnection();
@@ -257,6 +315,7 @@ export function Sidebar(props) {
       console.log(Buffer.from(betName));
 
       let hours = time; //TIME IN HOURS
+      console.log(time);
       //let index = uniqueHash(betName + maxBet + allOptions);
       console.log(Buffer.alloc(20, betName));
 
@@ -333,6 +392,7 @@ export function Sidebar(props) {
             { name: Buffer.from(allOptions[6]), vote_count: 0 },
             { name: Buffer.from(allOptions[7]), vote_count: 0 },
           ],
+          time,
           potBump
           //Hours
         ),
@@ -807,7 +867,7 @@ export function Sidebar(props) {
                         <FormControl isRequired>
                           <FormLabel>Hours to Bet</FormLabel>
                           <NumberInput
-                            onChange={handleTimeChange}
+                            onChange={(e) => handleTimeChange(e)}
                             value={time}
                             placeholder="Enter Option"
                           >

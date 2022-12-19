@@ -26,17 +26,18 @@ export async function connect(provider) {
 }
 
 export function NewWagerInstruction(
-  name,
+  bet_identifier,
   min_players,
   max_players,
   min_bet,
   max_bet,
   options,
+  time,
   bump_seed
 ) {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
-    BufferLayout.seq(BufferLayout.u8(), 20, "name"),
+    BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
     BufferLayout.u32("balance"),
     BufferLayout.seq(
       BufferLayout.struct([
@@ -51,6 +52,7 @@ export function NewWagerInstruction(
     BufferLayout.u16("min_players"),
     BufferLayout.u16("max_players"),
     BufferLayout.u16("player_count"),
+    BufferLayout.nu64("time"),
     BufferLayout.u16("vote_count"),
     BufferLayout.u8("bump_seed"),
     BufferLayout.u8("state"),
@@ -60,13 +62,14 @@ export function NewWagerInstruction(
   layout.encode(
     {
       instruction: 0,
-      name: Buffer.alloc(20, name),
+      bet_identifier: Buffer.alloc(20, bet_identifier),
       balance: 0,
       options: options,
       min_bet: min_bet,
       max_bet: max_bet,
       min_players: min_players,
       max_players: max_players,
+      time : time,
       player_count: 0,
       vote_count: 0,
       bump_seed: bump_seed,
