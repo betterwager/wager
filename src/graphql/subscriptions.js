@@ -60,7 +60,6 @@ export const onCreateUser = /* GraphQL */ `
       trustscore
       bettingscore
       bets
-      wallet
       leaderboards
       createdAt
       updatedAt
@@ -81,7 +80,6 @@ export const onUpdateUser = /* GraphQL */ `
       trustscore
       bettingscore
       bets
-      wallet
       leaderboards
       createdAt
       updatedAt
@@ -102,7 +100,6 @@ export const onDeleteUser = /* GraphQL */ `
       trustscore
       bettingscore
       bets
-      wallet
       leaderboards
       createdAt
       updatedAt

@@ -76,7 +76,6 @@ export const getUser = /* GraphQL */ `
       trustscore
       bettingscore
       bets
-      wallet
       leaderboards
       createdAt
       updatedAt
@@ -102,7 +101,6 @@ export const listUsers = /* GraphQL */ `
         trustscore
         bettingscore
         bets
-        wallet
         leaderboards
         createdAt
         updatedAt
@@ -137,7 +135,6 @@ export const syncUsers = /* GraphQL */ `
         trustscore
         bettingscore
         bets
-        wallet
         leaderboards
         createdAt
         updatedAt
