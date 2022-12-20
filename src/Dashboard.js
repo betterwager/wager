@@ -702,7 +702,12 @@ function Dashboard() {
                           <Row>
                             <Col style={{ textAlign: "left" }}>
                               <Card.Title>
-                                <strong>Index: {index}</strong>
+                                {() => {
+                                    let name = String.fromCharCode.apply(String, bet.bet_identifier)
+                                    console.log(name);
+                                    return (<strong>Bet Name: {name}</strong>)
+                                }}
+                                <strong>Bet Name: {index}</strong>
                               </Card.Title>
                               <Card.Text>
                                 <text style={{ color: "#aaaaaa" }}>

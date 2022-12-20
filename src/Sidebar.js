@@ -11,12 +11,19 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Icon,
+  Text,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Flex,
 } from "@chakra-ui/react";
+
+import { FaDice } from "react-icons/fa";
+import {RiNumber1, RiNumber2, RiNumber3} from "react-icons/ri"
+import {BsFillDice5Fill} from "react-icons/bs"
+import {MdLeaderboard} from "react-icons/md"
 import {QRCodeCanvas} from 'qrcode.react';
 import * as queries from "./graphql/queries";
 import * as mutations from "./graphql/mutations";
@@ -117,7 +124,11 @@ export function Sidebar(props) {
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
   const [addLeaderSuccessIsOpen, setAddLeaderSuccessIsOpen] = useState(false);
   const [newUser, setNewUser] = useState(false);
-  const [walletIsOpen, setWalletIsOpen] = useState(true)
+  const [walletIsOpen, setWalletIsOpen] = useState(true);
+
+  const [start1IsOpen, setStart1IsOpen] = useState(false);
+  const [start2IsOpen, setStart2IsOpen] = useState(false);
+  const [start3IsOpen, setStart3IsOpen] = useState(false);
 
   const [joinIsOpen, setJoinIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
@@ -178,21 +189,27 @@ export function Sidebar(props) {
         }else{
           setEditIsOpen(true);
           setNewUser(true);
+          setStart1IsOpen(true);
         }
         setWalletIsOpen(false)
+        if(publicKey != null && !newUser){
+          setEditIsOpen(false)
+        }
+
       })
   })},[])
 
   useEffect(() => {
     /* console.log(publicKey)
     console.log(walletIsOpen) */
-    if (publicKey == null && !editIsOpen && !walletIsOpen){
+    if (newUser && publicKey == null && !editIsOpen && !walletIsOpen){
       setWalletIsOpen(true)
       setEditIsOpen(true)
     }
     if (publicKey == null && !walletIsOpen){
       setEditIsOpen(true);
     }
+
   })
 
   const betAPICall = async (betParam) => {
@@ -1286,6 +1303,107 @@ export function Sidebar(props) {
             </ModalFooter>
           </Form>
         </ModalContent>
+      </Modal>
+
+
+      <Modal isOpen={start1IsOpen} size="lg" isCentered>
+      <ModalOverlay 
+      backdropFilter='blur(10px) brightness(0%)'/>
+      <ModalContent>
+        <ModalHeader>
+        <Icon h={"10%"} w={"10%"} as={FaDice} color="#195F50" />
+          <Text fontSize="3xl" as="b" color="#195F50">
+            Welcome to Wager
+          </Text>
+        </ModalHeader>
+      <ModalBody >
+          <Text fontSize="xl">
+          Wager is a social betting app that allows a user to bet on any event and compete with a network of users across the platform.
+          </Text>
+      </ModalBody>
+      <ModalFooter>
+        <Button variant="primary" onClick={() => {
+          setStart1IsOpen(false);
+          setStart2IsOpen(true);
+        }}>
+                Continue
+          </Button>
+      </ModalFooter>
+      </ModalContent>
+      </Modal>
+
+      <Modal isOpen={start2IsOpen}  size="lg"  isCentered>
+      <ModalOverlay 
+      backdropFilter='blur(10px) brightness(0%)'/>
+      <ModalContent>
+        <ModalHeader>
+          <Text fontSize="3xl" as="b" color="#195F50">
+            Wager Features
+          </Text>
+        </ModalHeader>
+      <ModalBody >
+        <Flex>
+        <Icon as={BsFillDice5Fill} h={"7%"} w={"7%"} color="#195F50"/>
+          <Text style ={{marginLeft: "15px"}} fontSize="xl">
+          Set up and share bets with your friends with access through your <u><a href = "https://phantom.app/">Phantom</a></u> wallet
+          </Text> <br/>
+        </Flex> <br/>
+        <Flex>
+        <Icon as={MdLeaderboard} h={"7%"} w={"7%"} color="#195F50"/>
+          <Text style ={{marginLeft: "15px"}} fontSize="xl">
+          Compete using your bet records across the platforms through a leaderboard system
+          </Text>
+        </Flex>
+      </ModalBody>
+      <ModalFooter>
+        <Button variant="primary" onClick={() => {
+          setStart2IsOpen(false);
+          setStart3IsOpen(true);
+        }}>
+                Continue
+          </Button>
+      </ModalFooter>
+      </ModalContent>
+      </Modal>
+
+      <Modal isOpen={start3IsOpen} size="lg" isCentered>
+      <ModalOverlay 
+      backdropFilter='blur(10px) brightness(0%)'/>
+      <ModalContent>
+        <ModalHeader>
+          <Text fontSize="3xl" as="b" color="#195F50">
+            Next Steps
+          </Text>
+        </ModalHeader>
+      <ModalBody >
+        <Flex>
+        <Icon as={RiNumber1} h={"7%"} w={"7%"} color="#195F50"/>
+          <Text style ={{marginLeft: "15px"}} fontSize="xl">
+          Fill out the Account Information form to register as a user in Wager
+          </Text> <br/>
+        </Flex> <br/>
+        <Flex>
+        <Icon as={RiNumber2} h={"7%"} w={"7%"} color="#195F50"/>
+          <Text style ={{marginLeft: "15px"}} fontSize="xl">
+          Connect your Phantom wallet to the account to link your bets to the account
+          </Text> <br/>
+        </Flex> <br/>
+        <Flex>
+        <Icon as={RiNumber3} h={"7%"} w={"7%"} color="#195F50"/>
+          <Text style ={{marginLeft: "15px"}} fontSize="xl">
+          Start Wagering!
+          </Text>
+        </Flex>
+      </ModalBody>
+      <ModalFooter>
+        <Button variant="primary" onClick={() => {
+          setStart3IsOpen(false);
+          setEditIsOpen(true);
+        }}>
+            Get Started
+          </Button>
+      </ModalFooter>
+      </ModalContent>
       </Modal>
     </>
   );
