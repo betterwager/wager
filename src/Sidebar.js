@@ -184,8 +184,8 @@ export function Sidebar(props) {
   })},[])
 
   useEffect(() => {
-    console.log(publicKey)
-    console.log(walletIsOpen)
+    /* console.log(publicKey)
+    console.log(walletIsOpen) */
     if (publicKey == null && !editIsOpen && !walletIsOpen){
       setWalletIsOpen(true)
       setEditIsOpen(true)

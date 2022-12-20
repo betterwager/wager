@@ -1,5 +1,5 @@
 //React Imports
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useMemo} from "react";
 import { useState } from "react";
 
 //Styling Imports
@@ -88,9 +88,9 @@ function Dashboard() {
   const rentSysvar = new PublicKey(
     "SysvarRent111111111111111111111111111111111"
   );
-  const programId = new PublicKey(
+  const programId = useMemo(() => new PublicKey(
     "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
-  );
+  ),[]);
 
   const wagerLayout = BufferLayout.struct([
     BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
@@ -120,57 +120,69 @@ function Dashboard() {
     return users
   }
 
-  useEffect(() => {
-    getUsers().catch(console.error)
-    .then((users) => {
-      console.log(users)
-      users = users.data.listUsers.items;
-      let email = Auth.user.attributes.email;
-      let user;
-      for (var i = 0; i < users.length; i ++){
-        if (users[i].email == email){
-          user = users[i]
-          break
-        }
-      }
-      setCurrentUser(user);
-    })},[])
+  const style = {
+    height: 30,
+    border: "1px solid green",
+    margin: 6,
+    padding: 8
+  };
 
-  const getBets = useCallback(async (publicKey) => {
+  
+  const getBets = useCallback(async () => {
     let tempAddress = {};
     let tempBet = {};
     let allBetAddresses = [];
-    let allBets = await connection.getParsedProgramAccounts(programId, {
+    let allBets = [];
+    let tempBets = await connection.getParsedProgramAccounts(programId, {
       filters: [
         {
           dataSize: 226,
         },
       ],
     });
-    allBets.forEach(async function (accountInfo, index) {
+    tempBets.forEach(async function (accountInfo, index) {
       tempBet = wagerLayout.decode(accountInfo.account.data);
       console.log(tempBet);
       tempAddress = PublicKey.findProgramAddressSync([tempBet.bet_identifier, publicKey.toBytes()], programId); //{
-      console.log(tempAddress);
-      await connection.getAccountInfo(tempAddress[0]).then(playerAccountInfo => {
-        if (playerAccountInfo.lamports != 0) {
-          allBetAddresses[index] = accountInfo.pubkey;
-          allBets[index] = tempBet;
+        console.log(tempAddress[0]);
+        await connection.getBalance(tempAddress[0]).then((accountBalance) => {
+          if (accountBalance !== 0) {
+            allBetAddresses.push(accountInfo.pubkey);
+            allBets.push(wagerLayout.decode(accountInfo.account.data));
+          }
+        });
+        if (index === (tempBets.length - 1)) {
           console.log(allBets);
           console.log(allBetAddresses);
           setBetAddresses(allBetAddresses);
           setUserBets(allBets);
+          console.log(allUserBets);
         }
-        });
-    });
-    //let news;
-    //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
-  }, [publicKey]);
-
-  useEffect(() => {
-    getBets(publicKey).catch(console.error);
-  }, [getBets,publicKey]);
-
+      });
+      //let news;
+      //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
+    },[publicKey]); // eslint-disable-line react-hooks/exhaustive-deps
+    
+    useEffect(() => {
+      getUsers().catch(console.error)
+      .then((users) => {
+        console.log(users)
+        users = users.data.listUsers.items;
+        let email = Auth.user.attributes.email;
+        let user;
+        for (var i = 0; i < users.length; i ++){
+          if (users[i].email === email){
+            user = users[i]
+            break
+          }
+        }
+        setCurrentUser(user);
+        getBets(publicKey).catch(console.error);
+      })},[getBets]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* useEffect(() => {
+  }, [getBets,publicKey]); */
+  //getBets(publicKey).catch(console.error);
+  
   const handlejoinCodeChange = (e) => {
     setJoinCode(e.target.value);
   };
@@ -185,8 +197,8 @@ function Dashboard() {
 
   const handleBetting = async (e, index) => {
     e.preventDefault();
-    let option = betOption;
-    let value = betValue;
+    //let option = betOption;
+    //let value = betValue;
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
@@ -397,7 +409,6 @@ function Dashboard() {
           </Row>
           <InfiniteScroll
             dataLength={allUserBets.length}
-            next={getBets}
             hasMore={false}
             loader={<h4>Loading...</h4>}
             endMessage={
@@ -407,7 +418,9 @@ function Dashboard() {
                   variant="ghost"
                   rightIcon={<RepeatIcon />}
                   onClick={() => {
-                    getBets();
+                    getBets(publicKey);
+                    console.log(allUserBets);
+                    console.log(allUserBets[0]);
                   }}
                 >
                   Refresh
@@ -684,7 +697,7 @@ function Dashboard() {
                   return (
                     <Container key={index}>
                       <Card style={{ margin: "1rem" }}>
-                        <Card.Header>ID: {bet.address}</Card.Header>
+                        <Card.Header>ID: {String.fromCharCode.apply(String, bet.bet_identifier)}</Card.Header>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
@@ -1032,9 +1045,9 @@ function Dashboard() {
                       </Card>
                     </Container>
                   );
+                default: return(<Container></Container>);
               }
             })}
-
             <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
               <ModalOverlay />
               <ModalContent>
