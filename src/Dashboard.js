@@ -78,6 +78,8 @@ function Dashboard() {
   const [betIsOpen, setBetIsOpen] = useState(false);
   //Success Toasts
   const toast = useToast();
+  const [currentOptions, setCurrentOptions] = useState([]);
+
   //Vars
   /* let network = "https://api.devnet.solana.com";
   connection = new Connection(network);
@@ -353,7 +355,7 @@ function Dashboard() {
       </GridItem>
 
       <GridItem pl="2" colSpan={19} bg="#F7F8FC" area={"main"}>
-        <Container>
+        <Container style={{ height: "100%" }}>
           <Row
             style={{ margin: "5%", marginTop: "1%", marginBottom: "1%" }}
             xs={1}
@@ -371,7 +373,7 @@ function Dashboard() {
                 <Card.Body>
                   <Card.Text style={{ color: "#888888" }}>Earnings</Card.Text>
                   <Card.Title>
-                    <strong>$60</strong>
+                    <strong>${currentUser.bettingscore}</strong>
                   </Card.Title>
                 </Card.Body>
               </Card>
@@ -713,6 +715,84 @@ function Dashboard() {
               </Card>{" "}
             </Container>
                       */}
+
+            {currentBet == {} ? (
+              <></>
+            ) : (
+              <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Make Bet</ModalHeader>
+                  <ModalBody>
+                    <>
+                      <FormControl isRequired>
+                        <FormLabel>Bet Code</FormLabel>
+                        <Input
+                          placeholder="Bet Code"
+                          value={String.fromCharCode.apply(
+                            String,
+                            currentBet.bet_identifier
+                          )}
+                        />
+                      </FormControl>
+                      <br />
+                      <FormControl isRequired>
+                        <FormLabel>Bet Option</FormLabel>
+                        <Select
+                          onChange={handleBetOption}
+                          placeholder="Select option"
+                        >
+                          {currentOptions.map((option) => {
+                            let name = String.fromCharCode.apply(
+                              String,
+                              option.name
+                            );
+                            name = name.substr(0, name.indexOf("\0"));
+                            if (name !== "zero" && name !== "") {
+                              return (
+                                <option key={name} value={name}>
+                                  {name}
+                                </option>
+                              );
+                            }
+                          })}
+                        </Select>
+                      </FormControl>
+                      <br />
+                      <FormControl isRequired>
+                        <FormLabel>Bet Value ($)</FormLabel>
+                        <NumberInput
+                          onChange={handleBetValue}
+                          min={currentBet.min_bet}
+                          max={currentBet.max_bet}
+                          precision={2}
+                          step={0.5}
+                        >
+                          <NumberInputField />
+                          <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                          </NumberInputStepper>
+                        </NumberInput>
+                      </FormControl>
+                    </>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      variant="ghost"
+                      mr={3}
+                      onClick={() => setBetIsOpen(false)}
+                    >
+                      Close
+                    </Button>
+                    <Button colorScheme="blue" onClick={handleBetting}>
+                      Wager!
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+            )}
+
             {allUserBets.map((bet, index) => {
               switch (bet.state) {
                 case 1:
@@ -742,7 +822,8 @@ function Dashboard() {
                                 mr={3}
                                 onClick={() => {
                                   setBetIsOpen(true);
-                                  setCurrentBet(index);
+                                  setCurrentBet(bet);
+                                  setCurrentOptions(bet.options);
                                 }}
                               >
                                 Make Bet
