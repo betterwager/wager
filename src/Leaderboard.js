@@ -274,7 +274,10 @@ function Leaderboard(){
                 <ModalContent>
                   <ModalHeader>Leaderboard</ModalHeader>
                     <ModalBody>
-                        <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong> {code}</h1><br/>
+                        <h1 style = {{fontSize: "15px"}}><u><a onClick={() => {
+                          navigator.clipboard.writeText(code)
+                          alert("Copied to Clipboard")
+                          }}><strong>Leaderboard Code:</strong> {code}</a></u></h1><br/>
                         <h3 style = {{fontSize: "15px"}}><strong>Join Link:</strong> <u><a onClick={() => {
                           navigator.clipboard.writeText(window.location.href + "?leaderboard=" + code)
                           alert("Copied to Clipboard")
