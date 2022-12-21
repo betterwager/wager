@@ -1,80 +1,63 @@
-import React, { useEffect, useCallback, useState, useMemo } from "react";
-import "bootstrap/dist/css/bootstrap.css";
 import {
+  useToast,
+  Flex,
+  FormControl,
+  FormLabel,
+  Icon,
+  Input,
   Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  ModalOverlay,
-  FormControl,
-  FormLabel,
-  Input,
-  Icon,
   Text,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Flex,
 } from "@chakra-ui/react";
+import "bootstrap/dist/css/bootstrap.css";
+import React, { useEffect, useState } from "react";
 
-import { FaDice } from "react-icons/fa";
-import {RiNumber1, RiNumber2, RiNumber3} from "react-icons/ri"
-import {BsFillDice5Fill} from "react-icons/bs"
-import {MdLeaderboard} from "react-icons/md"
-import {QRCodeCanvas} from 'qrcode.react';
-import * as queries from "./graphql/queries";
-import * as mutations from "./graphql/mutations";
-import * as subscriptions from "./graphql/subscriptions";
 import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
-import {
-  WalletModalProvider,
   WalletDisconnectButton,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
+import { QRCodeCanvas } from "qrcode.react";
+import { BsFillDice5Fill } from "react-icons/bs";
+import { FaDice } from "react-icons/fa";
+import { MdLeaderboard } from "react-icons/md";
+import { RiNumber1, RiNumber2, RiNumber3 } from "react-icons/ri";
+import * as mutations from "./graphql/mutations";
+import * as queries from "./graphql/queries";
 
-import { clusterApiUrl } from "@solana/web3.js";
-import { DataStore } from "@aws-amplify/datastore";
-import { User } from "./models";
-import { Form, Container, Button } from "react-bootstrap";
-import { Auth, API } from "aws-amplify";
-import styled from "styled-components";
-import logo from "./assets/Wager.svg";
-import { Navigate, NavLink as Link } from "react-router-dom";
-import { HOME, DASHBOARD, LEADERBOARD } from "./App.js";
 import {
-  DashboardOutlined,
-  CrownOutlined,
-  UserOutlined,
-  PlusCircleOutlined,
-  ExclamationCircleOutlined,
   CheckOutlined,
+  CrownOutlined,
+  DashboardOutlined,
+  ExclamationCircleOutlined,
+  PlusCircleOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
-  getProvider,
-  connect,
-  NewWagerInstruction,
-  JoinBetInstruction,
-} from "./utils.js";
-import {
-  Keypair,
-  Connection,
-  TransactionInstruction,
-  Transaction,
   PublicKey,
+  Transaction,
+  TransactionInstruction,
 } from "@solana/web3.js";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { Layout, Menu } from "antd";
+import { API, Auth } from "aws-amplify";
 import { Buffer } from "buffer";
+import { Button, Container, Form } from "react-bootstrap";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { Layout, Menu } from "antd";
+import { NavLink as Link } from "react-router-dom";
+import styled from "styled-components";
+import { DASHBOARD, HOME, LEADERBOARD } from "./App.js";
+import logo from "./assets/Wager.svg";
+import { JoinBetInstruction, NewWagerInstruction } from "./utils.js";
 require("@solana/wallet-adapter-react-ui/styles.css");
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -102,7 +85,7 @@ export function Sidebar(props) {
   const [trustScore, setTrustScore] = useState("");
   const [bettingScore, setBettingScore] = useState("");
   const [leaderboards, setLeaderboards] = useState([]);
-  const [allBoards, setAllBoards] = useState([])
+  const [allBoards, setAllBoards] = useState([]);
 
   const [user, setUser] = useState({});
   const [userID, setUserID] = useState("");
@@ -125,6 +108,7 @@ export function Sidebar(props) {
   const [addLeaderSuccessIsOpen, setAddLeaderSuccessIsOpen] = useState(false);
   const [newUser, setNewUser] = useState(false);
   const [walletIsOpen, setWalletIsOpen] = useState(true);
+  const toast = useToast();
 
   const [start1IsOpen, setStart1IsOpen] = useState(false);
   const [start2IsOpen, setStart2IsOpen] = useState(false);
@@ -132,82 +116,89 @@ export function Sidebar(props) {
 
   const [joinIsOpen, setJoinIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
-  
+
   const [joinCode, setJoinCode] = useState("");
   const [joinLeaderCode, setJoinLeaderCode] = useState("");
 
   //API Calls
 
-
   const getUsers = async () => {
-    const users = await API.graphql({ query: queries.listUsers })
+    const users = await API.graphql({ query: queries.listUsers });
     console.log(users);
-    return users
-  }
+    return users;
+  };
   const getBoards = async () => {
-    const boards = await API.graphql({ query: queries.listLeaderboards})
-    return boards
-  }
+    const boards = await API.graphql({ query: queries.listLeaderboards });
+    return boards;
+  };
 
   useEffect(() => {
     let allBoards;
-    getBoards().catch(console.error)
-    .then((boards) => {
-      allBoards = boards.data.listLeaderboards.items
-      allBoards = allBoards.map(board => board.id)
-      
-      console.log(allBoards)
-      setAllBoards(allBoards);
-      getUsers().catch(console.error)
-      .then((users) => {
-        let email = Auth.user.attributes.email;
-        setEmail(email)
-        let currentUser = users.data.listUsers.items.find(x => x.email == email);
-        setUser(currentUser)
-        if (currentUser != null){
-          console.log(currentUser);
-          let names = currentUser.name.split(" ")
-          setFirstName(names[0]);
-          setLastName(names[1]);
-          setBirthdate(currentUser.birthdate);
-          setPhoneNumber(currentUser.phonenumber);
-          setLeaderboards(currentUser.leaderboards);
-          setTrustScore(currentUser.trustscore);
-          setBettingScore(currentUser.bettingscore);
+    getBoards()
+      .catch(console.error)
+      .then((boards) => {
+        allBoards = boards.data.listLeaderboards.items;
+        allBoards = allBoards.map((board) => board.id);
 
-          console.log(window.location.pathname);
-          const queryParameters = new URLSearchParams(window.location.search)
-          if (queryParameters.has("bet")){
-            betAPICall(queryParameters.get("bet"));
-            setJoinCode(queryParameters.get("bet"))
-            setJoinIsOpen(true)
-          }
-          if (queryParameters.has("leaderboard")){
-            setJoinLeaderCode(queryParameters.get("leaderboard"))
-            setJoinLeaderIsOpen(true)
-          }
-        }else{
-          setEditIsOpen(true);
-          setNewUser(true);
-          setStart1IsOpen(true);
-          setWalletIsOpen(true);
-        }
-        setWalletIsOpen(false)
+        console.log(allBoards);
+        setAllBoards(allBoards);
+        getUsers()
+          .catch(console.error)
+          .then((users) => {
+            let email = Auth.user.attributes.email;
+            setEmail(email);
+            let currentUser = users.data.listUsers.items.find(
+              (x) => x.email == email
+            );
+            setUser(currentUser);
+            if (currentUser != null) {
+              console.log(currentUser);
+              let names = currentUser.name.split(" ");
+              setFirstName(names[0]);
+              setLastName(names[1]);
+              setBirthdate(currentUser.birthdate);
+              setPhoneNumber(currentUser.phonenumber);
+              setLeaderboards(currentUser.leaderboards);
+              setTrustScore(currentUser.trustscore);
+              setBettingScore(currentUser.bettingscore);
 
-      })
-  })},[])
+              console.log(window.location.pathname);
+              const queryParameters = new URLSearchParams(
+                window.location.search
+              );
+              if (queryParameters.has("bet")) {
+                betAPICall(queryParameters.get("bet"));
+                setJoinCode(queryParameters.get("bet"));
+                setJoinIsOpen(true);
+              }
+              if (queryParameters.has("leaderboard")) {
+                setJoinLeaderCode(queryParameters.get("leaderboard"));
+                setJoinLeaderIsOpen(true);
+              }
+            } else {
+              setEditIsOpen(true);
+              setNewUser(true);
+              setStart1IsOpen(true);
+            }
+            setWalletIsOpen(false);
+            if (publicKey != null && !newUser) {
+              setEditIsOpen(false);
+            }
+          });
+      });
+  }, []);
 
 
   const betAPICall = async (betParam) => {
     //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
     //Param: betParam is the url parameter
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betParam)],
+        [Buffer.from(betParam, 0, 20)],
         programId
       );
 
       let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betParam), publicKey.toBytes()],
+        [Buffer.from(betParam, 0, 20), publicKey.toBytes()],
         programId
       );
     let instruction = new TransactionInstruction({
@@ -239,7 +230,7 @@ export function Sidebar(props) {
         },
       ],
       programId: programId,
-      data: JoinBetInstruction(betParam),
+      data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -258,7 +249,7 @@ export function Sidebar(props) {
       lastValidBlockHeight,
       signature,
     });
-  }
+  };
 
   let { connection } = useConnection();
   let { publicKey, sendTransaction } = useWallet();
@@ -301,7 +292,7 @@ export function Sidebar(props) {
   };
 
   const handlemaxPlayersChange = (e) => {
-    console.log(e)
+    console.log(e);
     setMaxPlayers(e);
   };
 
@@ -331,37 +322,39 @@ export function Sidebar(props) {
 
   const handleBetSubmit = async (e) => {
     e.preventDefault();
-    console.log(betName)
-    console.log(minPlayers)
-    console.log(minBet)
-    if (maxPlayers >= minPlayers && maxBet >= minBet && allOptions != []){
+    console.log(betName);
+    console.log(minPlayers);
+    console.log(minBet);
+    if (maxPlayers >= minPlayers && maxBet >= minBet && allOptions != []) {
       while (allOptions.length < 8) {
         let temp = allOptions;
         temp.push("zero");
         setAllOptions(temp);
       }
+      let tempStr = betName + " ".repeat(20-betName.length);
+      setBetName(tempStr);
+      console.log(Buffer.from(tempStr))
       console.log(allOptions);
       console.log(Buffer.from(betName));
 
       let hours = time; //TIME IN HOURS
       console.log(time);
       //let index = uniqueHash(betName + maxBet + allOptions);
-      console.log(Buffer.alloc(20, betName));
+      console.log(Buffer.from(betName, 0, 20));
 
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betName)],
+        [Buffer.from(betName, 0, 20)],
         programId
       );
 
       let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betName), publicKey.toBytes()],
+        [Buffer.from(betName, 0, 20), publicKey.toBytes()],
         programId
       );
-      /*     console.log(name);
-        console.log(provider.publicKey.toBase58());
+        console.log(betName);
         console.log(potPDA.toBase58());
         console.log(potBump);
-        console.log(PublicKey.isOnCurve(potPDA)); */
+        console.log(PublicKey.isOnCurve(potPDA));
 
       console.log([
         { name: allOptions[0], vote_count: 0 },
@@ -447,59 +440,56 @@ export function Sidebar(props) {
       setJoinCode(betName);
       setAddIsOpen(false);
       setAddSuccessIsOpen(true);
-    }
-    else{
+    } else {
       alert("Invalid Bet Parameters");
     }
   };
 
-  const handleLeaderSubmit = async (e) => {  
-    if (leaderName != ""){
-    let board = {
-      users: [Auth.user.attributes.email],
-      name: leaderName
+  const handleLeaderSubmit = async (e) => {
+    if (leaderName != "") {
+      let board = {
+        users: [Auth.user.attributes.email],
+        name: leaderName,
+      };
+      let id;
+      const leaderboard = await API.graphql({
+        query: mutations.createLeaderboard,
+        variables: { input: board },
+      }).then((res) => {
+        console.log(res);
+        id = res.data.createLeaderboard.id;
+        setJoinLeaderCode(id);
+      });
+
+      let currentBoards = user.leaderboards;
+      console.log(user.leaderboards);
+      currentBoards.push(id);
+
+      const fullName = firstName + " " + lastName;
+
+      let newUser = {
+        id: user.id,
+        email: email,
+        name: fullName,
+        birthdate: birthdate,
+        phonenumber: phoneNumber,
+        trustscore: user.trustscore,
+        bettingscore: user.bettingscore,
+        bets: user.bets,
+        leaderboards: currentBoards,
+        _version: user._version,
+      };
+
+      const userUpdate = await API.graphql({
+        query: mutations.updateUser,
+        variables: { input: newUser },
+      }).then(() => {
+        setAddLeaderIsOpen(false);
+        setAddLeaderSuccessIsOpen(true);
+      });
+    } else {
+      alert("Fill out all fields");
     }
-    let id;
-    const leaderboard = await API.graphql({
-      query: mutations.createLeaderboard,
-      variables: { input: board }
-    })
-    .then((res) => {
-      console.log(res)
-      id = res.data.createLeaderboard.id
-      setJoinLeaderCode(id)
-    })
-
-    let currentBoards = user.leaderboards
-    console.log(user.leaderboards);
-    currentBoards.push(id)
-    
-    const fullName = firstName + " " + lastName;
-  
-    let newUser = {
-      id: user.id,
-      email: email,
-      name: fullName,
-      birthdate: birthdate,
-      phonenumber: phoneNumber,
-      trustscore: user.trustscore,
-      bettingscore: user.bettingscore,
-      bets: user.bets,
-      leaderboards: currentBoards,
-      _version: user._version
-    };
-
-    const userUpdate = await API.graphql({
-      query: mutations.updateUser,
-      variables: { input: newUser },
-    })
-    .then(() => {
-      setAddLeaderIsOpen(false);
-      setAddLeaderSuccessIsOpen(true);
-    })
-  }else{
-    alert("Fill out all fields")
-  }
   };
 
   const handlejoinCodeChange = (e) => {
@@ -521,7 +511,7 @@ export function Sidebar(props) {
   };
 
   const downloadQRCodeLeader = () => {
-    console.log(joinLeaderCode)
+    console.log(joinLeaderCode);
     // Generate download with use canvas and stream
     const canvas = document.getElementById("qr-gen2");
     const pngUrl = canvas
@@ -546,9 +536,11 @@ export function Sidebar(props) {
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
     console.log(publicKey.toString());
+    let tempStr = joinCode + " ".repeat(20-joinCode.length);
+    setJoinCode(tempStr);
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode)],
+      [Buffer.from(joinCode, 0, 20)],
       programId
     );
     console.log([
@@ -557,7 +549,7 @@ export function Sidebar(props) {
       programId.toBytes(),
     ]);
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode), publicKey.toBytes()],
+      [Buffer.from(joinCode, 0, 20), publicKey.toBytes()],
       programId
     );
     //Make bet RPC Call(Send Transaction for Make Bet)
@@ -590,7 +582,7 @@ export function Sidebar(props) {
         },
       ],
       programId: programId,
-      data: JoinBetInstruction(joinCode),
+      data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -610,6 +602,14 @@ export function Sidebar(props) {
       signature,
     });
     //use account info to join based on if bet in id is active
+    setJoinIsOpen(false);
+    toast({
+      title: joinCode + " Successfuly Joined.",
+      description: "Now let's get betting!",
+      status: "success",
+      duration: 9000,
+      isClosable: true,
+    });
   };
 
   const selectOption = (id, option) => {
@@ -637,131 +637,143 @@ export function Sidebar(props) {
   };
 
   const handleEditSubmit = async () => {
-    if (publicKey != null){
-    const name = firstName + " " + lastName;
-    if (firstName != "" && lastName != "" && phoneNumber != "" && birthdate != ""){
-    let birthday = +new Date(birthdate);
-    let age = ~~((Date.now() - birthday) / (31557600000))
-    if (age >= 21){
-    if (user != null){
-      let newUser = {
-        id: user.id,
-        email: email,
-        name: name,
-        birthdate: birthdate,
-        phonenumber: phoneNumber,
-        trustscore: user.trustscore,
-        bettingscore: user.bettingscore,
-        bets: user.bets,
-        leaderboards: user.leaderboards,
-        _version: user._version
-      };
-      
-      console.log(newUser);
-      const promise = await API.graphql({
-        query: mutations.updateUser,
-        variables: { input: newUser },
-      })   
-      .then((res) => {
-        console.log(res);
-        setEditIsOpen(false);
-      })
-      
-    }else{
-      let newUser = {
-        email: email,
-        name: name,
-        birthdate: birthdate,
-        phonenumber: phoneNumber,
-        trustscore: 100,
-        bettingscore: 0,
-        bets: [],
-        leaderboards: []
-      };
-      
-      console.log(newUser);
-      const promise = await API.graphql({
-        query: mutations.createUser,
-        variables: { input: newUser },
-      })
-      .then((res) => {
-        console.log(res);
-        setNewUser(false);
-        setEditIsOpen(false);
-        setWalletIsOpen(false);
-      })
+    if (publicKey != null) {
+      const name = firstName + " " + lastName;
+      if (
+        firstName != "" &&
+        lastName != "" &&
+        phoneNumber != "" &&
+        birthdate != ""
+      ) {
+        let birthday = +new Date(birthdate);
+        let age = ~~((Date.now() - birthday) / 31557600000);
+        if (age >= 21) {
+          if (user != null) {
+            let newUser = {
+              id: user.id,
+              email: email,
+              name: name,
+              birthdate: birthdate,
+              phonenumber: phoneNumber,
+              trustscore: user.trustscore,
+              bettingscore: user.bettingscore,
+              bets: user.bets,
+              leaderboards: user.leaderboards,
+              _version: user._version,
+            };
+
+            console.log(newUser);
+            const promise = await API.graphql({
+              query: mutations.updateUser,
+              variables: { input: newUser },
+            }).then((res) => {
+              console.log(res);
+              setEditIsOpen(false);
+            });
+          } else {
+            let newUser = {
+              email: email,
+              name: name,
+              birthdate: birthdate,
+              phonenumber: phoneNumber,
+              trustscore: 100,
+              bettingscore: 0,
+              bets: [],
+              leaderboards: [],
+            };
+
+            console.log(newUser);
+            const promise = await API.graphql({
+              query: mutations.createUser,
+              variables: { input: newUser },
+            }).then((res) => {
+              console.log(res);
+              setNewUser(false);
+              setEditIsOpen(false);
+              setWalletIsOpen(false);
+            });
+          }
+        } else {
+          alert("Must be 21 years of age or older");
+        }
+      } else {
+        alert("Fill out all fields");
+      }
+    } else {
+      alert("Connect Solana Wallet");
     }
-  }else{
-    alert("Must be 21 years of age or older")
-  }
-  }else{
-    alert("Fill out all fields")
-  }
-    }else{
-      alert("Connect Solana Wallet")
-    }
-  }
+  };
 
   const handleJoinLeaderSubmit = async () => {
-    if (joinLeaderCode != ""){
-    let currentBoards = user.leaderboards;
-    console.log(user);
-    console.log(Array.from(currentBoards))
-    if (!currentBoards.includes(joinLeaderCode) && allBoards.includes(joinLeaderCode)){
+    if (joinLeaderCode != "") {
+      let currentBoards = user.leaderboards;
+      console.log(user);
+      console.log(Array.from(currentBoards));
+      if (
+        !currentBoards.includes(joinLeaderCode) &&
+        allBoards.includes(joinLeaderCode)
+      ) {
+        currentBoards.push(joinLeaderCode);
+        const fullName = firstName + " " + lastName;
 
-      currentBoards.push(joinLeaderCode)
-      const fullName = firstName + " " + lastName;
-    
-      let newUser = {
-        id: user.id,
-        email: email,
-        name: fullName,
-        birthdate: birthdate,
-        phonenumber: phoneNumber,
-        trustscore: user.trustscore,
-        bettingscore: user.bettingscore,
-        bets: user.bets,
-        leaderboards: currentBoards,
-        _version: user._version
-      };
-  
-      const userUpdate = await API.graphql({
-        query: mutations.updateUser,
-        variables: { input: newUser },
-      })
-  
-      console.log("user update")
-      console.log(userUpdate)
-    
-    
-    const currentLeaderboard = await API.graphql({
-      query: queries.getLeaderboard,
-      variables: {id: joinLeaderCode}
-    })
+        let newUser = {
+          id: user.id,
+          email: email,
+          name: fullName,
+          birthdate: birthdate,
+          phonenumber: phoneNumber,
+          trustscore: user.trustscore,
+          bettingscore: user.bettingscore,
+          bets: user.bets,
+          leaderboards: currentBoards,
+          _version: user._version,
+        };
 
-    let current = currentLeaderboard.data.getLeaderboard
-    console.log(current)
-    let currentUsers = current.users
-    if (!currentUsers.includes(email)){
-      currentUsers.push(email)
+        const userUpdate = await API.graphql({
+          query: mutations.updateUser,
+          variables: { input: newUser },
+        });
 
-      let board = {
-        id: current.id,
-        users: currentUsers,
-        name: current.name
+        console.log("user update");
+        console.log(userUpdate);
+
+        const currentLeaderboard = await API.graphql({
+          query: queries.getLeaderboard,
+          variables: { id: joinLeaderCode },
+        });
+
+        let current = currentLeaderboard.data.getLeaderboard;
+        console.log(current);
+        let currentUsers = current.users;
+        if (!currentUsers.includes(email)) {
+          currentUsers.push(email);
+
+          let board = {
+            id: current.id,
+            users: currentUsers,
+            name: current.name,
+          };
+
+          const leaderboard = await API.graphql({
+            query: mutations.updateLeaderboard,
+            variables: { input: board },
+          });
+        }
+        setJoinLeaderIsOpen(false);
+        toast({
+          title: "Leaderboard Joined!",
+          description: "Now it's time to brag.",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+      } else {
+        alert("Invalid Leaderboard Code");
       }
-  
-      const leaderboard = await API.graphql({
-        query: mutations.updateLeaderboard,
-        variables: { input: board }
-      })
+    } else {
+      alert("Fill out all fields");
     }
-    }else{
-      alert("Invalid Leaderboard Code")
-    }}else{
-      alert("Fill out all fields")
-  }
-  }
+  };
 
   return (
     <>
@@ -984,41 +996,56 @@ export function Sidebar(props) {
                 </ModalContent>
               </Modal>
 
-
-              <Modal isOpen={addSuccessIsOpen} onClose={() => setAddSuccessIsOpen(false)}>
+              <Modal
+                isOpen={addSuccessIsOpen}
+                onClose={() => setAddSuccessIsOpen(false)}
+              >
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader>Bet Created!</ModalHeader>
-                    <ModalBody>
-                        <h1 style = {{fontSize: "20px"}}><strong>Bet Code:</strong> {joinCode}</h1><br/>
-                        <h3 style = {{fontSize: "15px"}}><strong>Join Link:</strong> <u><a onClick={() => {
-                          navigator.clipboard.writeText(window.location.href + "?bet=" + joinCode)
-                          alert("Copied to Clipboard")
-                          }}>{window.location.href + "?bet=" + joinCode}</a></u></h3><br/>
-                        <QRCodeCanvas 
-                        id="qr-gen1"
-                        includeMargin={true}
-                        value= {window.location.href + "?bet=" + joinCode} />
+                  <ModalBody>
+                    <h1 style={{ fontSize: "20px" }}>
+                      <strong>Bet Code:</strong> {joinCode}
+                    </h1>
+                    <br />
+                    <h3 style={{ fontSize: "15px" }}>
+                      <strong>Join Link:</strong>{" "}
+                      <u>
+                        <a
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              window.location.href + "?bet=" + joinCode
+                            );
+                            alert("Copied to Clipboard");
+                          }}
+                        >
+                          {window.location.href + "?bet=" + joinCode}
+                        </a>
+                      </u>
+                    </h3>
+                    <br />
+                    <QRCodeCanvas
+                      id="qr-gen1"
+                      includeMargin={true}
+                      value={window.location.href + "?bet=" + joinCode}
+                    />
 
-                        <Button onClick={downloadQRCode}>
-                            Download QR Code
-                        </Button>
-                    </ModalBody>
-                    <ModalFooter>
-                      <Button
-                        variant="ghost"
-                        mr={3}
-                        onClick={() => {
-                          setAddSuccessIsOpen(false);
-                          setJoinCode("");
-                        }}
-                      >
-                        Close
-                      </Button>
-                    </ModalFooter>
+                    <Button onClick={downloadQRCode}>Download QR Code</Button>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      variant="ghost"
+                      mr={3}
+                      onClick={() => {
+                        setAddSuccessIsOpen(false);
+                        setJoinCode("");
+                      }}
+                    >
+                      Close
+                    </Button>
+                  </ModalFooter>
                 </ModalContent>
               </Modal>
-
 
               <Modal isOpen={joinIsOpen} onClose={() => setJoinIsOpen(false)}>
                 <ModalOverlay />
@@ -1106,37 +1133,61 @@ export function Sidebar(props) {
                 </ModalContent>
               </Modal>
 
-              
-              <Modal isOpen={addLeaderSuccessIsOpen} onClose={() => setAddLeaderSuccessIsOpen(false)}>
+              <Modal
+                isOpen={addLeaderSuccessIsOpen}
+                onClose={() => setAddLeaderSuccessIsOpen(false)}
+              >
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader>Leaderboard Created!</ModalHeader>
-                    <ModalBody>
-                        <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong> {joinLeaderCode}</h1><br/>
-                        <h3 style = {{fontSize: "15px"}}><strong>Join Link:</strong> <u><a onClick={() => {
-                          navigator.clipboard.writeText(window.location.href + "?leaderboard=" + joinLeaderCode)
-                          alert("Copied to Clipboard")
-                          }}>{window.location.href + "?leaderboard=" + joinLeaderCode}</a></u></h3><br/>
-                        <QRCodeCanvas 
-                        id="qr-gen2"
-                        includeMargin={true}
-                        value= {window.location.href + "?leaderboard=" + joinLeaderCode} />
-                        <Button onClick={downloadQRCodeLeader}>
-                            Download QR Code
-                        </Button>
-                    </ModalBody>
-                    <ModalFooter>
-                      <Button
-                        variant="ghost"
-                        mr={3}
-                        onClick={() => {
-                          setAddLeaderSuccessIsOpen(false);
-                          setJoinLeaderCode("");
-                        }}
-                      >
-                        Close
-                      </Button>
-                    </ModalFooter>
+                  <ModalBody>
+                    <h1 style={{ fontSize: "15px" }}>
+                      <strong>Leaderboard Code:</strong> {joinLeaderCode}
+                    </h1>
+                    <br />
+                    <h3 style={{ fontSize: "15px" }}>
+                      <strong>Join Link:</strong>{" "}
+                      <u>
+                        <a
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              window.location.href +
+                                "?leaderboard=" +
+                                joinLeaderCode
+                            );
+                            alert("Copied to Clipboard");
+                          }}
+                        >
+                          {window.location.href +
+                            "?leaderboard=" +
+                            joinLeaderCode}
+                        </a>
+                      </u>
+                    </h3>
+                    <br />
+                    <QRCodeCanvas
+                      id="qr-gen2"
+                      includeMargin={true}
+                      value={
+                        window.location.href + "?leaderboard=" + joinLeaderCode
+                      }
+                    />
+                    <Button onClick={downloadQRCodeLeader}>
+                      Download QR Code
+                    </Button>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      variant="ghost"
+                      mr={3}
+                      onClick={() => {
+                        setAddLeaderSuccessIsOpen(false);
+                        setJoinLeaderCode("");
+                      }}
+                    >
+                      Close
+                    </Button>
+                  </ModalFooter>
                 </ModalContent>
               </Modal>
 
@@ -1154,7 +1205,7 @@ export function Sidebar(props) {
                           <FormLabel>Leaderboard Code</FormLabel>
                           <Input
                             placeholder="Leaderboard Code"
-                            value = {joinLeaderCode}
+                            value={joinLeaderCode}
                             onChange={handlejoinLeaderCodeChange}
                           />
                         </FormControl>
@@ -1169,7 +1220,10 @@ export function Sidebar(props) {
                       >
                         Close
                       </Button>
-                      <Button onClick = {handleJoinLeaderSubmit} variant="primary">
+                      <Button
+                        onClick={handleJoinLeaderSubmit}
+                        variant="primary"
+                      >
                         Join
                       </Button>
                     </ModalFooter>
@@ -1179,7 +1233,13 @@ export function Sidebar(props) {
             </>
           )}
           <Menu.Item icon={<ExclamationCircleOutlined />}>
-            <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank" key={8}>Contact Support</a>
+            <a
+              href="https://forms.gle/r288veKH6uAU6spUA"
+              target="_blank"
+              key={8}
+            >
+              Contact Support
+            </a>
           </Menu.Item>
         </Menu>
       </Sider>
@@ -1237,7 +1297,7 @@ export function Sidebar(props) {
                   <FormLabel>Last Name</FormLabel>
                   <Input
                     onChange={handleLastNameChange}
-                    value = {lastName}
+                    value={lastName}
                     placeholder="Last name"
                   />
                 </FormControl>
@@ -1257,37 +1317,37 @@ export function Sidebar(props) {
                 <Form.Control
                   type="date"
                   name="dob"
-                  value = {birthdate}
+                  value={birthdate}
                   onChange={handleBirthdateChange}
                 />
               </FormControl>
               <br />
               <FormLabel>Solana Wallet Connection</FormLabel>
-                <Flex>
-                  <WalletMultiButton
-                    onClick={() => {
-                      setEditIsOpen(false)
-                      setWalletIsOpen(true)
-                    }}
-                    style={{ margin: "1%" }}
-                  />
-                  
-                  <WalletDisconnectButton
-                    onClick={() => {
-                      setEditIsOpen(false);
-                      setWalletIsOpen(false);}}
-                    style={{ margin: "1%" }}
-                  />
-                   
-                </Flex>
+              <Flex>
+                <WalletMultiButton
+                  onClick={() => {
+                    setEditIsOpen(false);
+                    setWalletIsOpen(true);
+                  }}
+                  style={{ margin: "1%" }}
+                />
+
+                <WalletDisconnectButton
+                  onClick={() => {
+                    setEditIsOpen(false);
+                    setWalletIsOpen(false);
+                  }}
+                  style={{ margin: "1%" }}
+                />
+              </Flex>
             </ModalBody>
             <ModalFooter>
               <Button
                 variant="ghost"
                 mr={3}
                 onClick={() => {
-                  if (publicKey != null && !newUser){
-                    setEditIsOpen(false)
+                  if (publicKey != null && !newUser) {
+                    setEditIsOpen(false);
                   }
                 }}
               >
@@ -1301,105 +1361,124 @@ export function Sidebar(props) {
         </ModalContent>
       </Modal>
 
-
       <Modal isOpen={start1IsOpen} size="lg" isCentered>
-      <ModalOverlay 
-      backdropFilter='blur(10px) brightness(0%)'/>
-      <ModalContent>
-        <ModalHeader>
-        <Icon h={"10%"} w={"10%"} as={FaDice} color="#195F50" />
-          <Text fontSize="3xl" as="b" color="#195F50">
-            Welcome to Wager
-          </Text>
-        </ModalHeader>
-      <ModalBody >
-          <Text fontSize="xl">
-          Wager is a social betting app that allows a user to bet on any event and compete with a network of users across the platform.
-          </Text>
-      </ModalBody>
-      <ModalFooter>
-        <Button variant="primary" onClick={() => {
-          setStart1IsOpen(false);
-          setStart2IsOpen(true);
-        }}>
-                Continue
-          </Button>
-      </ModalFooter>
-      </ModalContent>
+        <ModalOverlay backdropFilter="blur(10px) brightness(0%)" />
+        <ModalContent>
+          <ModalHeader>
+            <Icon h={"10%"} w={"10%"} as={FaDice} color="#195F50" />
+            <Text fontSize="3xl" as="b" color="#195F50">
+              Welcome to Wager
+            </Text>
+          </ModalHeader>
+          <ModalBody>
+            <Text fontSize="xl">
+              Wager is a social betting app that allows a user to bet on any
+              event and compete with a network of users across the platform.
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setStart1IsOpen(false);
+                setStart2IsOpen(true);
+              }}
+            >
+              Continue
+            </Button>
+          </ModalFooter>
+        </ModalContent>
       </Modal>
 
-      <Modal isOpen={start2IsOpen}  size="lg"  isCentered>
-      <ModalOverlay 
-      backdropFilter='blur(10px) brightness(0%)'/>
-      <ModalContent>
-        <ModalHeader>
-          <Text fontSize="3xl" as="b" color="#195F50">
-            Wager Features
-          </Text>
-        </ModalHeader>
-      <ModalBody >
-        <Flex>
-        <Icon as={BsFillDice5Fill} h={"7%"} w={"7%"} color="#195F50"/>
-          <Text style ={{marginLeft: "15px"}} fontSize="xl">
-          Set up and share bets with your friends with access through your <u><a href = "https://phantom.app/">Phantom</a></u> wallet
-          </Text> <br/>
-        </Flex> <br/>
-        <Flex>
-        <Icon as={MdLeaderboard} h={"7%"} w={"7%"} color="#195F50"/>
-          <Text style ={{marginLeft: "15px"}} fontSize="xl">
-          Compete using your bet records across the platforms through a leaderboard system
-          </Text>
-        </Flex>
-      </ModalBody>
-      <ModalFooter>
-        <Button variant="primary" onClick={() => {
-          setStart2IsOpen(false);
-          setStart3IsOpen(true);
-        }}>
-                Continue
-          </Button>
-      </ModalFooter>
-      </ModalContent>
+      <Modal isOpen={start2IsOpen} size="lg" isCentered>
+        <ModalOverlay backdropFilter="blur(10px) brightness(0%)" />
+        <ModalContent>
+          <ModalHeader>
+            <Text fontSize="3xl" as="b" color="#195F50">
+              Wager Features
+            </Text>
+          </ModalHeader>
+          <ModalBody>
+            <Flex>
+              <Icon as={BsFillDice5Fill} h={"7%"} w={"7%"} color="#195F50" />
+              <Text style={{ marginLeft: "15px" }} fontSize="xl">
+                Set up and share bets with your friends with access through your{" "}
+                <u>
+                  <a href="https://phantom.app/">Phantom</a>
+                </u>{" "}
+                wallet
+              </Text>{" "}
+              <br />
+            </Flex>{" "}
+            <br />
+            <Flex>
+              <Icon as={MdLeaderboard} h={"7%"} w={"7%"} color="#195F50" />
+              <Text style={{ marginLeft: "15px" }} fontSize="xl">
+                Compete using your bet records across the platforms through a
+                leaderboard system
+              </Text>
+            </Flex>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setStart2IsOpen(false);
+                setStart3IsOpen(true);
+              }}
+            >
+              Continue
+            </Button>
+          </ModalFooter>
+        </ModalContent>
       </Modal>
 
       <Modal isOpen={start3IsOpen} size="lg" isCentered>
-      <ModalOverlay 
-      backdropFilter='blur(10px) brightness(0%)'/>
-      <ModalContent>
-        <ModalHeader>
-          <Text fontSize="3xl" as="b" color="#195F50">
-            Next Steps
-          </Text>
-        </ModalHeader>
-      <ModalBody >
-        <Flex>
-        <Icon as={RiNumber1} h={"7%"} w={"7%"} color="#195F50"/>
-          <Text style ={{marginLeft: "15px"}} fontSize="xl">
-          Fill out the Account Information form to register as a user in Wager
-          </Text> <br/>
-        </Flex> <br/>
-        <Flex>
-        <Icon as={RiNumber2} h={"7%"} w={"7%"} color="#195F50"/>
-          <Text style ={{marginLeft: "15px"}} fontSize="xl">
-          Connect your Phantom wallet to the account to link your bets to the account
-          </Text> <br/>
-        </Flex> <br/>
-        <Flex>
-        <Icon as={RiNumber3} h={"7%"} w={"7%"} color="#195F50"/>
-          <Text style ={{marginLeft: "15px"}} fontSize="xl">
-          Start Wagering!
-          </Text>
-        </Flex>
-      </ModalBody>
-      <ModalFooter>
-        <Button variant="primary" onClick={() => {
-          setStart3IsOpen(false);
-          setEditIsOpen(true);
-        }}>
-            Get Started
-          </Button>
-      </ModalFooter>
-      </ModalContent>
+        <ModalOverlay backdropFilter="blur(10px) brightness(0%)" />
+        <ModalContent>
+          <ModalHeader>
+            <Text fontSize="3xl" as="b" color="#195F50">
+              Next Steps
+            </Text>
+          </ModalHeader>
+          <ModalBody>
+            <Flex>
+              <Icon as={RiNumber1} h={"7%"} w={"7%"} color="#195F50" />
+              <Text style={{ marginLeft: "15px" }} fontSize="xl">
+                Fill out the Account Information form to register as a user in
+                Wager
+              </Text>{" "}
+              <br />
+            </Flex>{" "}
+            <br />
+            <Flex>
+              <Icon as={RiNumber2} h={"7%"} w={"7%"} color="#195F50" />
+              <Text style={{ marginLeft: "15px" }} fontSize="xl">
+                Connect your Phantom wallet to the account to link your bets to
+                the account
+              </Text>{" "}
+              <br />
+            </Flex>{" "}
+            <br />
+            <Flex>
+              <Icon as={RiNumber3} h={"7%"} w={"7%"} color="#195F50" />
+              <Text style={{ marginLeft: "15px" }} fontSize="xl">
+                Start Wagering!
+              </Text>
+            </Flex>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setStart3IsOpen(false);
+                setEditIsOpen(true);
+              }}
+            >
+              Get Started
+            </Button>
+          </ModalFooter>
+        </ModalContent>
       </Modal>
     </>
   );
