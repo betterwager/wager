@@ -430,6 +430,7 @@ function Dashboard() {
               </Row>
             }
           >
+            {/*
             <Container>
               <Card style={{ margin: "1rem" }}>
                 <Card.Body>
@@ -438,9 +439,8 @@ function Dashboard() {
                       <Card.Title>
                         <strong>Demo Goes Well?</strong>
                       </Card.Title>
-                      <Card.Text>
-                        <text style={{ color: "#aaaaaa" }}>Status: </text>
-                        Created
+                      <Card.Text style={{ color: "#aaaaaa" }}>
+                         Status: Created
                       </Card.Text>
                     </Col>
                     <Col style={{ textAlign: "right" }}>
@@ -521,8 +521,8 @@ function Dashboard() {
                       <Card.Title>
                         <strong>Demo Goes Well?</strong>
                       </Card.Title>
-                      <Card.Text>
-                        <text style={{ color: "#aaaaaa" }}>Status: </text>Voting
+                      <Card.Text style={{ color: "#aaaaaa" }}>
+                         Status: Voting
                       </Card.Text>
                     </Col>
                     <Col style={{ textAlign: "right" }}>
@@ -535,8 +535,8 @@ function Dashboard() {
                       >
                         <option value={1}>Yes!</option>
                         <option value={2}>No.</option>
-                        {/*                         <option value={3}></option>
-                         */}{" "}
+                        {                         <option value={3}></option>
+                         }{" "}
                       </Select>
                     </Col>
                   </Row>
@@ -603,8 +603,8 @@ function Dashboard() {
                       <Card.Title>
                         <strong>Demo Goes Well?</strong>
                       </Card.Title>
-                      <Card.Text>
-                        <text style={{ color: "#aaaaaa" }}>Status: </text>Closed
+                      <Card.Text style={{ color: "#aaaaaa" }}>
+                         Status: Closed
                       </Card.Text>
                     </Col>
                     <Col style={{ textAlign: "right" }}>
@@ -692,7 +692,7 @@ function Dashboard() {
                 </Card.Footer>
               </Card>{" "}
             </Container>
-
+                      */}
             {allUserBets.map((bet, index) => {
               switch (bet.state) {
                 case 1:
@@ -706,10 +706,9 @@ function Dashboard() {
                               <strong>Bet Name:</strong> {String.fromCharCode.apply(String, bet.bet_identifier)}
                               </Card.Title>
                               <Card.Text>
-                                <text style={{ color: "#aaaaaa" }}>
-                                  Status:{" "}
-                                </text>
-                                Created
+                              <Card.Text style={{ color: "#aaaaaa" }}>
+                                Status: Created
+                              </Card.Text>
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
@@ -881,11 +880,8 @@ function Dashboard() {
                               <Card.Title>
                                 <strong>Index: {index}</strong>
                               </Card.Title>
-                              <Card.Text>
-                                <text style={{ color: "#aaaaaa" }}>
-                                  Status:{" "}
-                                </text>
-                                Voting
+                              <Card.Text style={{ color: "#aaaaaa" }}>
+                                Status: Voting
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
@@ -996,11 +992,8 @@ function Dashboard() {
                               <Card.Title>
                                 <strong>Index: {index}</strong>
                               </Card.Title>
-                              <Card.Text>
-                                <text style={{ color: "#aaaaaa" }}>
-                                  Status:{" "}
-                                </text>
-                                Settled
+                              <Card.Text style={{ color: "#aaaaaa" }}>
+                                Status: Settled
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
