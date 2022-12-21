@@ -188,10 +188,12 @@ function Dashboard() {
   };
 
   const handleBetOption = (e) => {
+    console.log(e.target.value)
     setBetOption(e.target.value);
   };
 
   const handleBetValue = (e) => {
+    console.log(e)
     setBetValue(e);
   };
 
@@ -697,17 +699,11 @@ function Dashboard() {
                   return (
                     <Container key={index}>
                       <Card style={{ margin: "1rem" }}>
-                        <Card.Header>ID: {String.fromCharCode.apply(String, bet.bet_identifier)}</Card.Header>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
                               <Card.Title>
-                                {() => {
-                                    let name = String.fromCharCode.apply(String, bet.bet_identifier)
-                                    console.log(name);
-                                    return (<strong>Bet Name: {name}</strong>)
-                                }}
-                                <strong>Bet Name: {index}</strong>
+                              <strong>Bet Name:</strong> {String.fromCharCode.apply(String, bet.bet_identifier)}
                               </Card.Title>
                               <Card.Text>
                                 <text style={{ color: "#aaaaaa" }}>
@@ -807,7 +803,71 @@ function Dashboard() {
                           </Grid>
                         </Card.Footer>
                       </Card>
+
+                      <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
+                        <ModalOverlay />
+                        <ModalContent>
+                          <ModalHeader>Make Bet</ModalHeader>
+                          <ModalBody>
+                            <>
+                              <FormControl isRequired>
+                                <FormLabel>Bet Code</FormLabel>
+                                <Input
+                                  placeholder="Bet Code"
+                                  value={String.fromCharCode.apply(String, bet.bet_identifier)}
+                                />
+                              </FormControl>
+                              <br />
+                              <FormControl isRequired>
+                                <FormLabel>Bet Option</FormLabel>
+                                <Select
+                                  onChange={handleBetOption}
+                                  placeholder="Select option"
+                                >
+                                  {bet.options.map((option) => {
+                                  let name = String.fromCharCode.apply(String, option.name)
+                                  name = name.substr(0,name.indexOf('\0'));
+                                  if (name !== "zero" && name !== ""){
+                                    return (<option key = {name} value={name}>{name}</option>)
+                                  }})}
+                                </Select>
+                              </FormControl>
+                              <br />
+                              <FormControl isRequired>
+                                <FormLabel>Bet Value ($)</FormLabel>
+                                <NumberInput
+                                  onChange={handleBetValue}
+                                  min={bet.min_bet}
+                                  max={bet.max_bet}
+                                  precision={2}
+                                  step={0.5}
+                                >
+                                  <NumberInputField />
+                                  <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                  </NumberInputStepper>
+                                </NumberInput>
+                              </FormControl>
+                            </>
+                          </ModalBody>
+                          <ModalFooter>
+                            <Button
+                              variant="ghost"
+                              mr={3}
+                              onClick={() => setBetIsOpen(false)}
+                            >
+                              Close
+                            </Button>
+                            <Button colorScheme="blue" onClick={handleBetting}>
+                              Wager!
+                            </Button>
+                          </ModalFooter>
+                        </ModalContent>
+                      </Modal>
                     </Container>
+
+
                   );
 
                 case 2:
@@ -838,10 +898,10 @@ function Dashboard() {
                               >
                                 {bet.options.map((option) => {
                                   let name = String.fromCharCode.apply(String, option.name)
-                                  console.log(name);
-                                  return (<option value={name}>name</option>)
-                                }
-                                )}
+                                  name = name.substr(0,name.indexOf('\0'));
+                                  if (name !== "zero" && name !== ""){
+                                    return (<option key = {name} value={name}>{name}</option>)
+                                  }})}
                               </Select>
                             </Col>
                           </Row>
@@ -1053,63 +1113,7 @@ function Dashboard() {
                 default: return(<Container></Container>);
               }
             })}
-            <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader>Make Bet</ModalHeader>
-                <ModalBody>
-                  <>
-                    <FormControl isRequired>
-                      <FormLabel>Bet Code</FormLabel>
-                      <Input
-                        placeholder="Bet Code"
-                        onChange={(e) => handlejoinCodeChange(e)}
-                      />
-                    </FormControl>
-                    <br />
-                    <FormControl isRequired>
-                      <FormLabel>Bet Option</FormLabel>
-                      <Select
-                        onChange={() => handleBetOption}
-                        placeholder="Select option"
-                      >
-                        <option value={1}>option 1</option>
-                        <option value={2}>option 2</option>
-                        <option value={3}>option 3</option>
-                      </Select>
-                    </FormControl>
-                    <br />
-                    <FormControl isRequired>
-                      <FormLabel>Bet Value ($)</FormLabel>
-                      <NumberInput
-                        onChange={handleBetValue}
-                        min={0.0}
-                        precision={2}
-                        step={0.5}
-                      >
-                        <NumberInputField />
-                        <NumberInputStepper>
-                          <NumberIncrementStepper />
-                          <NumberDecrementStepper />
-                        </NumberInputStepper>
-                      </NumberInput>
-                    </FormControl>
-                  </>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    variant="ghost"
-                    mr={3}
-                    onClick={() => setBetIsOpen(false)}
-                  >
-                    Close
-                  </Button>
-                  <Button colorScheme="blue" onClick={(e) => handleBetting(e)}>
-                    Wager!
-                  </Button>
-                </ModalFooter>
-              </ModalContent>
-            </Modal>
+            
           </InfiniteScroll>
         </Container>
       </GridItem>

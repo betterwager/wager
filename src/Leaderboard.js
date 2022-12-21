@@ -3,12 +3,20 @@ import {
   Grid,
   SimpleGrid,
   GridItem,
+  Button,
   Box,
   Table,
   Thead,
   Tbody,
   Tfoot,
+  Flex,
   FormControl,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalFooter,
+  ModalOverlay,
+  ModalContent,
   Select,
   Tr,
   Th,
@@ -17,6 +25,7 @@ import {
   TableContainer,
 } from "@chakra-ui/react";
 import Sidebar from './Sidebar.js'
+import {QRCodeCanvas} from 'qrcode.react';
 import { DataGrid} from '@mui/x-data-grid';
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import * as queries from "./graphql/queries";
@@ -33,6 +42,8 @@ function Leaderboard(){
   const [currentUser, setCurrentUser] = useState({})
   const [currentBoard, setCurrentBoard] = useState([]);
   const [boardUsers, setBoardUsers] = useState([])
+  const [code, setCode] = useState("")
+  const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
   const path = window.location.pathname
 
   const getUsers = async () => {
@@ -67,8 +78,10 @@ function Leaderboard(){
         setBoardNames(boardNames)
         console.log(boardNames)
         setBoardIDs(boardID)
-        let board = allBoards[0].users
-        setCurrentBoard(board)
+        let list = allBoards[0].users;
+        list = list.sort((a,b) => a.bettingscore - b.bettingscore)
+        setCurrentBoard(list) 
+        setCode(allBoards[0].id)
         console.log(boardNames)
         console.log(allBoards)
       }
@@ -94,9 +107,12 @@ function Leaderboard(){
 
     const handleCurrentBoard = (e) => {
       let ID = e.target.value
+      setCode(ID);
       for (var i = 0; i < boards.length; i++){
         if (boards[i].id == ID){
-          setCurrentBoard(boards[i].users)  
+          let list = boards[i].users;
+          list = list.sort((a,b) => a.bettingscore - b.bettingscore)
+          setCurrentBoard(list)  
           break;
         }
       }
@@ -108,6 +124,19 @@ function Leaderboard(){
       setBoardUsers(boardUserList)
     }
 
+    const downloadQRCodeLeader = () => {
+      // Generate download with use canvas and stream
+      const canvas = document.getElementById("qr-gen");
+      const pngUrl = canvas
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `${code}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    };
     return (
       <Grid
         templateAreas={`"nav header"
@@ -161,7 +190,8 @@ function Leaderboard(){
             color: "white",
             fontSize: "20px",
           }}>
-
+          
+          <Flex>
           <FormControl style = {{border: "black", maxWidth: "40%", color: "black"}}>
             <Select onChange = {handleCurrentBoard} variant = "filled">
               {boardNames.map((name, index) => (
@@ -169,6 +199,15 @@ function Leaderboard(){
               ))}
             </Select>
           </FormControl>
+
+          <Button variant="primary" disabled = {code==""}style = {{backgroundColor: "green", color:"white"}} onClick={() => {
+              if (code != ""){
+                setCodeDisplayIsOpen(true);
+              }
+          }}>
+            View Join Code
+          </Button>
+          </Flex>
           </div>
           {currentBoard == null ? (<></>) :
           (
@@ -229,6 +268,38 @@ function Leaderboard(){
             </>
           )}
         </GridItem>
+
+        <Modal isOpen={codeDisplayIsOpen} onClose={() => setCodeDisplayIsOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Leaderboard</ModalHeader>
+                    <ModalBody>
+                        <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong> {code}</h1><br/>
+                        <h3 style = {{fontSize: "15px"}}><strong>Join Link:</strong> <u><a onClick={() => {
+                          navigator.clipboard.writeText(window.location.href + "?leaderboard=" + code)
+                          alert("Copied to Clipboard")
+                          }}>{window.location.href + "?leaderboard=" + code}</a></u></h3><br/>
+                        <QRCodeCanvas 
+                        id="qr-gen"
+                        includeMargin={true}
+                        value= {window.location.href + "?leaderboard=" + code} />
+                        <Button onClick={downloadQRCodeLeader}>
+                            Download QR Code
+                        </Button>
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button
+                        variant="ghost"
+                        mr={3}
+                        onClick={() => {
+                          setCodeDisplayIsOpen(false);
+                        }}
+                      >
+                        Close
+                      </Button>
+                    </ModalFooter>
+                </ModalContent>
+              </Modal>
       </Grid>
     );
   

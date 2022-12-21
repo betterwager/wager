@@ -654,6 +654,9 @@ export function Sidebar(props) {
     if (publicKey != null){
     const name = firstName + " " + lastName;
     if (firstName != "" && lastName != "" && phoneNumber != "" && birthdate != ""){
+    let birthday = +new Date(birthdate);
+    let age = ~~((Date.now() - birthday) / (31557600000))
+    if (age >= 21){
     if (user != null){
       let newUser = {
         id: user.id,
@@ -702,6 +705,9 @@ export function Sidebar(props) {
         setWalletIsOpen(false);
       })
     }
+  }else{
+    alert("Must be 21 years of age or older")
+  }
   }else{
     alert("Fill out all fields")
   }
@@ -813,7 +819,7 @@ export function Sidebar(props) {
             <Menu.Item onClick={() => setAccIsOpen(true)} key="8">
               Account Details
             </Menu.Item>
-            <Menu.Item onClick={() => handleSignOut} key="9">
+            <Menu.Item onClick={handleSignOut} key="9">
               Sign Out
             </Menu.Item>
           </SubMenu>
@@ -998,7 +1004,11 @@ export function Sidebar(props) {
                 <ModalContent>
                   <ModalHeader>Bet Created!</ModalHeader>
                     <ModalBody>
-                        <h1 style = {{fontSize: "20px"}}>Bet Code: {joinCode}</h1><br/>
+                        <h1 style = {{fontSize: "20px"}}><strong>Bet Code:</strong> {joinCode}</h1><br/>
+                        <h3 style = {{fontSize: "15px"}}><strong>Join Link:</strong> <u><a onClick={() => {
+                          navigator.clipboard.writeText(window.location.href + "?bet=" + joinCode)
+                          alert("Copied to Clipboard")
+                          }}>{window.location.href + "?bet=" + joinCode}</a></u></h3><br/>
                         <QRCodeCanvas 
                         id="qr-gen1"
                         includeMargin={true}
@@ -1116,7 +1126,11 @@ export function Sidebar(props) {
                 <ModalContent>
                   <ModalHeader>Leaderboard Created!</ModalHeader>
                     <ModalBody>
-                        <h1 style = {{fontSize: "20px"}}>Bet Code: {joinLeaderCode}</h1><br/>
+                        <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong> {joinLeaderCode}</h1><br/>
+                        <h3 style = {{fontSize: "15px"}}><strong>Join Link:</strong> <u><a onClick={() => {
+                          navigator.clipboard.writeText(window.location.href + "?leaderboard=" + joinLeaderCode)
+                          alert("Copied to Clipboard")
+                          }}>{window.location.href + "?leaderboard=" + joinLeaderCode}</a></u></h3><br/>
                         <QRCodeCanvas 
                         id="qr-gen2"
                         includeMargin={true}
@@ -1178,8 +1192,8 @@ export function Sidebar(props) {
               </Modal>
             </>
           )}
-          <Menu.Item icon={<ExclamationCircleOutlined />} key="8">
-            <a href={HOME}>Contact Support</a>
+          <Menu.Item icon={<ExclamationCircleOutlined />}>
+            <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank" key={8}>Contact Support</a>
           </Menu.Item>
         </Menu>
       </Sider>
