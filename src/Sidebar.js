@@ -216,12 +216,12 @@ export function Sidebar(props) {
     //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
     //Param: betParam is the url parameter
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betParam)],
+        [Buffer.from(betParam, 0, 20)],
         programId
       );
 
       let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betParam), publicKey.toBytes()],
+        [Buffer.from(betParam, 0, 20), publicKey.toBytes()],
         programId
       );
     let instruction = new TransactionInstruction({
@@ -253,7 +253,7 @@ export function Sidebar(props) {
         },
       ],
       programId: programId,
-      data: JoinBetInstruction(betParam),
+      data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -347,35 +347,43 @@ export function Sidebar(props) {
     e.preventDefault();
     console.log(betName)
     console.log(minPlayers)
+    console.log(maxPlayers)
+    console.log(maxPlayers >= minPlayers)
     console.log(minBet)
+    console.log(maxBet)
+    console.log(maxBet >= minBet)
+    console.log(allOptions)
+    console.log(allOptions != [])
     if (maxPlayers >= minPlayers && maxBet >= minBet && allOptions != []){
       while (allOptions.length < 8) {
         let temp = allOptions;
         temp.push("zero");
         setAllOptions(temp);
       }
+      let tempStr = betName + " ".repeat(20-betName.length);
+      setBetName(tempStr);
+      console.log(Buffer.from(tempStr))
       console.log(allOptions);
       console.log(Buffer.from(betName));
 
       let hours = time; //TIME IN HOURS
       console.log(time);
       //let index = uniqueHash(betName + maxBet + allOptions);
-      console.log(Buffer.alloc(20, betName));
+      console.log(Buffer.from(betName, 0, 20));
 
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betName)],
+        [Buffer.from(betName, 0, 20)],
         programId
       );
 
       let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betName), publicKey.toBytes()],
+        [Buffer.from(betName, 0, 20), publicKey.toBytes()],
         programId
       );
-      /*     console.log(name);
-        console.log(provider.publicKey.toBase58());
+        console.log(betName);
         console.log(potPDA.toBase58());
         console.log(potBump);
-        console.log(PublicKey.isOnCurve(potPDA)); */
+        console.log(PublicKey.isOnCurve(potPDA));
 
       console.log([
         { name: allOptions[0], vote_count: 0 },
@@ -560,9 +568,11 @@ export function Sidebar(props) {
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
     console.log(publicKey.toString());
+    let tempStr = joinCode + " ".repeat(20-joinCode.length);
+    setJoinCode(tempStr);
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode)],
+      [Buffer.from(joinCode, 0, 20)],
       programId
     );
     console.log([
@@ -571,7 +581,7 @@ export function Sidebar(props) {
       programId.toBytes(),
     ]);
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode), publicKey.toBytes()],
+      [Buffer.from(joinCode, 0, 20), publicKey.toBytes()],
       programId
     );
     //Make bet RPC Call(Send Transaction for Make Bet)
@@ -604,7 +614,7 @@ export function Sidebar(props) {
         },
       ],
       programId: programId,
-      data: JoinBetInstruction(joinCode),
+      data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);

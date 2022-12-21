@@ -206,11 +206,11 @@ function Dashboard() {
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode)],
+      [Buffer.from(joinCode, 20)],
       programId
     );
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode), publicKey.toBytes()],
+      [Buffer.from(joinCode, 20), publicKey.toBytes()],
       programId
     );
     //Make bet RPC Call(Send Transaction for Make Bet)
@@ -238,7 +238,7 @@ function Dashboard() {
         },
       ],
       programId: programId,
-      data: MakeBetInstruction(joinCode, betValue, 0, playerBump),
+      data: MakeBetInstruction(betValue, 0, playerBump),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
