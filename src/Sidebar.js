@@ -190,27 +190,13 @@ export function Sidebar(props) {
           setEditIsOpen(true);
           setNewUser(true);
           setStart1IsOpen(true);
+          setWalletIsOpen(true);
         }
         setWalletIsOpen(false)
-        if(publicKey != null && !newUser){
-          setEditIsOpen(false)
-        }
 
       })
   })},[])
 
-  useEffect(() => {
-    /* console.log(publicKey)
-    console.log(walletIsOpen) */
-    if (newUser && publicKey == null && !editIsOpen && !walletIsOpen){
-      setWalletIsOpen(true)
-      setEditIsOpen(true)
-    }
-    if (publicKey == null && !walletIsOpen){
-      setEditIsOpen(true);
-    }
-
-  })
 
   const betAPICall = async (betParam) => {
     //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
@@ -1232,11 +1218,7 @@ export function Sidebar(props) {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={editIsOpen} onClose={() => {
-        if (!newUser)
-          setEditIsOpen(false)
-        setWalletIsOpen(false)
-        }}>
+      <Modal isOpen={editIsOpen}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Account Information</ModalHeader>
