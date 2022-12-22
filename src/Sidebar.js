@@ -284,7 +284,7 @@ export function Sidebar(props) {
   };
 
   const handleTimeChange = (e) => {
-    setTime(e.value);
+    setTime(e);
   };
 
   const handleminPlayersChange = (e) => {
@@ -323,9 +323,12 @@ export function Sidebar(props) {
   const handleBetSubmit = async (e) => {
     e.preventDefault();
     console.log(betName);
-    console.log(minPlayers);
-    console.log(minBet);
-    if (maxPlayers >= minPlayers && maxBet >= minBet && allOptions != []) {
+    console.log(typeof minPlayers);
+    console.log(maxPlayers);
+    console.log(typeof minBet);
+    console.log(maxBet);
+    console.log(allOptions)
+    if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && allOptions != [] && time >= 0) {
       while (allOptions.length < 8) {
         let temp = allOptions;
         temp.push("zero");
@@ -337,8 +340,9 @@ export function Sidebar(props) {
       console.log(allOptions);
       console.log(Buffer.from(betName));
 
-      let hours = time; //TIME IN HOURS
-      console.log(time);
+      let timestamp = Math.floor(Date.now() / 1000) + (time * 3600); //TIME IN HOURS
+      console.log(timestamp);
+
       //let index = uniqueHash(betName + maxBet + allOptions);
       console.log(Buffer.from(betName, 0, 20));
 
@@ -439,6 +443,8 @@ export function Sidebar(props) {
       console.log(transaction);
       setJoinCode(betName);
       setAddIsOpen(false);
+      OptionsList = [];
+      setAllOptions([]);
       setAddSuccessIsOpen(true);
     } else {
       alert("Invalid Bet Parameters");
@@ -708,6 +714,7 @@ export function Sidebar(props) {
     if (joinLeaderCode != "") {
       let currentBoards = user.leaderboards;
       console.log(user);
+      console.log(joinLeaderCode)
       console.log(Array.from(currentBoards));
       if (
         !currentBoards.includes(joinLeaderCode) &&
@@ -747,17 +754,18 @@ export function Sidebar(props) {
         let currentUsers = current.users;
         if (!currentUsers.includes(email)) {
           currentUsers.push(email);
+          console.log(currentUsers)
 
           let board = {
             id: current.id,
-            users: currentUsers,
+            users: email,
             name: current.name,
           };
 
           const leaderboard = await API.graphql({
             query: mutations.updateLeaderboard,
-            variables: { input: board },
-          });
+            variables: { input: board }
+          })
         }
         setJoinLeaderIsOpen(false);
         toast({
@@ -968,9 +976,9 @@ export function Sidebar(props) {
                         <FormControl isRequired>
                           <FormLabel>Hours to Bet</FormLabel>
                           <NumberInput
-                            onChange={(e) => handleTimeChange(e)}
-                            value={time}
-                            placeholder="Enter Option"
+                            onChange={handleTimeChange}
+                            value = {time}
+                            placeholder="Enter Time for Betting"
                           >
                             <NumberInputField />
                           </NumberInput>
@@ -1232,11 +1240,11 @@ export function Sidebar(props) {
               </Modal>
             </>
           )}
-          <Menu.Item icon={<ExclamationCircleOutlined />}>
+          <Menu.Item icon={<ExclamationCircleOutlined />} key = "8">
             <a
               href="https://forms.gle/r288veKH6uAU6spUA"
               target="_blank"
-              key={8}
+        
             >
               Contact Support
             </a>
