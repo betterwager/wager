@@ -11,6 +11,7 @@ import {
   NumberInput,
   NumberInputField,
   Select,
+  Flex,
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
@@ -73,12 +74,17 @@ function Dashboard() {
   //Chosen User Option for a Bet
   const [betOption, setBetOption] = useState("");
   //Amount Bet on specific bet
-  const [betValue, setBetValue] = useState(0);
+  const [betValue, setBetValue] = useState(0.0);
   //Open Betting Modal
   const [betIsOpen, setBetIsOpen] = useState(false);
   //Success Toasts
   const toast = useToast();
+  //Options for the selected bet
   const [currentOptions, setCurrentOptions] = useState([]);
+  //Voting Option Selected
+  const [voteOption, setVoteOption] = useState("")
+  //Voting Index Selected
+  const [voteIndex, setVoteIndex] = useState(0)
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -202,7 +208,7 @@ function Dashboard() {
 
   const handleBetValue = (e) => {
     console.log(e);
-    setBetValue(e);
+    setBetValue(parseFloat(e));
   };
 
   const handleBetting = async (e, index) => {
@@ -212,11 +218,11 @@ function Dashboard() {
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode)],
+      [Buffer.from(joinCode, 20)],
       programId
     );
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode), publicKey.toBytes()],
+      [Buffer.from(joinCode, 20), publicKey.toBytes()],
       programId
     );
     //Make bet RPC Call(Send Transaction for Make Bet)
@@ -244,7 +250,7 @@ function Dashboard() {
         },
       ],
       programId: programId,
-      data: MakeBetInstruction(joinCode, betValue, 0, playerBump),
+      data: MakeBetInstruction(betValue, 0, playerBump),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -277,9 +283,15 @@ function Dashboard() {
     //use account info to join based on if bet in id is active - WEB3
   };
 
-  const selectOption = async (e, index) => {
-    e.preventDefault();
-    let optionChose = e.target.value;
+  const selectOption = (e, index) => {
+    setVoteOption(e.target.value)
+    setVoteIndex(index)
+    console.log(index);
+  }
+
+  const submitOption = async () => {
+    let optionChose = voteOption;
+    let index = voteIndex;
     console.log(optionChose);
     //use bet id and option to process vote for user
     let potPDA = betAddresses[index];
@@ -405,17 +417,15 @@ function Dashboard() {
                 }}
               >
                 <Card.Body>
-                  <Card.Text style={{ color: "#888888" }}>
-                    Closed Bets
-                  </Card.Text>
+                  <Card.Text style={{ color: "#888888" }}>Voting</Card.Text>
                   <Card.Title>
-                    <strong>2</strong>
+                    <strong>{allUserBets.filter((obj) => obj.state === 2).length}</strong>
                   </Card.Title>
                 </Card.Body>
               </Card>
             </Col>
             <Col>
-              <Card
+            <Card
                 style={{
                   borderColor: "#1D5F50",
                   width: "100%",
@@ -423,12 +433,14 @@ function Dashboard() {
                 }}
               >
                 <Card.Body>
-                  <Card.Text style={{ color: "#888888" }}>Voting</Card.Text>
+                  <Card.Text style={{ color: "#888888" }}>
+                    Closed Bets
+                  </Card.Text>
                   <Card.Title>
-                    <strong>0</strong>
+                    <strong>{allUserBets.filter((obj) => obj.state === 3).length}</strong>
                   </Card.Title>
                 </Card.Body>
-              </Card>
+              </Card>              
             </Col>
           </Row>
           <InfiniteScroll
@@ -729,11 +741,9 @@ function Dashboard() {
                         <FormLabel>Bet Code</FormLabel>
                         <Input
                           placeholder="Bet Code"
-                          value={String.fromCharCode.apply(
-                            String,
-                            currentBet.bet_identifier
-                          )}
-                        />
+                          value={joinCode}
+                          onChange = {handlejoinCodeChange}
+                          />
                       </FormControl>
                       <br />
                       <FormControl isRequired>
@@ -809,10 +819,8 @@ function Dashboard() {
                                   bet.bet_identifier
                                 )}
                               </Card.Title>
-                              <Card.Text>
-                                <Card.Text style={{ color: "#aaaaaa" }}>
+                              <Card.Text style={{ color: "#aaaaaa" }}>
                                   Status: Created
-                                </Card.Text>
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
@@ -823,6 +831,11 @@ function Dashboard() {
                                 onClick={() => {
                                   setBetIsOpen(true);
                                   setCurrentBet(bet);
+                                  let name = bet.bet_identifier
+                                  name = String.fromCharCode.apply(String, name);
+                                  if (name.indexOf(" ") >= 0)
+                                    name = name.substr(0, name.indexOf(" "));
+                                  setJoinCode(name);
                                   setCurrentOptions(bet.options);
                                 }}
                               >
@@ -907,82 +920,6 @@ function Dashboard() {
                           </Grid>
                         </Card.Footer>
                       </Card>
-
-                      <Modal
-                        isOpen={betIsOpen}
-                        onClose={() => setBetIsOpen(false)}
-                      >
-                        <ModalOverlay />
-                        <ModalContent>
-                          <ModalHeader>Make Bet</ModalHeader>
-                          <ModalBody>
-                            <>
-                              <FormControl isRequired>
-                                <FormLabel>Bet Code</FormLabel>
-                                <Input
-                                  placeholder="Bet Code"
-                                  value={String.fromCharCode.apply(
-                                    String,
-                                    bet.bet_identifier
-                                  )}
-                                />
-                              </FormControl>
-                              <br />
-                              <FormControl isRequired>
-                                <FormLabel>Bet Option</FormLabel>
-                                <Select
-                                  onChange={handleBetOption}
-                                  placeholder="Select option"
-                                >
-                                  {bet.options.map((option) => {
-                                    let name = String.fromCharCode.apply(
-                                      String,
-                                      option.name
-                                    );
-                                    name = name.substr(0, name.indexOf("\0"));
-                                    if (name !== "zero" && name !== "") {
-                                      return (
-                                        <option key={name} value={name}>
-                                          {name}
-                                        </option>
-                                      );
-                                    }
-                                  })}
-                                </Select>
-                              </FormControl>
-                              <br />
-                              <FormControl isRequired>
-                                <FormLabel>Bet Value ($)</FormLabel>
-                                <NumberInput
-                                  onChange={handleBetValue}
-                                  min={bet.min_bet}
-                                  max={bet.max_bet}
-                                  precision={2}
-                                  step={0.5}
-                                >
-                                  <NumberInputField />
-                                  <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                  </NumberInputStepper>
-                                </NumberInput>
-                              </FormControl>
-                            </>
-                          </ModalBody>
-                          <ModalFooter>
-                            <Button
-                              variant="ghost"
-                              mr={3}
-                              onClick={() => setBetIsOpen(false)}
-                            >
-                              Close
-                            </Button>
-                            <Button colorScheme="blue" onClick={handleBetting}>
-                              Wager!
-                            </Button>
-                          </ModalFooter>
-                        </ModalContent>
-                      </Modal>
                     </Container>
                   );
 
@@ -990,40 +927,51 @@ function Dashboard() {
                   return (
                     <Container key={index}>
                       <Card style={{ margin: "1rem" }}>
-                        <Card.Header>ID: {bet.address}</Card.Header>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
                               <Card.Title>
-                                <strong>Index: {index}</strong>
+                                <strong>Bet Name:</strong>{" "}
+                                {String.fromCharCode.apply(
+                                  String,
+                                  bet.bet_identifier
+                                )}
                               </Card.Title>
                               <Card.Text style={{ color: "#aaaaaa" }}>
-                                Status: Voting
+                                  Status: Voting
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
+                              <Flex>
                               <Select
                                 style={{ margin: "1%" }}
                                 colorScheme="purple"
-                                onChange={(e) => selectOption(e, 0)}
+                                onChange={(e) => {
+                                  selectOption(e, index)
+                                }}
                                 variant="outline"
                                 placeholder="Select option"
                               >
-                                {bet.options.map((option) => {
+                                {bet.options.map((option, index) => {
                                   let name = String.fromCharCode.apply(
                                     String,
                                     option.name
                                   );
-                                  name = name.substr(0, name.indexOf("\0"));
+                                  if (name.indexOf("\0") >= 0)
+                                    name = name.substr(0, name.indexOf("\0"));
                                   if (name !== "zero" && name !== "") {
                                     return (
-                                      <option key={name} value={name}>
+                                      <option key={index} value={name}>
                                         {name}
                                       </option>
                                     );
                                   }
                                 })}
                               </Select>
+                              <br/><Button variant="primary" style = {{backgroundColor: "purple", color: "white"}} onClick = {submitOption}>
+                                Vote
+                              </Button>
+                              </Flex>
                             </Col>
                           </Row>
                         </Card.Body>
@@ -1039,7 +987,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  Yes
+                                  {bet.position}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1053,7 +1001,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  $5
+                                  {bet.stake}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1068,7 +1016,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  $10
+                                  {bet.balance}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1082,7 +1030,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  01:00
+                                  {bet.time}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1096,7 +1044,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {2}
+                                  {bet.player_count}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1109,25 +1057,28 @@ function Dashboard() {
                 case 3:
                   return (
                     <Container key={index}>
-                      <Card style={{ margin: "1rem" }}>
-                        <Card.Header>ID: {bet.address}</Card.Header>
-                        <Card.Body>
-                          <Row>
-                            <Col style={{ textAlign: "left" }}>
-                              <Card.Title>
-                                <strong>Index: {index}</strong>
-                              </Card.Title>
-                              <Card.Text style={{ color: "#aaaaaa" }}>
+                    <Card style={{ margin: "1rem" }}>
+                      <Card.Body>
+                        <Row>
+                          <Col style={{ textAlign: "left" }}>
+                            <Card.Title>
+                              <strong>Bet Name:</strong>{" "}
+                              {String.fromCharCode.apply(
+                                String,
+                                bet.bet_identifier
+                              )}
+                            </Card.Title>
+                            <Card.Text style={{ color: "#aaaaaa" }}>
                                 Status: Settled
-                              </Card.Text>
-                            </Col>
-                            <Col style={{ textAlign: "right" }}>
+                            </Card.Text>
+                          </Col>
+                          <Col style={{ textAlign: "right" }}>
                               <Button
                                 style={{ margin: "1%" }}
                                 colorScheme="purple"
                                 variant="outline"
                               >
-                                Yes: -5
+                                Yes
                               </Button>
                               {false ? (
                                 <Button
@@ -1144,89 +1095,90 @@ function Dashboard() {
                                   colorScheme="green"
                                   variant="outline"
                                 >
-                                  You Won: $5
+                                  You Won:
                                 </Button>
                               )}
                             </Col>
                           </Row>
-                        </Card.Body>
-                        <Card.Footer style={{ backgroundColor: "#fff" }}>
-                          <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-                            <GridItem w="100%" h="10">
-                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                <GridItem w="100%" h="10">
-                                  Position
-                                </GridItem>
-                                <GridItem
-                                  style={{ color: "#aaaaaa" }}
-                                  w="100%"
-                                  h="10"
-                                >
-                                  Yes
-                                </GridItem>
-                              </Grid>
-                            </GridItem>
-                            <GridItem w="100%" h="10">
-                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                <GridItem w="100%" h="10">
-                                  Stake
-                                </GridItem>
-                                <GridItem
-                                  style={{ color: "#aaaaaa" }}
-                                  w="100%"
-                                  h="10"
-                                >
-                                  $5
-                                </GridItem>
-                              </Grid>
-                            </GridItem>
+                      </Card.Body>
+                      <Card.Footer style={{ backgroundColor: "#fff" }}>
+                        <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+                          <GridItem w="100%" h="10">
+                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                              <GridItem w="100%" h="10">
+                                Position
+                              </GridItem>
+                              <GridItem
+                                style={{ color: "#aaaaaa" }}
+                                w="100%"
+                                h="10"
+                              >
+                                {bet.position}
+                              </GridItem>
+                            </Grid>
+                          </GridItem>
+                          <GridItem w="100%" h="10">
+                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                              <GridItem w="100%" h="10">
+                                Stake
+                              </GridItem>
+                              <GridItem
+                                style={{ color: "#aaaaaa" }}
+                                w="100%"
+                                h="10"
+                              >
+                                {bet.stake}
+                              </GridItem>
+                            </Grid>
+                          </GridItem>
 
-                            <GridItem w="100%" h="10">
-                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                <GridItem w="100%" h="10">
-                                  Pot
-                                </GridItem>
-                                <GridItem
-                                  style={{ color: "#aaaaaa" }}
-                                  w="100%"
-                                  h="10"
-                                >
-                                  $10
-                                </GridItem>
-                              </Grid>
-                            </GridItem>
-                            <GridItem w="100%" h="10">
-                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                <GridItem w="100%" h="10">
-                                  Time
-                                </GridItem>
-                                <GridItem
-                                  style={{ color: "#aaaaaa" }}
-                                  w="100%"
-                                  h="10"
-                                >
-                                  00:00
-                                </GridItem>
-                              </Grid>
-                            </GridItem>
-                            <GridItem w="100%" h="10">
-                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                <GridItem w="100%" h="10">
-                                  Players
-                                </GridItem>
-                                <GridItem
-                                  style={{ color: "#aaaaaa" }}
-                                  w="100%"
-                                  h="10"
-                                >
-                                  2
-                                </GridItem>
-                              </Grid>
-                            </GridItem>
-                          </Grid>
-                        </Card.Footer>
-                      </Card>
-                    </Container>
+                          <GridItem w="100%" h="10">
+                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                              <GridItem w="100%" h="10">
+                                Pot
+                              </GridItem>
+                              <GridItem
+                                style={{ color: "#aaaaaa" }}
+                                w="100%"
+                                h="10"
+                              >
+                                {bet.balance}
+                              </GridItem>
+                            </Grid>
+                          </GridItem>
+                          <GridItem w="100%" h="10">
+                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                              <GridItem w="100%" h="10">
+                                Time
+                              </GridItem>
+                              <GridItem
+                                style={{ color: "#aaaaaa" }}
+                                w="100%"
+                                h="10"
+                              >
+                                {bet.time}
+                              </GridItem>
+                            </Grid>
+                          </GridItem>
+                          <GridItem w="100%" h="10">
+                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                              <GridItem w="100%" h="10">
+                                Players
+                              </GridItem>
+                              <GridItem
+                                style={{ color: "#aaaaaa" }}
+                                w="100%"
+                                h="10"
+                              >
+                                {bet.player_count}
+                              </GridItem>
+                            </Grid>
+                          </GridItem>
+                        </Grid>
+                      </Card.Footer>
+                    </Card>
+                  </Container>
+                  
                   );
                 default:
                   return <Container></Container>;

@@ -79,8 +79,9 @@ function Leaderboard(){
         console.log(boardNames)
         setBoardIDs(boardID)
         let list = allBoards[0].users;
-        list = list.sort((a,b) => a.bettingscore - b.bettingscore)
-        setCurrentBoard(list) 
+        list = list.sort((a,b) => parseFloat(a.bettingscore) - parseFloat(b.bettingscore))
+        setCurrentBoard(list)
+        console.log(list);
         setCode(allBoards[0].id)
         console.log(boardNames)
         console.log(allBoards)

@@ -36,10 +36,10 @@ import Leaderboard from "./Leaderboard.js";
 Amplify.configure(awsExports);
 
 export var HOME = "/";
-export var DASHBOARD = "/dashboard";
+export var DASHBOARD = "/Dashboard";
 export var LOGIN = "/login";
 export var SIGNUP = "/signup";
-export var LEADERBOARD = "/leaderboard";
+export var LEADERBOARD = "/Leaderboard";
 
 function App(){
   const network = WalletAdapterNetwork.Devnet;

@@ -188,30 +188,19 @@ export function Sidebar(props) {
       });
   }, []);
 
-  useEffect(() => {
-    /* console.log(publicKey)
-    console.log(walletIsOpen) */
-    if (newUser && publicKey == null && !editIsOpen && !walletIsOpen) {
-      setWalletIsOpen(true);
-      setEditIsOpen(true);
-    }
-    if (publicKey == null && !walletIsOpen) {
-      setEditIsOpen(true);
-    }
-  });
 
   const betAPICall = async (betParam) => {
     //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
     //Param: betParam is the url parameter
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, betParam)],
-      programId
-    );
+        [Buffer.from(betParam, 0, 20)],
+        programId
+      );
 
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, betParam), publicKey.toBytes()],
-      programId
-    );
+      let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(betParam, 0, 20), publicKey.toBytes()],
+        programId
+      );
     let instruction = new TransactionInstruction({
       keys: [
         {
@@ -241,7 +230,7 @@ export function Sidebar(props) {
         },
       ],
       programId: programId,
-      data: JoinBetInstruction(betParam),
+      data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -295,7 +284,7 @@ export function Sidebar(props) {
   };
 
   const handleTimeChange = (e) => {
-    setTime(e.value);
+    setTime(e);
   };
 
   const handleminPlayersChange = (e) => {
@@ -334,36 +323,42 @@ export function Sidebar(props) {
   const handleBetSubmit = async (e) => {
     e.preventDefault();
     console.log(betName);
-    console.log(minPlayers);
-    console.log(minBet);
-    if (maxPlayers >= minPlayers && maxBet >= minBet && allOptions != []) {
+    console.log(typeof minPlayers);
+    console.log(maxPlayers);
+    console.log(typeof minBet);
+    console.log(maxBet);
+    console.log(allOptions)
+    if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && allOptions != [] && time >= 0) {
       while (allOptions.length < 8) {
         let temp = allOptions;
         temp.push("zero");
         setAllOptions(temp);
       }
+      let tempStr = betName + " ".repeat(20-betName.length);
+      setBetName(tempStr);
+      console.log(Buffer.from(tempStr))
       console.log(allOptions);
       console.log(Buffer.from(betName));
 
-      let hours = time; //TIME IN HOURS
-      console.log(time);
+      let timestamp = Math.floor(Date.now() / 1000) + (time * 3600); //TIME IN HOURS
+      console.log(timestamp);
+
       //let index = uniqueHash(betName + maxBet + allOptions);
-      console.log(Buffer.alloc(20, betName));
+      console.log(Buffer.from(betName, 0, 20));
 
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betName)],
+        [Buffer.from(betName, 0, 20)],
         programId
       );
 
       let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.alloc(20, betName), publicKey.toBytes()],
+        [Buffer.from(betName, 0, 20), publicKey.toBytes()],
         programId
       );
-      /*     console.log(name);
-        console.log(provider.publicKey.toBase58());
+        console.log(betName);
         console.log(potPDA.toBase58());
         console.log(potBump);
-        console.log(PublicKey.isOnCurve(potPDA)); */
+        console.log(PublicKey.isOnCurve(potPDA));
 
       console.log([
         { name: allOptions[0], vote_count: 0 },
@@ -448,6 +443,8 @@ export function Sidebar(props) {
       console.log(transaction);
       setJoinCode(betName);
       setAddIsOpen(false);
+      OptionsList = [];
+      setAllOptions([]);
       setAddSuccessIsOpen(true);
     } else {
       alert("Invalid Bet Parameters");
@@ -545,9 +542,11 @@ export function Sidebar(props) {
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
     console.log(publicKey.toString());
+    let tempStr = joinCode + " ".repeat(20-joinCode.length);
+    setJoinCode(tempStr);
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode)],
+      [Buffer.from(joinCode, 0, 20)],
       programId
     );
     console.log([
@@ -556,7 +555,7 @@ export function Sidebar(props) {
       programId.toBytes(),
     ]);
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.alloc(20, joinCode), publicKey.toBytes()],
+      [Buffer.from(joinCode, 0, 20), publicKey.toBytes()],
       programId
     );
     //Make bet RPC Call(Send Transaction for Make Bet)
@@ -589,7 +588,7 @@ export function Sidebar(props) {
         },
       ],
       programId: programId,
-      data: JoinBetInstruction(joinCode),
+      data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -715,6 +714,7 @@ export function Sidebar(props) {
     if (joinLeaderCode != "") {
       let currentBoards = user.leaderboards;
       console.log(user);
+      console.log(joinLeaderCode)
       console.log(Array.from(currentBoards));
       if (
         !currentBoards.includes(joinLeaderCode) &&
@@ -754,17 +754,18 @@ export function Sidebar(props) {
         let currentUsers = current.users;
         if (!currentUsers.includes(email)) {
           currentUsers.push(email);
+          console.log(currentUsers)
 
           let board = {
             id: current.id,
-            users: currentUsers,
+            users: email,
             name: current.name,
           };
 
           const leaderboard = await API.graphql({
             query: mutations.updateLeaderboard,
-            variables: { input: board },
-          });
+            variables: { input: board }
+          })
         }
         setJoinLeaderIsOpen(false);
         toast({
@@ -975,9 +976,9 @@ export function Sidebar(props) {
                         <FormControl isRequired>
                           <FormLabel>Hours to Bet</FormLabel>
                           <NumberInput
-                            onChange={(e) => handleTimeChange(e)}
-                            value={time}
-                            placeholder="Enter Option"
+                            onChange={handleTimeChange}
+                            value = {time}
+                            placeholder="Enter Time for Betting"
                           >
                             <NumberInputField />
                           </NumberInput>
@@ -1239,11 +1240,11 @@ export function Sidebar(props) {
               </Modal>
             </>
           )}
-          <Menu.Item icon={<ExclamationCircleOutlined />}>
+          <Menu.Item icon={<ExclamationCircleOutlined />} key = "8">
             <a
               href="https://forms.gle/r288veKH6uAU6spUA"
               target="_blank"
-              key={8}
+        
             >
               Contact Support
             </a>
@@ -1285,13 +1286,7 @@ export function Sidebar(props) {
         </ModalContent>
       </Modal>
 
-      <Modal
-        isOpen={editIsOpen}
-        onClose={() => {
-          if (!newUser) setEditIsOpen(false);
-          setWalletIsOpen(false);
-        }}
-      >
+      <Modal isOpen={editIsOpen}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Account Information</ModalHeader>

@@ -62,7 +62,7 @@ export function NewWagerInstruction(
   layout.encode(
     {
       instruction: 0,
-      bet_identifier: Buffer.alloc(20, bet_identifier),
+      bet_identifier: Buffer.from(bet_identifier),
       balance: 0,
       options: options,
       min_bet: min_bet,
@@ -81,16 +81,14 @@ export function NewWagerInstruction(
   return data;
 }
 
-export function JoinBetInstruction(bet_identifier) {
+export function JoinBetInstruction() {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
-    BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
   ]);
   const data = Buffer.alloc(layout.span);
   layout.encode(
     {
       instruction: 1,
-      bet_identifier: Buffer.alloc(20, bet_identifier),
     },
     data
   );
@@ -98,10 +96,9 @@ export function JoinBetInstruction(bet_identifier) {
   return data;
 }
 
-export function MakeBetInstruction(name, option_index, playerBump, amount) {
+export function MakeBetInstruction(option_index, playerBump, amount) {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
-    BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
     BufferLayout.u8("option_index"),
     BufferLayout.u32("amount"),
     BufferLayout.u8("voted"),
@@ -111,7 +108,6 @@ export function MakeBetInstruction(name, option_index, playerBump, amount) {
   layout.encode(
     {
       instruction: 2,
-      bet_identifier: Buffer.alloc(20, name),
       option_index: option_index,
       amount: amount,
       voted: 0,
