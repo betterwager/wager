@@ -817,7 +817,7 @@ export function Sidebar(props) {
           style={{ backgroundColor: "#195F50" }}
           theme="dark"
           defaultSelectedKeys={
-            window.location.pathname == DASHBOARD ? ["1"] : ["2"]
+            window.location.pathname == DASHBOARD || window.location.pathname == DASHBOARD.toLowerCase() ? ["1"] : ["2"]
           }
           mode="inline"
         >
@@ -846,7 +846,7 @@ export function Sidebar(props) {
         <br />
         <br />
         <Menu style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
-          {window.location.pathname == DASHBOARD ? (
+          {window.location.pathname == DASHBOARD || window.location.pathname == DASHBOARD.toLowerCase()? (
             <>
               <Menu.Item
                 onClick={() => {
@@ -1012,10 +1012,10 @@ export function Sidebar(props) {
                 <ModalContent>
                   <ModalHeader>Bet Created!</ModalHeader>
                   <ModalBody>
-                    <h1 style={{ fontSize: "20px" }}>
-                      <strong>Bet Code:</strong> {joinCode}
-                    </h1>
-                    <br />
+                  <h1 style = {{fontSize: "15px"}}><strong>Bet Code:</strong><u><a onClick={() => {
+                          navigator.clipboard.writeText(joinCode)
+                          alert("Copied to Clipboard")
+                          }}> {joinCode}</a></u></h1><br/>
                     <h3 style={{ fontSize: "15px" }}>
                       <strong>Join Link:</strong>{" "}
                       <u>
@@ -1149,10 +1149,10 @@ export function Sidebar(props) {
                 <ModalContent>
                   <ModalHeader>Leaderboard Created!</ModalHeader>
                   <ModalBody>
-                    <h1 style={{ fontSize: "15px" }}>
-                      <strong>Leaderboard Code:</strong> {joinLeaderCode}
-                    </h1>
-                    <br />
+                  <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong><u><a onClick={() => {
+                          navigator.clipboard.writeText(joinLeaderCode)
+                          alert("Copied to Clipboard")
+                          }}> {joinLeaderCode}</a></u></h1><br/>
                     <h3 style={{ fontSize: "15px" }}>
                       <strong>Join Link:</strong>{" "}
                       <u>

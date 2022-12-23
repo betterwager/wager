@@ -8,13 +8,21 @@ import {
   Icon,
   Image,
   Input,
+  Modal,
+  ModalHeader,
+  ModalOverlay,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
   Text,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, Col, Container, Form, Nav, Navbar, Row } from "react-bootstrap";
 import NavbarCollapse from "react-bootstrap/esm/NavbarCollapse";
+import {DASHBOARD} from "./App.js";
 //icon imports
 import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
 //image imports
@@ -30,6 +38,8 @@ const Home = (props) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const toast = useToast();
+  const [validateIsOpen, setValidateIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   //Check Email Validity & Send to API
   const handleSubmit = async (e) => {
@@ -48,7 +58,7 @@ const Home = (props) => {
         isClosable: true,
       });
     if (!error) {
-      axios.post(
+      await axios.post(
         `https://sheet.best/api/sheets/c122b525-c0e2-4ebd-997e-614116491820`,
         { first, last, email, message }
       );
@@ -60,9 +70,43 @@ const Home = (props) => {
         duration: 3000,
         isClosable: true,
       });
-      console.log(first, last, email, message);
+      console.log(email, first, last, message);
     }
-  };
+  }
+
+  const handleValidateEmail = async(e) => {
+    e.preventDefault();
+    let error = !email
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+  error &&
+    toast({
+      title: "Invalid Email",
+      description: "Make sure to enter a valid email address!",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+  if (!error) {
+    const res = await axios.get(
+      `https://sheet.best/api/sheets/c122b525-c0e2-4ebd-997e-614116491820`
+    );
+    let users = res.data.map(user => user.email);
+    if (users.includes(email)){
+      navigate(DASHBOARD);
+    }else{
+      toast({
+        title: "Invalid Email",
+        description: "Email address is not registered for alpha testing",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  }
+  }
 
   return (
     <>
@@ -105,7 +149,7 @@ const Home = (props) => {
             borderColor="#195F50"
             color="#195F50"
             variant="outline"
-            onClick={handleSubmit}
+            onClick={() => setValidateIsOpen(true)}
           >
             Let's Go!
           </Button>
@@ -420,13 +464,44 @@ const Home = (props) => {
             </Text>
           </Box>
           <Text>
-            © 2023 Copyright:
-            <a className="text-reset fw-bold" href="https://wager.social">
-              wager.social
-            </a>
+            © 2023 <u><a className="text-reset" href="https://wager.social">
+              Wager.social
+            </a></u> All rights reserved.
           </Text>
         </Box>
       </footer>
+
+      <Modal isOpen={validateIsOpen} onClose={() => setValidateIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Validate Email</ModalHeader>
+        <ModalBody>
+        <FormControl isRequired>
+                  <FormLabel>Email</FormLabel>
+                  <Input
+                    type="email"
+                    onChange={(e) => {
+                      setEmail(e.target.value)
+                    }}
+                    value={email}
+                    placeholder="Email"
+                  />
+          </FormControl>
+          </ModalBody>
+          <ModalFooter>
+             <Button
+               variant="ghost"
+               mr={3}
+               onClick={() => setValidateIsOpen(false)}
+             >
+              Close
+            </Button>
+            <Button colorScheme="blue" onClick={handleValidateEmail}>
+              Submit
+            </Button>
+          </ModalFooter>
+      </ModalContent>
+      </Modal>
     </>
   );
 };
