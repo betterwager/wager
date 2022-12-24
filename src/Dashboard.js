@@ -29,6 +29,7 @@ import {
 import { Card, Row, Col, Container } from "react-bootstrap";
 import { RepeatIcon } from "@chakra-ui/icons";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { QRCodeCanvas } from "qrcode.react";
 
 //Web3 Imports
 import {
@@ -85,6 +86,10 @@ function Dashboard() {
   const [voteOption, setVoteOption] = useState("")
   //Voting Index Selected
   const [voteIndex, setVoteIndex] = useState(0)
+  //Bet Information Modal
+  const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
+  //Bet Information Display Current
+  const [code, setCode] = useState("");
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -261,6 +266,7 @@ function Dashboard() {
     } = await connection.getLatestBlockhashAndContext();
     transaction.recentBlockhash = blockhash;
     console.log("blockhash retreived");
+    
     const signature = await sendTransaction(transaction, connection, {
       minContextSlot,
     });
@@ -336,6 +342,20 @@ function Dashboard() {
       duration: 9000,
       isClosable: true,
     });
+  };
+  
+  const downloadQRCode = () => {
+    // Generate download with use canvas and stream
+    const canvas = document.getElementById("qr-gen");
+    const pngUrl = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    let downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    downloadLink.download = `${code}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   };
 
   return (
@@ -728,9 +748,6 @@ function Dashboard() {
             </Container>
                       */}
 
-            {currentBet == {} ? (
-              <></>
-            ) : (
               <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
                 <ModalOverlay />
                 <ModalContent>
@@ -801,7 +818,7 @@ function Dashboard() {
                   </ModalFooter>
                 </ModalContent>
               </Modal>
-            )}
+            
 
             {allUserBets.map((bet, index) => {
               switch (bet.state) {
@@ -824,6 +841,21 @@ function Dashboard() {
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
+                              <Button
+                                colorScheme="green"
+                                variant="outline"
+                                mr={3}
+                                onClick={() => {
+                                  let name = bet.bet_identifier
+                                  name = String.fromCharCode.apply(String, name);
+                                  if (name.indexOf(" ") >= 0)
+                                    name = name.substr(0, name.indexOf(" "));
+                                  setCode(name);
+                                  setCodeDisplayIsOpen(true)
+                                }}
+                              >
+                                Bet Info
+                              </Button>
                               <Button
                                 colorScheme="purple"
                                 variant="outline"
@@ -1186,6 +1218,40 @@ function Dashboard() {
             })}
           </InfiniteScroll>
         </Container>
+        <Modal isOpen={codeDisplayIsOpen} onClose={() => setCodeDisplayIsOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Bet Information</ModalHeader>
+                    <ModalBody>
+                        <h1 style = {{fontSize: "15px"}}><strong>Bet Code: </strong><u><a onClick={() => {
+                          navigator.clipboard.writeText(code)
+                          alert("Copied to Clipboard")
+                          }}>{code}</a></u></h1><br/>
+                        <h3 style = {{fontSize: "15px"}}><strong>Join Link: </strong><u><a onClick={() => {
+                          navigator.clipboard.writeText(window.location.href + "?bet=" + code)
+                          alert("Copied to Clipboard")
+                          }}>{window.location.href + "?bet=" + code}</a></u></h3><br/>
+                        <QRCodeCanvas 
+                        id="qr-gen"
+                        includeMargin={true}
+                        value= {window.location.href + "?bet=" + code} />
+                        <Button onClick={downloadQRCode}>
+                            Download QR Code
+                        </Button>
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button
+                        variant="ghost"
+                        mr={3}
+                        onClick={() => {
+                          setCodeDisplayIsOpen(false);
+                        }}
+                      >
+                        Close
+                      </Button>
+                    </ModalFooter>
+                </ModalContent>
+              </Modal>
       </GridItem>
       <Row>
         <div className="holder">

@@ -270,6 +270,7 @@ export function Sidebar(props) {
     setMinBet(0.0);
     setMaxBet(0.0);
     setOption("");
+    setAllOptions([]);
     OptionsList = [];
     setTime(0);
   };
@@ -329,15 +330,14 @@ export function Sidebar(props) {
     console.log(maxBet);
     console.log(allOptions)
     if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && allOptions != [] && time >= 0) {
-      while (allOptions.length < 8) {
-        let temp = allOptions;
-        temp.push("zero");
-        setAllOptions(temp);
+      let totalOptions = allOptions;
+      while (totalOptions.length < 8) {
+        totalOptions.push("zero");
       }
       let tempStr = betName + " ".repeat(20-betName.length);
       setBetName(tempStr);
       console.log(Buffer.from(tempStr))
-      console.log(allOptions);
+      console.log(totalOptions);
       console.log(Buffer.from(betName));
 
       let timestamp = Math.floor(Date.now() / 1000) + (time * 3600); //TIME IN HOURS
@@ -361,14 +361,14 @@ export function Sidebar(props) {
         console.log(PublicKey.isOnCurve(potPDA));
 
       console.log([
-        { name: allOptions[0], vote_count: 0 },
-        { name: allOptions[1], vote_count: 0 },
-        { name: allOptions[2], vote_count: 0 },
-        { name: allOptions[3], vote_count: 0 },
-        { name: allOptions[4], vote_count: 0 },
-        { name: allOptions[5], vote_count: 0 },
-        { name: allOptions[6], vote_count: 0 },
-        { name: allOptions[7], vote_count: 0 },
+        { name: totalOptions[0], vote_count: 0 },
+        { name: totalOptions[1], vote_count: 0 },
+        { name: totalOptions[2], vote_count: 0 },
+        { name: totalOptions[3], vote_count: 0 },
+        { name: totalOptions[4], vote_count: 0 },
+        { name: totalOptions[5], vote_count: 0 },
+        { name: totalOptions[6], vote_count: 0 },
+        { name: totalOptions[7], vote_count: 0 },
       ]);
 
       //Create bet RPC Call(Send Transaction for Create Bet)
@@ -409,14 +409,14 @@ export function Sidebar(props) {
           maxBet,
           //Options
           [
-            { name: Buffer.from(allOptions[0]), vote_count: 0 },
-            { name: Buffer.from(allOptions[1]), vote_count: 0 },
-            { name: Buffer.from(allOptions[2]), vote_count: 0 },
-            { name: Buffer.from(allOptions[3]), vote_count: 0 },
-            { name: Buffer.from(allOptions[4]), vote_count: 0 },
-            { name: Buffer.from(allOptions[5]), vote_count: 0 },
-            { name: Buffer.from(allOptions[6]), vote_count: 0 },
-            { name: Buffer.from(allOptions[7]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[0]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[1]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[2]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[3]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[4]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[5]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[6]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[7]), vote_count: 0 },
           ],
           time,
           potBump
@@ -443,8 +443,7 @@ export function Sidebar(props) {
       console.log(transaction);
       setJoinCode(betName);
       setAddIsOpen(false);
-      OptionsList = [];
-      setAllOptions([]);
+      clearBetState();
       setAddSuccessIsOpen(true);
     } else {
       alert("Invalid Bet Parameters");
@@ -869,7 +868,7 @@ export function Sidebar(props) {
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader>Create New Bet</ModalHeader>
-                  <Form onSubmit={(e) => handleBetSubmit(e)}>
+                  <Form>
                     <ModalBody>
                       <>
                         <FormControl isRequired>
@@ -996,7 +995,7 @@ export function Sidebar(props) {
                       >
                         Close
                       </Button>
-                      <Button type="submit" variant="primary">
+                      <Button onClick={handleBetSubmit} variant="primary">
                         Wager!
                       </Button>
                     </ModalFooter>

@@ -70,7 +70,10 @@ const Home = (props) => {
         duration: 3000,
         isClosable: true,
       });
-      console.log(email, first, last, message);
+      setFirst("");
+      setLast("");
+      setEmail("");
+      setMessage("");
     }
   }
 
@@ -189,7 +192,7 @@ const Home = (props) => {
                 together.
               </Text>
               <Box paddingTop={3}>
-                <Button backgroundColor="#195F50" color={"#fff"} size="lg">
+                <Button backgroundColor="#195F50" color={"#fff"} size="lg" onClick={() => setValidateIsOpen(true)}>
                   Start Betting
                 </Button>
               </Box>
