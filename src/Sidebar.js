@@ -107,7 +107,6 @@ export function Sidebar(props) {
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
   const [addLeaderSuccessIsOpen, setAddLeaderSuccessIsOpen] = useState(false);
   const [newUser, setNewUser] = useState(false);
-  const [walletIsOpen, setWalletIsOpen] = useState(true);
   const toast = useToast();
 
   const [start1IsOpen, setStart1IsOpen] = useState(false);
@@ -124,7 +123,6 @@ export function Sidebar(props) {
 
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
-    console.log(users);
     return users;
   };
   const getBoards = async () => {
@@ -139,8 +137,6 @@ export function Sidebar(props) {
       .then((boards) => {
         allBoards = boards.data.listLeaderboards.items;
         allBoards = allBoards.map((board) => board.id);
-
-        console.log(allBoards);
         setAllBoards(allBoards);
         getUsers()
           .catch(console.error)
@@ -152,7 +148,6 @@ export function Sidebar(props) {
             );
             setUser(currentUser);
             if (currentUser != null) {
-              console.log(currentUser);
               let names = currentUser.name.split(" ");
               setFirstName(names[0]);
               setLastName(names[1]);
@@ -162,7 +157,6 @@ export function Sidebar(props) {
               setTrustScore(currentUser.trustscore);
               setBettingScore(currentUser.bettingscore);
 
-              console.log(window.location.pathname);
               const queryParameters = new URLSearchParams(
                 window.location.search
               );
@@ -180,7 +174,6 @@ export function Sidebar(props) {
               setNewUser(true);
               setStart1IsOpen(true);
             }
-            setWalletIsOpen(false);
             if (publicKey != null && !newUser) {
               setEditIsOpen(false);
             }
@@ -233,8 +226,6 @@ export function Sidebar(props) {
       data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
-    console.log(transaction);
-    console.log(connection);
     const {
       context: { slot: minContextSlot },
       value: { blockhash, lastValidBlockHeight },
@@ -280,7 +271,6 @@ export function Sidebar(props) {
   };
 
   const handleLeaderNameChange = (e) => {
-    console.log(e);
     setLeaderName(e.target.value);
   };
 
@@ -293,7 +283,6 @@ export function Sidebar(props) {
   };
 
   const handlemaxPlayersChange = (e) => {
-    console.log(e);
     setMaxPlayers(e);
   };
 
@@ -308,29 +297,22 @@ export function Sidebar(props) {
     setOption(e.target.value);
   };
 
+
   const handleOptionEnter = () => {
     if (OptionsList.indexOf(option) == -1) {
       if (option === "DELETE" || option == "") {
         OptionsList.splice(OptionsList.length - 1);
       } else {
-        console.log(option);
         OptionsList.push(option);
       }
-      setAllOptions(OptionsList);
       setOption("");
     }
   };
 
   const handleBetSubmit = async (e) => {
     e.preventDefault();
-    console.log(betName);
-    console.log(typeof minPlayers);
-    console.log(maxPlayers);
-    console.log(typeof minBet);
-    console.log(maxBet);
-    console.log(allOptions)
-    if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && allOptions != [] && time >= 0) {
-      let totalOptions = allOptions;
+    if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && OptionsList != [] && time >= 0) {
+      let totalOptions = OptionsList;
       while (totalOptions.length < 8) {
         totalOptions.push("zero");
       }
@@ -461,13 +443,11 @@ export function Sidebar(props) {
         query: mutations.createLeaderboard,
         variables: { input: board },
       }).then((res) => {
-        console.log(res);
         id = res.data.createLeaderboard.id;
         setJoinLeaderCode(id);
       });
 
       let currentBoards = user.leaderboards;
-      console.log(user.leaderboards);
       currentBoards.push(id);
 
       const fullName = firstName + " " + lastName;
@@ -516,7 +496,6 @@ export function Sidebar(props) {
   };
 
   const downloadQRCodeLeader = () => {
-    console.log(joinLeaderCode);
     // Generate download with use canvas and stream
     const canvas = document.getElementById("qr-gen2");
     const pngUrl = canvas
@@ -531,7 +510,6 @@ export function Sidebar(props) {
   };
 
   const handlejoinLeaderCodeChange = (e) => {
-    console.log(e);
     setJoinLeaderCode(e.target.value);
   };
 
@@ -695,7 +673,6 @@ export function Sidebar(props) {
               console.log(res);
               setNewUser(false);
               setEditIsOpen(false);
-              setWalletIsOpen(false);
             });
           }
         } else {
@@ -849,7 +826,11 @@ export function Sidebar(props) {
             <>
               <Menu.Item
                 onClick={() => {
-                  setAddIsOpen(true);
+                  if (publicKey == null){
+                    setEditIsOpen(true);
+                  }else{
+                    setAddIsOpen(true);
+                  }
                 }}
                 icon={<PlusCircleOutlined />}
                 key="6"
@@ -857,7 +838,13 @@ export function Sidebar(props) {
                 Create a Bet
               </Menu.Item>
               <Menu.Item
-                onClick={() => setJoinIsOpen(true)}
+                onClick={() => {
+                  if (publicKey == null){
+                    setEditIsOpen(true);
+                  }else{
+                  setJoinIsOpen(true)
+                  }
+                }}
                 icon={<CheckOutlined />}
                 key="7"
               >
@@ -1313,7 +1300,9 @@ export function Sidebar(props) {
               <FormControl isRequired>
                 <FormLabel>Phone Number</FormLabel>
                 <PhoneInput
+                  country="us"
                   placeholder="Enter phone number"
+                  onlyCountries={["us"]}
                   value={phoneNumber}
                   onChange={(phone) => setPhoneNumber(phone)}
                 />
@@ -1334,7 +1323,6 @@ export function Sidebar(props) {
                 <WalletMultiButton
                   onClick={() => {
                     setEditIsOpen(false);
-                    setWalletIsOpen(true);
                   }}
                   style={{ margin: "1%" }}
                 />
@@ -1342,7 +1330,6 @@ export function Sidebar(props) {
                 <WalletDisconnectButton
                   onClick={() => {
                     setEditIsOpen(false);
-                    setWalletIsOpen(false);
                   }}
                   style={{ margin: "1%" }}
                 />
@@ -1411,7 +1398,7 @@ export function Sidebar(props) {
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Set up and share bets with your friends with access through your{" "}
                 <u>
-                  <a href="https://phantom.app/">Phantom</a>
+                  <a href="https://phantom.app/" target="_blank">Phantom</a>
                 </u>{" "}
                 wallet
               </Text>{" "}

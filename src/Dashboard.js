@@ -405,7 +405,11 @@ function Dashboard() {
                 <Card.Body>
                   <Card.Text style={{ color: "#888888" }}>Earnings</Card.Text>
                   <Card.Title>
-                    <strong>${currentUser.bettingscore}</strong>
+                    {
+                      currentUser == null ? 
+                      <strong>$0</strong> :
+                      <strong>${currentUser.bettingscore}</strong>
+                    }
                   </Card.Title>
                 </Card.Body>
               </Card>

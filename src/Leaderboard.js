@@ -273,13 +273,13 @@ function Leaderboard(){
         <Modal isOpen={codeDisplayIsOpen} onClose={() => setCodeDisplayIsOpen(false)}>
                 <ModalOverlay />
                 <ModalContent>
-                  <ModalHeader>Leaderboard</ModalHeader>
+                  <ModalHeader>Leaderboard Information</ModalHeader>
                     <ModalBody>
-                        <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong><u><a onClick={() => {
+                        <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code: </strong><u><a onClick={() => {
                           navigator.clipboard.writeText(code)
                           alert("Copied to Clipboard")
-                          }}> {code}</a></u></h1><br/>
-                        <h3 style = {{fontSize: "15px"}}><strong>Join Link:</strong> <u><a onClick={() => {
+                          }}>{code}</a></u></h1><br/>
+                        <h3 style = {{fontSize: "15px"}}><strong>Join Link: </strong><u><a onClick={() => {
                           navigator.clipboard.writeText(window.location.href + "?leaderboard=" + code)
                           alert("Copied to Clipboard")
                           }}>{window.location.href + "?leaderboard=" + code}</a></u></h3><br/>
