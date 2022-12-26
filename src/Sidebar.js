@@ -312,7 +312,7 @@ export function Sidebar(props) {
   const handleBetSubmit = async (e) => {
     e.preventDefault();
     if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && OptionsList != [] && time >= 0) {
-      let totalOptions = OptionsList;
+      let totalOptions = [...OptionsList]
       while (totalOptions.length < 8) {
         totalOptions.push("zero");
       }
@@ -992,7 +992,11 @@ export function Sidebar(props) {
 
               <Modal
                 isOpen={addSuccessIsOpen}
-                onClose={() => setAddSuccessIsOpen(false)}
+                onClose={() => {
+                  setAddSuccessIsOpen(false);
+                  setJoinCode("");
+                  window.location.reload();
+                }}
               >
                 <ModalOverlay />
                 <ModalContent>
@@ -1033,6 +1037,7 @@ export function Sidebar(props) {
                       onClick={() => {
                         setAddSuccessIsOpen(false);
                         setJoinCode("");
+                        window.location.reload();
                       }}
                     >
                       Close

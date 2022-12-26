@@ -212,7 +212,8 @@ function Dashboard() {
   };
 
   const handleBetValue = (e) => {
-    console.log(e);
+    console.log(parseFloat(e));
+    console.log(joinCode);
     setBetValue(parseFloat(e));
   };
 
@@ -222,11 +223,11 @@ function Dashboard() {
     //let value = betValue;
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
+    let [potPDA, potBump] = await PublicKey.findProgramAddressSync(
       [Buffer.from(joinCode, 20)],
       programId
     );
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+    let [playerPDA, playerBump] = await PublicKey.findProgramAddressSync(
       [Buffer.from(joinCode, 20), publicKey.toBytes()],
       programId
     );
@@ -871,7 +872,7 @@ function Dashboard() {
                                   name = String.fromCharCode.apply(String, name);
                                   if (name.indexOf(" ") >= 0)
                                     name = name.substr(0, name.indexOf(" "));
-                                  setJoinCode(name);
+                                  setJoinCode(bet.bet_identifier);
                                   setCurrentOptions(bet.options);
                                 }}
                               >
