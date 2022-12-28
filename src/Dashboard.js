@@ -872,7 +872,7 @@ function Dashboard() {
                                   name = String.fromCharCode.apply(String, name);
                                   if (name.indexOf(" ") >= 0)
                                     name = name.substr(0, name.indexOf(" "));
-                                  setJoinCode(bet.bet_identifier);
+                                  setJoinCode(name);
                                   setCurrentOptions(bet.options);
                                 }}
                               >
