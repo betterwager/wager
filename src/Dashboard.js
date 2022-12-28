@@ -90,6 +90,8 @@ function Dashboard() {
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
   //Bet Information Display Current
   const [code, setCode] = useState("");
+  //User's actions on all bets
+  const [playerAccountInfo, setPlayerAccountInfo] = useState([]);
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
