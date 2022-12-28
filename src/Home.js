@@ -390,6 +390,7 @@ const Home = (props) => {
                   <FormLabel>First name</FormLabel>
                   <Input
                     placeholder="First name"
+                    value = {first}
                     onChange={(e) => {
                       setFirst(e.target.value);
                     }}
@@ -401,6 +402,7 @@ const Home = (props) => {
                   <FormLabel>Last name</FormLabel>
                   <Input
                     placeholder="Last name"
+                    value={last}
                     onChange={(e) => {
                       setLast(e.target.value);
                     }}
@@ -413,6 +415,7 @@ const Home = (props) => {
                 <FormLabel>Email</FormLabel>
                 <Input
                   placeholder="Email"
+                  value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                   }}
@@ -424,6 +427,7 @@ const Home = (props) => {
                 <FormLabel>Message</FormLabel>
                 <Input
                   placeholder="Message"
+                  value={message}
                   onChange={(e) => {
                     setMessage(e.target.value);
                   }}
@@ -435,8 +439,8 @@ const Home = (props) => {
               backgroundColor="#195F50"
               color="#fff"
               variant="outline"
-              type={"submit"}
-              size={"lg"}
+              type="submit"
+              size="lg"
             >
               Submit
             </Button>
