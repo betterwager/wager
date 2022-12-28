@@ -213,16 +213,20 @@ function Dashboard() {
 
   const handleBetting = async (e, index) => {
     e.preventDefault();
-    //let option = betOption;
+    let option = betOption;
     //let value = betValue;
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
+    let tempStr = joinCode + " ".repeat(20-joinCode.length);
+    setJoinCode(tempStr);
+    console.log(Buffer.from(joinCode));
+    console.log(Buffer.from(tempStr));
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(joinCode, 20)],
+      [Buffer.from(tempStr)],
       programId
     );
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(joinCode, 20), publicKey.toBytes()],
+      [Buffer.from(tempStr), publicKey.toBytes()],
       programId
     );
     //Make bet RPC Call(Send Transaction for Make Bet)
@@ -250,7 +254,7 @@ function Dashboard() {
         },
       ],
       programId: programId,
-      data: MakeBetInstruction(betValue, 0, playerBump),
+      data: MakeBetInstruction(option, playerBump, betValue),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -742,7 +746,7 @@ function Dashboard() {
                         <Input
                           placeholder="Bet Code"
                           value={joinCode}
-                          onChange = {handlejoinCodeChange}
+                          onChange = {(e) => handlejoinCodeChange(e)}
                           />
                       </FormControl>
                       <br />
@@ -752,7 +756,7 @@ function Dashboard() {
                           onChange={handleBetOption}
                           placeholder="Select option"
                         >
-                          {currentOptions.map((option) => {
+                          {currentOptions.map((option,index) => {
                             let name = String.fromCharCode.apply(
                               String,
                               option.name
@@ -760,7 +764,7 @@ function Dashboard() {
                             name = name.substr(0, name.indexOf("\0"));
                             if (name !== "zero" && name !== "") {
                               return (
-                                <option key={name} value={name}>
+                                <option key={name} value={index}>
                                   {name}
                                 </option>
                               );

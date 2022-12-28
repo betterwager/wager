@@ -347,12 +347,12 @@ export function Sidebar(props) {
       console.log(Buffer.from(betName, 0, 20));
 
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(betName, 0, 20)],
+        [Buffer.from(tempStr, 0, 20)],
         programId
       );
 
       let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(betName, 0, 20), publicKey.toBytes()],
+        [Buffer.from(tempStr, 0, 20), publicKey.toBytes()],
         programId
       );
         console.log(betName);
@@ -402,7 +402,7 @@ export function Sidebar(props) {
           },
         ],
         data: NewWagerInstruction(
-          betName,
+          tempStr,
           minPlayers,
           maxPlayers,
           minBet,
@@ -544,18 +544,20 @@ export function Sidebar(props) {
     console.log(publicKey.toString());
     let tempStr = joinCode + " ".repeat(20-joinCode.length);
     setJoinCode(tempStr);
+
+    console.log(Buffer.from(joinCode));
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(joinCode, 0, 20)],
+      [Buffer.from(tempStr)],
       programId
     );
     console.log([
-      [Buffer.from(joinCode)],
+      Buffer.from(tempStr),
       publicKey.toBytes(),
       programId.toBytes(),
     ]);
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(joinCode, 0, 20), publicKey.toBytes()],
+      [Buffer.from(tempStr, 0, 20), publicKey.toBytes()],
       programId
     );
     //Make bet RPC Call(Send Transaction for Make Bet)
