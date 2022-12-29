@@ -647,12 +647,10 @@ export function Sidebar(props) {
               _version: user._version,
             };
 
-            console.log(newUser);
             const promise = await API.graphql({
               query: mutations.updateUser,
               variables: { input: newUser },
             }).then((res) => {
-              console.log(res);
               setEditIsOpen(false);
             });
           } else {
@@ -667,12 +665,10 @@ export function Sidebar(props) {
               leaderboards: [],
             };
 
-            console.log(newUser);
             const promise = await API.graphql({
               query: mutations.createUser,
               variables: { input: newUser },
             }).then((res) => {
-              console.log(res);
               setNewUser(false);
               setEditIsOpen(false);
             });
@@ -691,9 +687,6 @@ export function Sidebar(props) {
   const handleJoinLeaderSubmit = async () => {
     if (joinLeaderCode != "") {
       let currentBoards = user.leaderboards;
-      console.log(user);
-      console.log(joinLeaderCode)
-      console.log(Array.from(currentBoards));
       if (
         !currentBoards.includes(joinLeaderCode) &&
         allBoards.includes(joinLeaderCode)
@@ -719,21 +712,15 @@ export function Sidebar(props) {
           variables: { input: newUser },
         });
 
-        console.log("user update");
-        console.log(userUpdate);
-
         const currentLeaderboard = await API.graphql({
           query: queries.getLeaderboard,
           variables: { id: joinLeaderCode },
         });
 
         let current = currentLeaderboard.data.getLeaderboard;
-        console.log(current);
         let currentUsers = current.users;
         if (!currentUsers.includes(email)) {
           currentUsers.push(email);
-          console.log(currentUsers)
-
           let board = {
             id: current.id,
             users: email,
