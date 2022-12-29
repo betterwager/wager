@@ -107,7 +107,6 @@ export function Sidebar(props) {
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
   const [addLeaderSuccessIsOpen, setAddLeaderSuccessIsOpen] = useState(false);
   const [newUser, setNewUser] = useState(false);
-  const [walletIsOpen, setWalletIsOpen] = useState(true);
   const toast = useToast();
 
   const [start1IsOpen, setStart1IsOpen] = useState(false);
@@ -124,7 +123,6 @@ export function Sidebar(props) {
 
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
-    console.log(users);
     return users;
   };
   const getBoards = async () => {
@@ -139,8 +137,6 @@ export function Sidebar(props) {
       .then((boards) => {
         allBoards = boards.data.listLeaderboards.items;
         allBoards = allBoards.map((board) => board.id);
-
-        console.log(allBoards);
         setAllBoards(allBoards);
         getUsers()
           .catch(console.error)
@@ -152,7 +148,6 @@ export function Sidebar(props) {
             );
             setUser(currentUser);
             if (currentUser != null) {
-              console.log(currentUser);
               let names = currentUser.name.split(" ");
               setFirstName(names[0]);
               setLastName(names[1]);
@@ -162,7 +157,6 @@ export function Sidebar(props) {
               setTrustScore(currentUser.trustscore);
               setBettingScore(currentUser.bettingscore);
 
-              console.log(window.location.pathname);
               const queryParameters = new URLSearchParams(
                 window.location.search
               );
@@ -180,7 +174,6 @@ export function Sidebar(props) {
               setNewUser(true);
               setStart1IsOpen(true);
             }
-            setWalletIsOpen(false);
             if (publicKey != null && !newUser) {
               setEditIsOpen(false);
             }
@@ -233,8 +226,6 @@ export function Sidebar(props) {
       data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
-    console.log(transaction);
-    console.log(connection);
     const {
       context: { slot: minContextSlot },
       value: { blockhash, lastValidBlockHeight },
@@ -270,6 +261,7 @@ export function Sidebar(props) {
     setMinBet(0.0);
     setMaxBet(0.0);
     setOption("");
+    setAllOptions([]);
     OptionsList = [];
     setTime(0);
   };
@@ -279,7 +271,6 @@ export function Sidebar(props) {
   };
 
   const handleLeaderNameChange = (e) => {
-    console.log(e);
     setLeaderName(e.target.value);
   };
 
@@ -292,7 +283,6 @@ export function Sidebar(props) {
   };
 
   const handlemaxPlayersChange = (e) => {
-    console.log(e);
     setMaxPlayers(e);
   };
 
@@ -307,37 +297,29 @@ export function Sidebar(props) {
     setOption(e.target.value);
   };
 
+
   const handleOptionEnter = () => {
     if (OptionsList.indexOf(option) == -1) {
       if (option === "DELETE" || option == "") {
         OptionsList.splice(OptionsList.length - 1);
       } else {
-        console.log(option);
         OptionsList.push(option);
       }
-      setAllOptions(OptionsList);
       setOption("");
     }
   };
 
   const handleBetSubmit = async (e) => {
     e.preventDefault();
-    console.log(betName);
-    console.log(typeof minPlayers);
-    console.log(maxPlayers);
-    console.log(typeof minBet);
-    console.log(maxBet);
-    console.log(allOptions)
-    if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && allOptions != [] && time >= 0) {
-      while (allOptions.length < 8) {
-        let temp = allOptions;
-        temp.push("zero");
-        setAllOptions(temp);
+    if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && OptionsList != [] && time >= 0) {
+      let totalOptions = [...OptionsList]
+      while (totalOptions.length < 8) {
+        totalOptions.push("zero");
       }
       let tempStr = betName + " ".repeat(20-betName.length);
       setBetName(tempStr);
       console.log(Buffer.from(tempStr))
-      console.log(allOptions);
+      console.log(totalOptions);
       console.log(Buffer.from(betName));
 
       let timestamp = Math.floor(Date.now() / 1000) + (time * 3600); //TIME IN HOURS
@@ -361,14 +343,14 @@ export function Sidebar(props) {
         console.log(PublicKey.isOnCurve(potPDA));
 
       console.log([
-        { name: allOptions[0], vote_count: 0 },
-        { name: allOptions[1], vote_count: 0 },
-        { name: allOptions[2], vote_count: 0 },
-        { name: allOptions[3], vote_count: 0 },
-        { name: allOptions[4], vote_count: 0 },
-        { name: allOptions[5], vote_count: 0 },
-        { name: allOptions[6], vote_count: 0 },
-        { name: allOptions[7], vote_count: 0 },
+        { name: totalOptions[0], vote_count: 0 },
+        { name: totalOptions[1], vote_count: 0 },
+        { name: totalOptions[2], vote_count: 0 },
+        { name: totalOptions[3], vote_count: 0 },
+        { name: totalOptions[4], vote_count: 0 },
+        { name: totalOptions[5], vote_count: 0 },
+        { name: totalOptions[6], vote_count: 0 },
+        { name: totalOptions[7], vote_count: 0 },
       ]);
 
       //Create bet RPC Call(Send Transaction for Create Bet)
@@ -409,14 +391,14 @@ export function Sidebar(props) {
           maxBet,
           //Options
           [
-            { name: Buffer.from(allOptions[0]), vote_count: 0 },
-            { name: Buffer.from(allOptions[1]), vote_count: 0 },
-            { name: Buffer.from(allOptions[2]), vote_count: 0 },
-            { name: Buffer.from(allOptions[3]), vote_count: 0 },
-            { name: Buffer.from(allOptions[4]), vote_count: 0 },
-            { name: Buffer.from(allOptions[5]), vote_count: 0 },
-            { name: Buffer.from(allOptions[6]), vote_count: 0 },
-            { name: Buffer.from(allOptions[7]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[0]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[1]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[2]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[3]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[4]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[5]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[6]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[7]), vote_count: 0 },
           ],
           time,
           potBump
@@ -443,8 +425,7 @@ export function Sidebar(props) {
       console.log(transaction);
       setJoinCode(betName);
       setAddIsOpen(false);
-      OptionsList = [];
-      setAllOptions([]);
+      clearBetState();
       setAddSuccessIsOpen(true);
     } else {
       alert("Invalid Bet Parameters");
@@ -462,13 +443,11 @@ export function Sidebar(props) {
         query: mutations.createLeaderboard,
         variables: { input: board },
       }).then((res) => {
-        console.log(res);
         id = res.data.createLeaderboard.id;
         setJoinLeaderCode(id);
       });
 
       let currentBoards = user.leaderboards;
-      console.log(user.leaderboards);
       currentBoards.push(id);
 
       const fullName = firstName + " " + lastName;
@@ -517,7 +496,6 @@ export function Sidebar(props) {
   };
 
   const downloadQRCodeLeader = () => {
-    console.log(joinLeaderCode);
     // Generate download with use canvas and stream
     const canvas = document.getElementById("qr-gen2");
     const pngUrl = canvas
@@ -532,7 +510,6 @@ export function Sidebar(props) {
   };
 
   const handlejoinLeaderCodeChange = (e) => {
-    console.log(e);
     setJoinLeaderCode(e.target.value);
   };
 
@@ -698,7 +675,6 @@ export function Sidebar(props) {
               console.log(res);
               setNewUser(false);
               setEditIsOpen(false);
-              setWalletIsOpen(false);
             });
           }
         } else {
@@ -819,7 +795,7 @@ export function Sidebar(props) {
           style={{ backgroundColor: "#195F50" }}
           theme="dark"
           defaultSelectedKeys={
-            window.location.pathname == DASHBOARD ? ["1"] : ["2"]
+            window.location.pathname == DASHBOARD || window.location.pathname == DASHBOARD.toLowerCase() ? ["1"] : ["2"]
           }
           mode="inline"
         >
@@ -848,11 +824,15 @@ export function Sidebar(props) {
         <br />
         <br />
         <Menu style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
-          {window.location.pathname == DASHBOARD ? (
+          {window.location.pathname == DASHBOARD || window.location.pathname == DASHBOARD.toLowerCase()? (
             <>
               <Menu.Item
                 onClick={() => {
-                  setAddIsOpen(true);
+                  if (publicKey == null){
+                    setEditIsOpen(true);
+                  }else{
+                    setAddIsOpen(true);
+                  }
                 }}
                 icon={<PlusCircleOutlined />}
                 key="6"
@@ -860,7 +840,13 @@ export function Sidebar(props) {
                 Create a Bet
               </Menu.Item>
               <Menu.Item
-                onClick={() => setJoinIsOpen(true)}
+                onClick={() => {
+                  if (publicKey == null){
+                    setEditIsOpen(true);
+                  }else{
+                  setJoinIsOpen(true)
+                  }
+                }}
                 icon={<CheckOutlined />}
                 key="7"
               >
@@ -871,7 +857,7 @@ export function Sidebar(props) {
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader>Create New Bet</ModalHeader>
-                  <Form onSubmit={(e) => handleBetSubmit(e)}>
+                  <Form>
                     <ModalBody>
                       <>
                         <FormControl isRequired>
@@ -998,7 +984,7 @@ export function Sidebar(props) {
                       >
                         Close
                       </Button>
-                      <Button type="submit" variant="primary">
+                      <Button onClick={handleBetSubmit} variant="primary">
                         Wager!
                       </Button>
                     </ModalFooter>
@@ -1008,16 +994,20 @@ export function Sidebar(props) {
 
               <Modal
                 isOpen={addSuccessIsOpen}
-                onClose={() => setAddSuccessIsOpen(false)}
+                onClose={() => {
+                  setAddSuccessIsOpen(false);
+                  setJoinCode("");
+                  window.location.reload();
+                }}
               >
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader>Bet Created!</ModalHeader>
                   <ModalBody>
-                    <h1 style={{ fontSize: "20px" }}>
-                      <strong>Bet Code:</strong> {joinCode}
-                    </h1>
-                    <br />
+                  <h1 style = {{fontSize: "15px"}}><strong>Bet Code:</strong><u><a onClick={() => {
+                          navigator.clipboard.writeText(joinCode)
+                          alert("Copied to Clipboard")
+                          }}> {joinCode}</a></u></h1><br/>
                     <h3 style={{ fontSize: "15px" }}>
                       <strong>Join Link:</strong>{" "}
                       <u>
@@ -1049,6 +1039,7 @@ export function Sidebar(props) {
                       onClick={() => {
                         setAddSuccessIsOpen(false);
                         setJoinCode("");
+                        window.location.reload();
                       }}
                     >
                       Close
@@ -1151,10 +1142,10 @@ export function Sidebar(props) {
                 <ModalContent>
                   <ModalHeader>Leaderboard Created!</ModalHeader>
                   <ModalBody>
-                    <h1 style={{ fontSize: "15px" }}>
-                      <strong>Leaderboard Code:</strong> {joinLeaderCode}
-                    </h1>
-                    <br />
+                  <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong><u><a onClick={() => {
+                          navigator.clipboard.writeText(joinLeaderCode)
+                          alert("Copied to Clipboard")
+                          }}> {joinLeaderCode}</a></u></h1><br/>
                     <h3 style={{ fontSize: "15px" }}>
                       <strong>Join Link:</strong>{" "}
                       <u>
@@ -1316,7 +1307,9 @@ export function Sidebar(props) {
               <FormControl isRequired>
                 <FormLabel>Phone Number</FormLabel>
                 <PhoneInput
+                  country="us"
                   placeholder="Enter phone number"
+                  onlyCountries={["us"]}
                   value={phoneNumber}
                   onChange={(phone) => setPhoneNumber(phone)}
                 />
@@ -1337,7 +1330,6 @@ export function Sidebar(props) {
                 <WalletMultiButton
                   onClick={() => {
                     setEditIsOpen(false);
-                    setWalletIsOpen(true);
                   }}
                   style={{ margin: "1%" }}
                 />
@@ -1345,7 +1337,6 @@ export function Sidebar(props) {
                 <WalletDisconnectButton
                   onClick={() => {
                     setEditIsOpen(false);
-                    setWalletIsOpen(false);
                   }}
                   style={{ margin: "1%" }}
                 />
@@ -1414,7 +1405,7 @@ export function Sidebar(props) {
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Set up and share bets with your friends with access through your{" "}
                 <u>
-                  <a href="https://phantom.app/">Phantom</a>
+                  <a href="https://phantom.app/" target="_blank">Phantom</a>
                 </u>{" "}
                 wallet
               </Text>{" "}
