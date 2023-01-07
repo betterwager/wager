@@ -391,14 +391,14 @@ export function Sidebar(props) {
           maxBet,
           //Options
           [
-            { name: Buffer.from(totalOptions[0]), vote_count: 0 },
-            { name: Buffer.from(totalOptions[1]), vote_count: 0 },
-            { name: Buffer.from(totalOptions[2]), vote_count: 0 },
-            { name: Buffer.from(totalOptions[3]), vote_count: 0 },
-            { name: Buffer.from(totalOptions[4]), vote_count: 0 },
-            { name: Buffer.from(totalOptions[5]), vote_count: 0 },
-            { name: Buffer.from(totalOptions[6]), vote_count: 0 },
-            { name: Buffer.from(totalOptions[7]), vote_count: 0 },
+            { name: Buffer.from(totalOptions[0]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[1]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[2]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[3]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[4]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[5]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[6]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[7]), bet_count : 0, vote_count: 0 },
           ],
           time,
           potBump

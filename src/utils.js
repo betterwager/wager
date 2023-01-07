@@ -42,6 +42,7 @@ export function NewWagerInstruction(
     BufferLayout.seq(
       BufferLayout.struct([
         BufferLayout.seq(BufferLayout.u8(), 20, "name"),
+        BufferLayout.u16("bet_count"),
         BufferLayout.u16("vote_count"),
       ]),
       8,
@@ -54,6 +55,7 @@ export function NewWagerInstruction(
     BufferLayout.u16("player_count"),
     BufferLayout.nu64("time"),
     BufferLayout.u16("vote_count"),
+    BufferLayout.u8("winner_index"),
     BufferLayout.u8("bump_seed"),
     BufferLayout.u8("state"),
   ]);
@@ -72,6 +74,7 @@ export function NewWagerInstruction(
       time : time,
       player_count: 0,
       vote_count: 0,
+      winner_index : 0,
       bump_seed: bump_seed,
       state: 1,
     },
@@ -129,6 +132,21 @@ export function VoteInstruction(option_index) {
     {
       instruction: 3,
       outcome: option_index,
+    },
+    data
+  );
+  //console.log(data);
+  return data;
+}
+
+export function PayoutInstruction() {
+  const layout = BufferLayout.struct([
+    BufferLayout.u8("instruction"),
+  ]);
+  const data = Buffer.alloc(layout.span);
+  layout.encode(
+    {
+      instruction: 4,
     },
     data
   );

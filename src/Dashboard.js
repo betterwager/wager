@@ -55,10 +55,9 @@ import { ConsoleLogger } from "@aws-amplify/core";
 //Internal Imports
 import Sidebar from "./Sidebar.js";
 import {
-  getProvider,
-  connect,
   MakeBetInstruction,
   VoteInstruction,
+  PayoutInstruction,
 } from "./utils.js";
 
 function Dashboard() {
@@ -116,6 +115,7 @@ function Dashboard() {
     BufferLayout.seq(
       BufferLayout.struct([
         BufferLayout.seq(BufferLayout.u8(), 20, "name"),
+        BufferLayout.u16("bet_count"),
         BufferLayout.u16("vote_count"),
       ]),
       8,
@@ -128,6 +128,7 @@ function Dashboard() {
     BufferLayout.u16("player_count"),
     BufferLayout.nu64("time"),
     BufferLayout.u16("vote_count"),
+    BufferLayout.u8("winner_index"),
     BufferLayout.u8("bump_seed"),
     BufferLayout.u8("state"),
   ]);
@@ -152,7 +153,7 @@ function Dashboard() {
     let tempBets = await connection.getParsedProgramAccounts(programId, {
       filters: [
         {
-          dataSize: 226,
+          dataSize: 243,
         },
       ],
     });
@@ -298,16 +299,23 @@ function Dashboard() {
 
   const selectOption = (e, index) => {
     setVoteOption(e.target.value)
-    setVoteIndex(index)
-    console.log(index);
+    setVoteIndex(index);
+    console.log(voteIndex);
   }
 
   const submitOption = async () => {
     let optionChose = voteOption;
     let index = voteIndex;
+    let betID = allUserBets[index].bet_identifier;
+    console.log(betID);
     console.log(optionChose);
     //use bet id and option to process vote for user
     let potPDA = betAddresses[index];
+
+    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+      [betID, publicKey.toBytes()],
+      programId
+    );
     //Make bet RPC Call(Send Transaction for Make Bet)
     let instruction = new TransactionInstruction({
       keys: [
@@ -321,9 +329,24 @@ function Dashboard() {
           isSigner: false,
           isWritable: true,
         },
+        {
+          pubkey: playerPDA,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: systemProgram,
+          isSigner: false,
+          isWritable: false,
+        },
+        {
+          pubkey: programId,
+          isSigner: false,
+          isWritable: false,
+        },
       ],
       programId: programId,
-      data: VoteInstruction(optionChose),
+      data: VoteInstruction(0),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -350,6 +373,61 @@ function Dashboard() {
       isClosable: true,
     });
   };
+
+  const handlePayout = async () => {
+    let index = voteIndex;
+    let potPDA = betAddresses[index];
+    let betID = allUserBets[index].options[0].name;
+    console.log(betID);
+    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+      [betID, publicKey.toBytes()],
+      programId
+    );
+    //Make bet RPC Call(Send Transaction for Make Bet)
+    let instruction = new TransactionInstruction({
+      keys: [
+        {
+          pubkey: publicKey,
+          isSigner: true,
+          isWritable: true,
+        },
+        {
+          pubkey: potPDA,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: playerPDA,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: systemProgram,
+          isSigner: false,
+          isWritable: false,
+        },
+      ],
+      programId: programId,
+      data: PayoutInstruction(),
+    });
+    const transaction = new Transaction().add(instruction);
+    console.log(transaction);
+    console.log(connection);
+    const {
+      context: { slot: minContextSlot },
+      value: { blockhash, lastValidBlockHeight },
+    } = await connection.getLatestBlockhashAndContext();
+    transaction.recentBlockhash = blockhash;
+    console.log("blockhash retreived");
+    const signature = await sendTransaction(transaction, connection, {
+      minContextSlot,
+    });
+    await connection.confirmTransaction({
+      blockhash,
+      lastValidBlockHeight,
+      signature,
+    });
+  }
 
   const downloadQRCode = () => {
     // Generate download with use canvas and stream
@@ -1123,12 +1201,12 @@ function Dashboard() {
                               >
                                 Yes
                               </Button>
-                              {false ? (
+                              {true ? (
                                 <Button
                                   style={{ margin: "1%" }}
                                   colorScheme="green"
                                   variant="outline"
-                                  onClick={() => {}}
+                                  onClick={() => handlePayout()}
                                 >
                                   Claim Funds
                                 </Button>
