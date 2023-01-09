@@ -170,11 +170,10 @@ const Home = (props) => {
           <Row
             className="justify-content-around align-items-center"
             display="flex"
-            alignItems="center"
           >
             <Col md={6} className="text-start d-none d-md-block">
               <Image
-                fluid
+                fluid="true"
                 className="img-fluid"
                 src={hero}
                 alt="poker king and queen"
@@ -208,7 +207,7 @@ const Home = (props) => {
           paddingBottom: 50,
         }}
       >
-        <Container maxW="80vw">
+        <Container>
           <Heading
             as="h1"
             size="xl"
@@ -300,7 +299,7 @@ const Home = (props) => {
           paddingBottom: 50,
         }}
       >
-        <Container maxW="80vw">
+        <Container>
           <Heading as="h1" size="xl" className="text-center" paddingBottom={3}>
             The Wager Process
           </Heading>
