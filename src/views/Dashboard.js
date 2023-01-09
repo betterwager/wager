@@ -352,7 +352,7 @@ function Dashboard() {
         },
       ],
       programId: programId,
-      data: VoteInstruction(0),
+      data: VoteInstruction(votedIndex),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
