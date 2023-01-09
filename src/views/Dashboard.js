@@ -135,6 +135,13 @@ function Dashboard() {
     BufferLayout.u8("state"),
   ]);
 
+  const playerLayout = BufferLayout.struct([
+    BufferLayout.u8("option_index"),
+    BufferLayout.u32("bet_amount"),
+    BufferLayout.u8("voted"),
+    BufferLayout.u8("bump_seed"),
+  ]);
+
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
     return users;
@@ -152,6 +159,7 @@ function Dashboard() {
     let tempBet = {};
     let allBetAddresses = [];
     let allBets = [];
+    let allPlayerAccounts = [];
     let tempBets = await connection.getParsedProgramAccounts(programId, {
       filters: [
         {
@@ -167,17 +175,22 @@ function Dashboard() {
         programId
       ); //{
       console.log(tempAddress[0]);
-      await connection.getBalance(tempAddress[0]).then((accountBalance) => {
-        if (accountBalance !== 0) {
+      await connection.getAccountInfo(tempAddress[0]).then((playerAccountInfo) => {
+        console.log(playerAccountInfo);
+        if (playerAccountInfo !== null) {
+          console.log("Success!");
           allBetAddresses.push(accountInfo.pubkey);
           allBets.push(wagerLayout.decode(accountInfo.account.data));
+          allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
         }
       });
       if (index === tempBets.length - 1) {
         console.log(allBets);
         console.log(allBetAddresses);
+        console.log(allPlayerAccounts);
         setBetAddresses(allBetAddresses);
         setUserBets(allBets);
+        setPlayerAccountInfo(allPlayerAccounts);
         console.log(allUserBets);
       }
     });
@@ -265,7 +278,7 @@ function Dashboard() {
         },
       ],
       programId: programId,
-      data: MakeBetInstruction(option, playerBump, betValue),
+      data: MakeBetInstruction(option, playerBump, betValue * 100000000),
     });
     const transaction = new Transaction().add(instruction);
     console.log(transaction);
@@ -983,7 +996,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.position}
+                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name)}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -997,7 +1010,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.stake}
+                                  {playerAccountInfo[index].bet_amount/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1012,7 +1025,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.balance}
+                                  {bet.balance/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1114,7 +1127,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.position}
+                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name)}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1128,7 +1141,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.stake}
+                                  {playerAccountInfo[index].bet_amount/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1143,7 +1156,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.balance}
+                                  {bet.balance/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1240,7 +1253,7 @@ function Dashboard() {
                                 w="100%"
                                 h="10"
                               >
-                                {bet.position}
+                                {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name)}
                               </GridItem>
                             </Grid>
                           </GridItem>
@@ -1254,7 +1267,7 @@ function Dashboard() {
                                 w="100%"
                                 h="10"
                               >
-                                {bet.stake}
+                                {playerAccountInfo[index].bet_amount/100000000}
                               </GridItem>
                             </Grid>
                           </GridItem>
@@ -1269,7 +1282,7 @@ function Dashboard() {
                                 w="100%"
                                 h="10"
                               >
-                                {bet.balance}
+                                {bet.balance/100000000}
                               </GridItem>
                             </Grid>
                           </GridItem>
