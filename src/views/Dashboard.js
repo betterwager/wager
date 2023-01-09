@@ -169,7 +169,6 @@ function Dashboard() {
     });
     tempBets.forEach(async function (accountInfo, index) {
       tempBet = wagerLayout.decode(accountInfo.account.data);
-      console.log(tempBet);
       tempAddress = PublicKey.findProgramAddressSync(
         [tempBet.bet_identifier, publicKey.toBytes()],
         programId
@@ -202,7 +201,6 @@ function Dashboard() {
     getUsers()
       .catch(console.error)
       .then((users) => {
-        console.log(users);
         users = users.data.listUsers.items;
         let email = Auth.user.attributes.email;
         let user;
@@ -225,13 +223,10 @@ function Dashboard() {
   };
 
   const handleBetOption = (e) => {
-    console.log(e.target.value);
     setBetOption(e.target.value);
   };
 
   const handleBetValue = (e) => {
-    console.log(parseFloat(e));
-    console.log(joinCode);
     setBetValue(parseFloat(e));
   };
 
@@ -243,8 +238,6 @@ function Dashboard() {
     //Sending Bet Transaction and Balance for Bet
     let tempStr = joinCode + " ".repeat(20-joinCode.length);
     setJoinCode(tempStr);
-    console.log(Buffer.from(joinCode));
-    console.log(Buffer.from(tempStr));
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
       [Buffer.from(tempStr)],
       programId
@@ -281,8 +274,6 @@ function Dashboard() {
       data: MakeBetInstruction(option, playerBump, betValue * 100000000),
     });
     const transaction = new Transaction().add(instruction);
-    console.log(transaction);
-    console.log(connection);
     const {
       context: { slot: minContextSlot },
       value: { blockhash, lastValidBlockHeight },
@@ -298,14 +289,14 @@ function Dashboard() {
       lastValidBlockHeight,
       signature,
     });
-    setBetIsOpen(false);
     toast({
       title: "Bet Successfully Placed.",
-      description: "*Account Balance Info*",
+      description: joinCode,
       status: "success",
       duration: 9000,
       isClosable: true,
     });
+    setBetIsOpen(false);
   };
 
   const handleJoinBet = async (id) => {
@@ -314,7 +305,6 @@ function Dashboard() {
 
   const selectOption = (e, betIndex) => {
     let list = e.target.value.split("@&@")
-    console.log(list);
     setVoteOption(list[0])
     setVoteIndex(parseInt(list[1]))
     setCurrentBetIndex(betIndex);
@@ -326,8 +316,6 @@ function Dashboard() {
     let votedIndex = voteIndex;
 
     let betID = allUserBets[index].bet_identifier;
-    console.log(betID);
-    console.log(optionChose);
     //use bet id and option to process vote for user
     let potPDA = betAddresses[index];
 
@@ -368,14 +356,12 @@ function Dashboard() {
       data: VoteInstruction(votedIndex),
     });
     const transaction = new Transaction().add(instruction);
-    console.log(transaction);
-    console.log(connection);
     const {
       context: { slot: minContextSlot },
       value: { blockhash, lastValidBlockHeight },
     } = await connection.getLatestBlockhashAndContext();
     transaction.recentBlockhash = blockhash;
-    console.log("blockhash retreived");
+    console.log("blockhash retrieved");
     const signature = await sendTransaction(transaction, connection, {
       minContextSlot,
     });
@@ -397,7 +383,6 @@ function Dashboard() {
     let index = voteIndex;
     let potPDA = betAddresses[index];
     let betID = allUserBets[index].bet_identifier;
-    console.log(betID);
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
       [betID, publicKey.toBytes()],
       programId
@@ -430,8 +415,6 @@ function Dashboard() {
       data: PayoutInstruction(),
     });
     const transaction = new Transaction().add(instruction);
-    console.log(transaction);
-    console.log(connection);
     const {
       context: { slot: minContextSlot },
       value: { blockhash, lastValidBlockHeight },
@@ -583,8 +566,6 @@ function Dashboard() {
                   rightIcon={<RepeatIcon />}
                   onClick={() => {
                     getBets(publicKey);
-                    console.log(allUserBets);
-                    console.log(allUserBets[0]);
                   }}
                 >
                   Refresh
@@ -592,269 +573,6 @@ function Dashboard() {
               </Row>
             }
           >
-            {/*
-            <Container>
-              <Card style={{ margin: "1rem" }}>
-                <Card.Body>
-                  <Row>
-                    <Col style={{ textAlign: "left" }}>
-                      <Card.Title>
-                        <strong>Demo Goes Well?</strong>
-                      </Card.Title>
-                      <Card.Text style={{ color: "#aaaaaa" }}>
-                         Status: Created
-                      </Card.Text>
-                    </Col>
-                    <Col style={{ textAlign: "right" }}>
-                      <Button
-                        colorScheme="purple"
-                        variant="outline"
-                        onClick={() => {
-                          setBetIsOpen(true);
-                          setCurrentBet(0);
-                        }}
-                      >
-                        Make Bet
-                      </Button>
-                    </Col>
-                  </Row>
-                </Card.Body>
-                <Card.Footer style={{ backgroundColor: "#fff" }}>
-                  <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Position
-                        </GridItem>
-                        <GridItem
-                          style={{ color: "#aaaaaa" }}
-                          w="100%"
-                          h="10"
-                        ></GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Stake
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          $5
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Pot
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          $10
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Time
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          10:15
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Players
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          2
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                  </Grid>
-                </Card.Footer>
-              </Card>
-              <Card style={{ margin: "1rem" }}>
-                <Card.Body>
-                  <Row>
-                    <Col style={{ textAlign: "left" }}>
-                      <Card.Title>
-                        <strong>Demo Goes Well?</strong>
-                      </Card.Title>
-                      <Card.Text style={{ color: "#aaaaaa" }}>
-                         Status: Voting
-                      </Card.Text>
-                    </Col>
-                    <Col style={{ textAlign: "right" }}>
-                      <Select
-                        style={{ margin: "1%" }}
-                        colorScheme="purple"
-                        onChange={(e) => selectOption(e, 1)}
-                        variant="outline"
-                        placeholder="Select option"
-                      >
-                        <option value={1}>Yes!</option>
-                        <option value={2}>No.</option>
-                        {                         <option value={3}></option>
-                         }{" "}
-                      </Select>
-                    </Col>
-                  </Row>
-                </Card.Body>
-                <Card.Footer style={{ backgroundColor: "#fff" }}>
-                  <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Position
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          Yes!
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Stake
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          $5
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Pot
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          $10
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Time
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          10:15
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Players
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          2
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                  </Grid>
-                </Card.Footer>
-              </Card>
-              <Card style={{ margin: "1rem" }}>
-                <Card.Body>
-                  <Row>
-                    <Col style={{ textAlign: "left" }}>
-                      <Card.Title>
-                        <strong>Demo Goes Well?</strong>
-                      </Card.Title>
-                      <Card.Text style={{ color: "#aaaaaa" }}>
-                         Status: Closed
-                      </Card.Text>
-                    </Col>
-                    <Col style={{ textAlign: "right" }}>
-                      <Button
-                        style={{ margin: "1%" }}
-                        colorScheme="purple"
-                        variant="outline"
-                      >
-                        Yes! : +$5
-                      </Button>
-                      {false ? (
-                        <Button
-                          style={{ margin: "1%" }}
-                          colorScheme="green"
-                          variant="outline"
-                          onClick={() => {}}
-                        >
-                          Claim Funds
-                        </Button>
-                      ) : (
-                        <Button
-                          style={{ margin: "1%" }}
-                          colorScheme="green"
-                          variant="outline"
-                        >
-                          You Won: $5
-                        </Button>
-                      )}
-                    </Col>
-                  </Row>
-                </Card.Body>
-                <Card.Footer style={{ backgroundColor: "#fff" }}>
-                  <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Position
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          Yes!
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Stake
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          $5
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Pot
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          $10
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Time
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          10:15
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                    <GridItem w="100%" h="10">
-                      <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                        <GridItem w="100%" h="10">
-                          Players
-                        </GridItem>
-                        <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                          2
-                        </GridItem>
-                      </Grid>
-                    </GridItem>
-                  </Grid>
-                </Card.Footer>
-              </Card>{" "}
-            </Container>
-                      */}
 
               <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
                 <ModalOverlay />
@@ -957,7 +675,7 @@ function Dashboard() {
                                   let name = bet.bet_identifier
                                   name = String.fromCharCode.apply(String, name);
                                   if (name.indexOf(" ") >= 0)
-                                    name = name.substr(0, name.indexOf(" "));
+                                    name = name.trim();
                                   setCode(name);
                                   setCodeDisplayIsOpen(true)
                                 }}
@@ -974,7 +692,7 @@ function Dashboard() {
                                   let name = bet.bet_identifier
                                   name = String.fromCharCode.apply(String, name);
                                   if (name.indexOf(" ") >= 0)
-                                    name = name.substr(0, name.indexOf(" "));
+                                    name = name.trim()
                                   setJoinCode(name);
                                   setCurrentOptions(bet.options);
                                 }}

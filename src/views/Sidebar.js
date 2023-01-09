@@ -318,15 +318,10 @@ export function Sidebar(props) {
       }
       let tempStr = betName + " ".repeat(20-betName.length);
       setBetName(tempStr);
-      console.log(Buffer.from(tempStr))
-      console.log(totalOptions);
-      console.log(Buffer.from(betName));
 
       let timestamp = Math.floor(Date.now() / 1000) + (time * 3600); //TIME IN HOURS
-      console.log(timestamp);
 
       //let index = uniqueHash(betName + maxBet + allOptions);
-      console.log(Buffer.from(betName, 0, 20));
 
       let [potPDA, potBump] = await PublicKey.findProgramAddress(
         [Buffer.from(tempStr, 0, 20)],
@@ -406,8 +401,6 @@ export function Sidebar(props) {
         ),
       });
       let transaction = new Transaction().add(instruction);
-      console.log(transaction);
-      console.log(connection);
       const {
         context: { slot: minContextSlot },
         value: { blockhash, lastValidBlockHeight },
@@ -422,7 +415,13 @@ export function Sidebar(props) {
         lastValidBlockHeight,
         signature,
       });
-      console.log(transaction);
+      toast({
+        title: "Bet Created",
+        description: "Now let's get betting!",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
       setJoinCode(betName);
       setAddIsOpen(false);
       clearBetState();
@@ -518,11 +517,9 @@ export function Sidebar(props) {
     //let option = betOption;
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
-    console.log(publicKey.toString());
     let tempStr = joinCode + " ".repeat(20-joinCode.length);
     setJoinCode(tempStr);
 
-    console.log(Buffer.from(joinCode));
     //Sending Bet Transaction and Balance for Bet
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
       [Buffer.from(tempStr)],
@@ -570,8 +567,6 @@ export function Sidebar(props) {
       data: JoinBetInstruction(),
     });
     const transaction = new Transaction().add(instruction);
-    console.log(transaction);
-    console.log(connection);
     const {
       context: { slot: minContextSlot },
       value: { blockhash, lastValidBlockHeight },

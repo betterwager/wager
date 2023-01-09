@@ -59,7 +59,6 @@ function Leaderboard(){
     let allBoards,email;
     getBoards().catch(console.error)
     .then((boards) => {
-      console.log(boards)
       allBoards = boards.data.listLeaderboards.items
       allBoards = allBoards.filter(board => board.users.includes(Auth.user.attributes.email))
       setBoards(allBoards);
@@ -72,25 +71,19 @@ function Leaderboard(){
             boardNames.push(allBoards[i].name)
             boardID.push(allBoards[i].id)
             
-            console.log(allBoards[i])
           }
         }
         setBoardNames(boardNames)
-        console.log(boardNames)
         setBoardIDs(boardID)
         let list = allBoards[0].users;
         list = list.sort((a,b) => parseFloat(a.bettingscore) - parseFloat(b.bettingscore))
         setCurrentBoard(list)
-        console.log(list);
         setCode(allBoards[0].id)
-        console.log(boardNames)
-        console.log(allBoards)
       }
     })
 
     getUsers().catch(console.error)
     .then((users) => {
-      console.log(users)
       users = users.data.listUsers.items;
       setAllUsers(users)
       let currentUser = users.find(x => x.email == email);
@@ -100,7 +93,6 @@ function Leaderboard(){
         boardUserList.push(users.find(user => user.email == board[i]))
       }
       setBoardUsers(boardUserList)
-      console.log(boardUserList)
       setCurrentUser(currentUser);
       
 })},[])
