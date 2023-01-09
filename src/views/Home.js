@@ -22,14 +22,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Col, Container, Form, Nav, Navbar, Row } from "react-bootstrap";
 import NavbarCollapse from "react-bootstrap/esm/NavbarCollapse";
-import {DASHBOARD} from "./App.js";
+import {DASHBOARD} from "../App.js";
 //icon imports
 import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
 //image imports
-import creation from "./assets/creation.svg";
-import hero from "./assets/hero.svg";
-import payout from "./assets/payout.svg";
-import voting from "./assets/voting.svg";
+import creation from '../assets/creation.svg';
+import hero from "../assets/hero.svg";
+import payout from "../assets/payout.svg";
+import voting from "../assets/voting.svg";
 
 const Home = (props) => {
   //State variables for contact form

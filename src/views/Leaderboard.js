@@ -28,9 +28,9 @@ import Sidebar from './Sidebar.js'
 import {QRCodeCanvas} from 'qrcode.react';
 import { DataGrid} from '@mui/x-data-grid';
 import { withAuthenticator } from "@aws-amplify/ui-react";
-import * as queries from "./graphql/queries";
-import * as mutations from "./graphql/mutations";
-import * as subscriptions from "./graphql/subscriptions";
+import * as queries from "../graphql/queries";
+import * as mutations from "../graphql/mutations";
+import * as subscriptions from "../graphql/subscriptions";
 import { Auth, API } from "aws-amplify";
 
 function Leaderboard(){

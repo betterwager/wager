@@ -1,6 +1,14 @@
 const webpack = require('webpack');
+const { alias } = require('react-app-rewire-alias');
 
 module.exports = function override(config) {
+      
+    alias({
+    '@': 'src',
+    '@assets': 'src/assets',
+    '@components': 'src/components',
+    })(config);
+
     const fallback = config.resolve.fallback || {};
     Object.assign(fallback, {
         "crypto": require.resolve("crypto-browserify"),
@@ -25,5 +33,7 @@ module.exports = function override(config) {
         fullySpecified: false,
       },
     })
+
+
     return config;
 }

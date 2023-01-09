@@ -44,9 +44,9 @@ import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
 
 //AWS Imports
-import * as queries from "./graphql/queries";
-import * as mutations from "./graphql/mutations";
-import * as subscriptions from "./graphql/subscriptions";
+import * as queries from "../graphql/queries";
+import * as mutations from "../graphql/mutations";
+import * as subscriptions from "../graphql/subscriptions";
 import { Auth, API } from "aws-amplify";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import uniqueHash from "unique-hash";
@@ -58,7 +58,7 @@ import {
   MakeBetInstruction,
   VoteInstruction,
   PayoutInstruction,
-} from "./utils.js";
+} from "../utils/utils.js";
 
 function Dashboard() {
   //AWS Object of User

@@ -30,8 +30,8 @@ import { BsFillDice5Fill } from "react-icons/bs";
 import { FaDice } from "react-icons/fa";
 import { MdLeaderboard } from "react-icons/md";
 import { RiNumber1, RiNumber2, RiNumber3 } from "react-icons/ri";
-import * as mutations from "./graphql/mutations";
-import * as queries from "./graphql/queries";
+import * as mutations from "../graphql/mutations";
+import * as queries from "../graphql/queries";
 
 import {
   CheckOutlined,
@@ -55,9 +55,9 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { NavLink as Link } from "react-router-dom";
 import styled from "styled-components";
-import { DASHBOARD, HOME, LEADERBOARD } from "./App.js";
-import logo from "./assets/Wager.svg";
-import { JoinBetInstruction, NewWagerInstruction } from "./utils.js";
+import { DASHBOARD, HOME, LEADERBOARD } from "../App.js";
+import logo from "../assets/Wager.svg";
+import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
 require("@solana/wallet-adapter-react-ui/styles.css");
 const { Sider } = Layout;
 const { SubMenu } = Menu;

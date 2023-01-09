@@ -28,9 +28,9 @@ import awsExports from './aws-exports.js';
 import {Amplify} from "aws-amplify"
 
 //Internal Imports
-import Dashboard from "./Dashboard.js";
-import Home from "./Home.js";
-import Leaderboard from "./Leaderboard.js";
+import Dashboard from "./views/Dashboard.js";
+import Home from "./views/Home.js";
+import Leaderboard from "./views/Leaderboard.js";
 
 
 Amplify.configure(awsExports);
