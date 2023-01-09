@@ -67,6 +67,8 @@ function Dashboard() {
   const [allUserBets, setUserBets] = useState([]);
   //Current Wagered Bet
   const [currentBet, setCurrentBet] = useState({});
+  //Voted Bet
+  const [currentBetIndex, setCurrentBetIndex] = useState(0);
   //All User Bet Addresses for Display
   const [betAddresses, setBetAddresses] = useState([]);
   //Join Code for entering a new Bet
@@ -297,15 +299,19 @@ function Dashboard() {
     //use account info to join based on if bet in id is active - WEB3
   };
 
-  const selectOption = (e, index) => {
-    setVoteOption(e.target.value)
-    setVoteIndex(index);
-    console.log(voteIndex);
+  const selectOption = (e, betIndex) => {
+    let list = e.target.value.split("@&@")
+    console.log(list);
+    setVoteOption(list[0])
+    setVoteIndex(parseInt(list[1]))
+    setCurrentBetIndex(betIndex);
   }
 
   const submitOption = async () => {
     let optionChose = voteOption;
-    let index = voteIndex;
+    let index = currentBetIndex;
+    let votedIndex = voteIndex;
+
     let betID = allUserBets[index].bet_identifier;
     console.log(betID);
     console.log(optionChose);
@@ -1068,7 +1074,7 @@ function Dashboard() {
                                 style={{ margin: "1%" }}
                                 colorScheme="purple"
                                 onChange={(e) => {
-                                  selectOption(e, index)
+                                  selectOption(e,index)
                                 }}
                                 variant="outline"
                                 placeholder="Select option"
@@ -1082,7 +1088,7 @@ function Dashboard() {
                                     name = name.substr(0, name.indexOf("\0"));
                                   if (name !== "zero" && name !== "") {
                                     return (
-                                      <option key={index} value={name}>
+                                      <option key={index} value={name + "@&@" + index}>
                                         {name}
                                       </option>
                                     );
