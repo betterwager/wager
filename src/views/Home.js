@@ -152,7 +152,7 @@ const Home = (props) => {
             borderColor="#195F50"
             color="#195F50"
             variant="outline"
-            onClick={() => setValidateIsOpen(true)}
+            onClick={() => navigate(DASHBOARD)}
           >
             Let's Go!
           </Button>
@@ -191,7 +191,7 @@ const Home = (props) => {
                 together.
               </Text>
               <Box paddingTop={3}>
-                <Button backgroundColor="#195F50" color={"#fff"} size="lg" onClick={() => setValidateIsOpen(true)}>
+                <Button backgroundColor="#195F50" color={"#fff"} size="lg" onClick={() => navigate(DASHBOARD)}>
                   Start Betting
                 </Button>
               </Box>
