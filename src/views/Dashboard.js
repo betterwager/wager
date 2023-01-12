@@ -154,6 +154,7 @@ function Dashboard() {
     padding: 8,
   };
 
+
   const getBets = useCallback(async () => {
     let tempAddress = {};
     let tempBet = {};
@@ -419,6 +420,7 @@ function Dashboard() {
       context: { slot: minContextSlot },
       value: { blockhash, lastValidBlockHeight },
     } = await connection.getLatestBlockhashAndContext();
+
     transaction.recentBlockhash = blockhash;
     console.log("blockhash retreived");
     const signature = await sendTransaction(transaction, connection, {
@@ -456,7 +458,7 @@ function Dashboard() {
       minHeight="100vh"
     >
       <GridItem colSpan={2} area={"nav"}>
-        <Sidebar user={currentUser} />
+        <Sidebar refresh = {getBets} user={currentUser} />
       </GridItem>
 
       <GridItem colSpan={19} pl="2" bg="#F7F8FC" area={"header"}>
@@ -696,6 +698,8 @@ function Dashboard() {
                                   setJoinCode(name);
                                   setCurrentOptions(bet.options);
                                 }}
+                                disabled = {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0")) != ""}                                
+
                               >
                                 Make Bet
                               </Button>
@@ -714,7 +718,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name)}
+                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -728,7 +732,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {playerAccountInfo[index].bet_amount/100000000}
+                                  ${playerAccountInfo[index].bet_amount/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -743,7 +747,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.balance/100000000}
+                                  ${bet.balance/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -801,7 +805,9 @@ function Dashboard() {
                             </Col>
                             <Col style={{ textAlign: "right" }}>
                               <Flex>
-                              <Select
+                              
+                              {playerAccountInfo[index].voted == 0 ?
+                                <Select
                                 style={{ margin: "1%" }}
                                 colorScheme="purple"
                                 onChange={(e) => {
@@ -826,7 +832,18 @@ function Dashboard() {
                                   }
                                 })}
                               </Select>
-                              <br/><Button variant="primary" style = {{backgroundColor: "purple", color: "white"}} onClick = {submitOption}>
+                              :
+                              <Select
+                                style={{ margin: "1%" }}
+                                colorScheme="purple"
+                                variant="outline"
+                                placeholder={String.fromCharCode.apply(String, bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String, bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}
+                              />
+                              }
+                              
+                              
+                              <br/>
+                              <Button disabled = {playerAccountInfo[index].voted == 1} variant="primary" style = {{backgroundColor: "purple", color: "white"}} onClick = {submitOption}>
                                 Vote
                               </Button>
                               </Flex>
@@ -845,8 +862,8 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name)}
-                                </GridItem>
+                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
+                                  </GridItem>
                               </Grid>
                             </GridItem>
                             <GridItem w="100%" h="10">
@@ -859,7 +876,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {playerAccountInfo[index].bet_amount/100000000}
+                                  ${playerAccountInfo[index].bet_amount/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -874,7 +891,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.balance/100000000}
+                                  ${bet.balance/100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -888,7 +905,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.time}
+                                  {bet.time} {bet.time > 1 ? "hours" : "hour"}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -936,16 +953,16 @@ function Dashboard() {
                                 colorScheme="purple"
                                 variant="outline"
                               >
-                                Yes
+                                You Chose: {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
                               </Button>
                               {true ? (
                                 <Button
                                   style={{ margin: "1%" }}
-                                  colorScheme="green"
-                                  variant="outline"
+                                  colorScheme="purple"
+                                  
                                   onClick={() => handlePayout()}
                                 >
-                                  Claim Funds
+                                  Settle Funds
                                 </Button>
                               ) : (
                                 <Button
@@ -971,7 +988,7 @@ function Dashboard() {
                                 w="100%"
                                 h="10"
                               >
-                                {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name)}
+                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
                               </GridItem>
                             </Grid>
                           </GridItem>
@@ -1014,7 +1031,7 @@ function Dashboard() {
                                 w="100%"
                                 h="10"
                               >
-                                {bet.time}
+                                {bet.time} {bet.time > 1 ? "hours" : "hour"}
                               </GridItem>
                             </Grid>
                           </GridItem>

@@ -253,6 +253,10 @@ export function Sidebar(props) {
     "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
   );
 
+  const getBets = () => {
+    props.refresh(publicKey);
+  }
+
   //Handling Methods
   const clearBetState = () => {
     setBetName("");
@@ -426,6 +430,7 @@ export function Sidebar(props) {
       setAddIsOpen(false);
       clearBetState();
       setAddSuccessIsOpen(true);
+      getBets();
     } else {
       alert("Invalid Bet Parameters");
     }
@@ -470,6 +475,7 @@ export function Sidebar(props) {
       }).then(() => {
         setAddLeaderIsOpen(false);
         setAddLeaderSuccessIsOpen(true);
+        window.location.reload();
       });
     } else {
       alert("Fill out all fields");
@@ -590,6 +596,7 @@ export function Sidebar(props) {
       duration: 9000,
       isClosable: true,
     });
+    getBets();
   };
 
   const selectOption = (id, option) => {
@@ -735,6 +742,7 @@ export function Sidebar(props) {
           duration: 9000,
           isClosable: true,
         });
+        window.location.reload();
       } else {
         alert("Invalid Leaderboard Code");
       }
@@ -979,7 +987,6 @@ export function Sidebar(props) {
                 onClose={() => {
                   setAddSuccessIsOpen(false);
                   setJoinCode("");
-                  window.location.reload();
                 }}
               >
                 <ModalOverlay />
@@ -1021,7 +1028,6 @@ export function Sidebar(props) {
                       onClick={() => {
                         setAddSuccessIsOpen(false);
                         setJoinCode("");
-                        window.location.reload();
                       }}
                     >
                       Close
