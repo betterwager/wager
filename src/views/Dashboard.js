@@ -380,7 +380,7 @@ function Dashboard() {
   };
 
   const handlePayout = async () => {
-    let index = voteIndex;
+    let index = currentBetIndex;
     let potPDA = betAddresses[index];
     let betID = allUserBets[index].bet_identifier;
     let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
