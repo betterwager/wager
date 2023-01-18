@@ -718,7 +718,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
+                                  {playerAccountInfo[index].bet_amount == 0 ? "N/A" : String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -862,7 +862,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
+                                  {playerAccountInfo[index].bet_amount == 0 ? "N/A" : String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
                                   </GridItem>
                               </Grid>
                             </GridItem>
@@ -988,7 +988,7 @@ function Dashboard() {
                                 w="100%"
                                 h="10"
                               >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
+                                  {playerAccountInfo[index].bet_amount == 0 ? "N/A" : String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
                               </GridItem>
                             </Grid>
                           </GridItem>
