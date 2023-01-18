@@ -698,7 +698,7 @@ function Dashboard() {
                                   setJoinCode(name);
                                   setCurrentOptions(bet.options);
                                 }}
-                                disabled = {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0")) != ""}                                
+                                disabled = {playerAccountInfo[index].bet_amount != 0}                                
 
                               >
                                 Make Bet

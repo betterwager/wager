@@ -399,7 +399,7 @@ export function Sidebar(props) {
             { name: Buffer.from(totalOptions[6]), bet_count : 0, vote_count: 0 },
             { name: Buffer.from(totalOptions[7]), bet_count : 0, vote_count: 0 },
           ],
-          time,
+          timestamp,
           potBump
           //Hours
         ),
