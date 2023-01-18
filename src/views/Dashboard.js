@@ -84,9 +84,9 @@ function Dashboard() {
   //Options for the selected bet
   const [currentOptions, setCurrentOptions] = useState([]);
   //Voting Option Selected
-  const [voteOption, setVoteOption] = useState("")
+  const [voteOption, setVoteOption] = useState("");
   //Voting Index Selected
-  const [voteIndex, setVoteIndex] = useState(0)
+  const [voteIndex, setVoteIndex] = useState(0);
   //Bet Information Modal
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
   //Bet Information Display Current
@@ -154,7 +154,6 @@ function Dashboard() {
     padding: 8,
   };
 
-
   const getBets = useCallback(async () => {
     let tempAddress = {};
     let tempBet = {};
@@ -175,15 +174,17 @@ function Dashboard() {
         programId
       ); //{
       console.log(tempAddress[0]);
-      await connection.getAccountInfo(tempAddress[0]).then((playerAccountInfo) => {
-        console.log(playerAccountInfo);
-        if (playerAccountInfo !== null) {
-          console.log("Success!");
-          allBetAddresses.push(accountInfo.pubkey);
-          allBets.push(wagerLayout.decode(accountInfo.account.data));
-          allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
-        }
-      });
+      await connection
+        .getAccountInfo(tempAddress[0])
+        .then((playerAccountInfo) => {
+          console.log(playerAccountInfo);
+          if (playerAccountInfo !== null) {
+            console.log("Success!");
+            allBetAddresses.push(accountInfo.pubkey);
+            allBets.push(wagerLayout.decode(accountInfo.account.data));
+            allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
+          }
+        });
       if (index === tempBets.length - 1) {
         console.log(allBets);
         console.log(allBetAddresses);
@@ -237,7 +238,7 @@ function Dashboard() {
     //let value = betValue;
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
-    let tempStr = joinCode + " ".repeat(20-joinCode.length);
+    let tempStr = joinCode + " ".repeat(20 - joinCode.length);
     setJoinCode(tempStr);
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
       [Buffer.from(tempStr)],
@@ -281,7 +282,7 @@ function Dashboard() {
     } = await connection.getLatestBlockhashAndContext();
     transaction.recentBlockhash = blockhash;
     console.log("blockhash retreived");
-    
+
     const signature = await sendTransaction(transaction, connection, {
       minContextSlot,
     });
@@ -305,11 +306,11 @@ function Dashboard() {
   };
 
   const selectOption = (e, betIndex) => {
-    let list = e.target.value.split("@&@")
-    setVoteOption(list[0])
-    setVoteIndex(parseInt(list[1]))
+    let list = e.target.value.split("@&@");
+    setVoteOption(list[0]);
+    setVoteIndex(parseInt(list[1]));
     setCurrentBetIndex(betIndex);
-  }
+  };
 
   const submitOption = async () => {
     let optionChose = voteOption;
@@ -431,7 +432,7 @@ function Dashboard() {
       lastValidBlockHeight,
       signature,
     });
-  }
+  };
 
   const downloadQRCode = () => {
     // Generate download with use canvas and stream
@@ -446,7 +447,7 @@ function Dashboard() {
     downloadLink.click();
     document.body.removeChild(downloadLink);
   };
-  
+
   return (
     <Grid
       templateAreas={`"nav header"
@@ -458,7 +459,7 @@ function Dashboard() {
       minHeight="100vh"
     >
       <GridItem colSpan={2} area={"nav"}>
-        <Sidebar refresh = {getBets} user={currentUser} />
+        <Sidebar refresh={getBets} user={currentUser} />
       </GridItem>
 
       <GridItem colSpan={19} pl="2" bg="#F7F8FC" area={"header"}>
@@ -494,11 +495,11 @@ function Dashboard() {
                 <Card.Body>
                   <Card.Text style={{ color: "#888888" }}>Earnings</Card.Text>
                   <Card.Title>
-                    {
-                      currentUser == null ? 
-                      <strong>$0</strong> :
+                    {currentUser == null ? (
+                      <strong>$0</strong>
+                    ) : (
                       <strong>${currentUser.bettingscore}</strong>
-                    }
+                    )}
                   </Card.Title>
                 </Card.Body>
               </Card>
@@ -532,13 +533,15 @@ function Dashboard() {
                 <Card.Body>
                   <Card.Text style={{ color: "#888888" }}>Voting</Card.Text>
                   <Card.Title>
-                    <strong>{allUserBets.filter((obj) => obj.state === 2).length}</strong>
+                    <strong>
+                      {allUserBets.filter((obj) => obj.state === 2).length}
+                    </strong>
                   </Card.Title>
                 </Card.Body>
               </Card>
             </Col>
             <Col>
-            <Card
+              <Card
                 style={{
                   borderColor: "#1D5F50",
                   width: "100%",
@@ -550,10 +553,12 @@ function Dashboard() {
                     Closed Bets
                   </Card.Text>
                   <Card.Title>
-                    <strong>{allUserBets.filter((obj) => obj.state === 3).length}</strong>
+                    <strong>
+                      {allUserBets.filter((obj) => obj.state === 3).length}
+                    </strong>
                   </Card.Title>
                 </Card.Body>
-              </Card>              
+              </Card>
             </Col>
           </Row>
           <InfiniteScroll
@@ -575,85 +580,83 @@ function Dashboard() {
               </Row>
             }
           >
-
-              <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Make Bet</ModalHeader>
-                  <ModalBody>
-                    <>
-                      <FormControl isRequired>
-                        <FormLabel>Bet Code</FormLabel>
-                        <Input
-                          placeholder="Bet Code"
-                          value={joinCode}
-                          onChange = {(e) => handlejoinCodeChange(e)}
-                          />
-                      </FormControl>
-                      <br />
-                      <FormControl isRequired>
-                        <FormLabel>Bet Option</FormLabel>
-                        <Select
-                          onChange={handleBetOption}
-                          placeholder="Select option"
-                        >
-                          {currentOptions.map((option,index) => {
-                            let name = String.fromCharCode.apply(
-                              String,
-                              option.name
+            <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Make Bet</ModalHeader>
+                <ModalBody>
+                  <>
+                    <FormControl isRequired>
+                      <FormLabel>Bet Code</FormLabel>
+                      <Input
+                        placeholder="Bet Code"
+                        value={joinCode}
+                        onChange={(e) => handlejoinCodeChange(e)}
+                      />
+                    </FormControl>
+                    <br />
+                    <FormControl isRequired>
+                      <FormLabel>Bet Option</FormLabel>
+                      <Select
+                        onChange={handleBetOption}
+                        placeholder="Select option"
+                      >
+                        {currentOptions.map((option, index) => {
+                          let name = String.fromCharCode.apply(
+                            String,
+                            option.name
+                          );
+                          name = name.substr(0, name.indexOf("\0"));
+                          if (name !== "zero" && name !== "") {
+                            return (
+                              <option key={name} value={index}>
+                                {name}
+                              </option>
                             );
-                            name = name.substr(0, name.indexOf("\0"));
-                            if (name !== "zero" && name !== "") {
-                              return (
-                                <option key={name} value={index}>
-                                  {name}
-                                </option>
-                              );
-                            }
-                          })}
-                        </Select>
-                      </FormControl>
-                      <br />
-                      <FormControl isRequired>
-                        <FormLabel>Bet Value ($)</FormLabel>
-                        <NumberInput
-                          onChange={handleBetValue}
-                          min={currentBet.min_bet}
-                          max={currentBet.max_bet}
-                          precision={2}
-                          step={0.5}
-                        >
-                          <NumberInputField />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      </FormControl>
-                    </>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      variant="ghost"
-                      mr={3}
-                      onClick={() => setBetIsOpen(false)}
-                    >
-                      Close
-                    </Button>
-                    <Button colorScheme="blue" onClick={handleBetting}>
-                      Wager!
-                    </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            
+                          }
+                        })}
+                      </Select>
+                    </FormControl>
+                    <br />
+                    <FormControl isRequired>
+                      <FormLabel>Bet Value ($)</FormLabel>
+                      <NumberInput
+                        onChange={handleBetValue}
+                        min={currentBet.min_bet}
+                        max={currentBet.max_bet}
+                        precision={2}
+                        step={0.5}
+                      >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </FormControl>
+                  </>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    variant="ghost"
+                    mr={3}
+                    onClick={() => setBetIsOpen(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button colorScheme="blue" onClick={handleBetting}>
+                    Wager!
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
 
             {allUserBets.map((bet, index) => {
               switch (bet.state) {
                 case 1:
                   return (
                     <Container key={index}>
-                      <Card style={{ margin: "1rem" }}>
+                      <Card style={{ margin: "1rem", marginLeft: 50 }}>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
@@ -665,7 +668,7 @@ function Dashboard() {
                                 )}
                               </Card.Title>
                               <Card.Text style={{ color: "#aaaaaa" }}>
-                                  Status: Created
+                                Status: Created
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
@@ -674,12 +677,15 @@ function Dashboard() {
                                 variant="outline"
                                 mr={3}
                                 onClick={() => {
-                                  let name = bet.bet_identifier
-                                  name = String.fromCharCode.apply(String, name);
+                                  let name = bet.bet_identifier;
+                                  name = String.fromCharCode.apply(
+                                    String,
+                                    name
+                                  );
                                   if (name.indexOf(" ") >= 0)
                                     name = name.trim();
                                   setCode(name);
-                                  setCodeDisplayIsOpen(true)
+                                  setCodeDisplayIsOpen(true);
                                 }}
                               >
                                 Bet Info
@@ -691,15 +697,19 @@ function Dashboard() {
                                 onClick={() => {
                                   setBetIsOpen(true);
                                   setCurrentBet(bet);
-                                  let name = bet.bet_identifier
-                                  name = String.fromCharCode.apply(String, name);
+                                  let name = bet.bet_identifier;
+                                  name = String.fromCharCode.apply(
+                                    String,
+                                    name
+                                  );
                                   if (name.indexOf(" ") >= 0)
-                                    name = name.trim()
+                                    name = name.trim();
                                   setJoinCode(name);
                                   setCurrentOptions(bet.options);
                                 }}
-                                disabled = {playerAccountInfo[index].bet_amount != 0}                                
-
+                                disabled={
+                                  playerAccountInfo[index].bet_amount != 0
+                                }
                               >
                                 Make Bet
                               </Button>
@@ -718,7 +728,25 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
+                                  {String.fromCharCode
+                                    .apply(
+                                      String,
+                                      bet.options[
+                                        playerAccountInfo[index].option_index
+                                      ].name
+                                    )
+                                    .substr(
+                                      0,
+                                      String.fromCharCode
+                                        .apply(
+                                          String,
+                                          bet.options[
+                                            playerAccountInfo[index]
+                                              .option_index
+                                          ].name
+                                        )
+                                        .indexOf("\0")
+                                    )}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -732,7 +760,9 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  ${playerAccountInfo[index].bet_amount/100000000}
+                                  $
+                                  {playerAccountInfo[index].bet_amount /
+                                    100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -747,7 +777,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  ${bet.balance/100000000}
+                                  ${bet.balance / 100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -788,7 +818,7 @@ function Dashboard() {
                 case 2:
                   return (
                     <Container key={index}>
-                      <Card style={{ margin: "1rem" }}>
+                      <Card style={{ margin: "1rem", marginLeft: 50 }}>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
@@ -800,52 +830,82 @@ function Dashboard() {
                                 )}
                               </Card.Title>
                               <Card.Text style={{ color: "#aaaaaa" }}>
-                                  Status: Voting
+                                Status: Voting
                               </Card.Text>
                             </Col>
                             <Col style={{ textAlign: "right" }}>
                               <Flex>
-                              
-                              {playerAccountInfo[index].voted == 0 ?
-                                <Select
-                                style={{ margin: "1%" }}
-                                colorScheme="purple"
-                                onChange={(e) => {
-                                  selectOption(e,index)
-                                }}
-                                variant="outline"
-                                placeholder="Select option"
-                              >
-                                {bet.options.map((option, index) => {
-                                  let name = String.fromCharCode.apply(
-                                    String,
-                                    option.name
-                                  );
-                                  if (name.indexOf("\0") >= 0)
-                                    name = name.substr(0, name.indexOf("\0"));
-                                  if (name !== "zero" && name !== "") {
-                                    return (
-                                      <option key={index} value={name + "@&@" + index}>
-                                        {name}
-                                      </option>
-                                    );
-                                  }
-                                })}
-                              </Select>
-                              :
-                              <Select
-                                style={{ margin: "1%" }}
-                                colorScheme="purple"
-                                variant="outline"
-                                placeholder={String.fromCharCode.apply(String, bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String, bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}
-                              />
-                              }
-                              
-                              
-                              <br/>
-                              <Button disabled = {playerAccountInfo[index].voted == 1} variant="primary" style = {{backgroundColor: "purple", color: "white"}} onClick = {submitOption}>
-                                Vote
-                              </Button>
+                                {playerAccountInfo[index].voted == 0 ? (
+                                  <Select
+                                    style={{ margin: "1%" }}
+                                    colorScheme="purple"
+                                    onChange={(e) => {
+                                      selectOption(e, index);
+                                    }}
+                                    variant="outline"
+                                    placeholder="Select option"
+                                  >
+                                    {bet.options.map((option, index) => {
+                                      let name = String.fromCharCode.apply(
+                                        String,
+                                        option.name
+                                      );
+                                      if (name.indexOf("\0") >= 0)
+                                        name = name.substr(
+                                          0,
+                                          name.indexOf("\0")
+                                        );
+                                      if (name !== "zero" && name !== "") {
+                                        return (
+                                          <option
+                                            key={index}
+                                            value={name + "@&@" + index}
+                                          >
+                                            {name}
+                                          </option>
+                                        );
+                                      }
+                                    })}
+                                  </Select>
+                                ) : (
+                                  <Select
+                                    style={{ margin: "1%" }}
+                                    colorScheme="purple"
+                                    variant="outline"
+                                    placeholder={String.fromCharCode
+                                      .apply(
+                                        String,
+                                        bet.options[
+                                          playerAccountInfo[index].option_index
+                                        ].name
+                                      )
+                                      .substr(
+                                        0,
+                                        String.fromCharCode
+                                          .apply(
+                                            String,
+                                            bet.options[
+                                              playerAccountInfo[index]
+                                                .option_index
+                                            ].name
+                                          )
+                                          .indexOf("\0")
+                                      )}
+                                  />
+                                )}
+
+                                <br />
+                                <Button
+                                  disabled={playerAccountInfo[index].voted == 1}
+                                  variant="primary"
+                                  style={{
+                                    backgroundColor: "purple",
+                                    color: "white",
+                                  }}
+                                  onClick={submitOption}
+                                >
+                                  Vote
+                                </Button>
                               </Flex>
                             </Col>
                           </Row>
@@ -862,8 +922,26 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
-                                  </GridItem>
+                                  {String.fromCharCode
+                                    .apply(
+                                      String,
+                                      bet.options[
+                                        playerAccountInfo[index].option_index
+                                      ].name
+                                    )
+                                    .substr(
+                                      0,
+                                      String.fromCharCode
+                                        .apply(
+                                          String,
+                                          bet.options[
+                                            playerAccountInfo[index]
+                                              .option_index
+                                          ].name
+                                        )
+                                        .indexOf("\0")
+                                    )}
+                                </GridItem>
                               </Grid>
                             </GridItem>
                             <GridItem w="100%" h="10">
@@ -876,7 +954,9 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  ${playerAccountInfo[index].bet_amount/100000000}
+                                  $
+                                  {playerAccountInfo[index].bet_amount /
+                                    100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -891,7 +971,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  ${bet.balance/100000000}
+                                  ${bet.balance / 100000000}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -932,34 +1012,51 @@ function Dashboard() {
                 case 3:
                   return (
                     <Container key={index}>
-                    <Card style={{ margin: "1rem" }}>
-                      <Card.Body>
-                        <Row>
-                          <Col style={{ textAlign: "left" }}>
-                            <Card.Title>
-                              <strong>Bet Name:</strong>{" "}
-                              {String.fromCharCode.apply(
-                                String,
-                                bet.bet_identifier
-                              )}
-                            </Card.Title>
-                            <Card.Text style={{ color: "#aaaaaa" }}>
+                      <Card style={{ margin: "1rem", marginLeft: 50 }}>
+                        <Card.Body>
+                          <Row>
+                            <Col style={{ textAlign: "left" }}>
+                              <Card.Title>
+                                <strong>Bet Name:</strong>{" "}
+                                {String.fromCharCode.apply(
+                                  String,
+                                  bet.bet_identifier
+                                )}
+                              </Card.Title>
+                              <Card.Text style={{ color: "#aaaaaa" }}>
                                 Status: Settled
-                            </Card.Text>
-                          </Col>
-                          <Col style={{ textAlign: "right" }}>
+                              </Card.Text>
+                            </Col>
+                            <Col style={{ textAlign: "right" }}>
                               <Button
                                 style={{ margin: "1%" }}
                                 colorScheme="purple"
                                 variant="outline"
                               >
-                                You Chose: {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
+                                You Chose:{" "}
+                                {String.fromCharCode
+                                  .apply(
+                                    String,
+                                    bet.options[
+                                      playerAccountInfo[index].option_index
+                                    ].name
+                                  )
+                                  .substr(
+                                    0,
+                                    String.fromCharCode
+                                      .apply(
+                                        String,
+                                        bet.options[
+                                          playerAccountInfo[index].option_index
+                                        ].name
+                                      )
+                                      .indexOf("\0")
+                                  )}
                               </Button>
                               {true ? (
                                 <Button
                                   style={{ margin: "1%" }}
                                   colorScheme="purple"
-                                  
                                   onClick={() => handlePayout()}
                                 >
                                   Settle Funds
@@ -975,85 +1072,103 @@ function Dashboard() {
                               )}
                             </Col>
                           </Row>
-                      </Card.Body>
-                      <Card.Footer style={{ backgroundColor: "#fff" }}>
-                        <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-                          <GridItem w="100%" h="10">
-                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                              <GridItem w="100%" h="10">
-                                Position
-                              </GridItem>
-                              <GridItem
-                                style={{ color: "#aaaaaa" }}
-                                w="100%"
-                                h="10"
-                              >
-                                  {String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).substr(0, String.fromCharCode.apply(String,bet.options[playerAccountInfo[index].option_index].name).indexOf("\0"))}                                
-                              </GridItem>
-                            </Grid>
-                          </GridItem>
-                          <GridItem w="100%" h="10">
-                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                              <GridItem w="100%" h="10">
-                                Stake
-                              </GridItem>
-                              <GridItem
-                                style={{ color: "#aaaaaa" }}
-                                w="100%"
-                                h="10"
-                              >
-                                {playerAccountInfo[index].bet_amount/100000000}
-                              </GridItem>
-                            </Grid>
-                          </GridItem>
+                        </Card.Body>
+                        <Card.Footer style={{ backgroundColor: "#fff" }}>
+                          <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+                            <GridItem w="100%" h="10">
+                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                                <GridItem w="100%" h="10">
+                                  Position
+                                </GridItem>
+                                <GridItem
+                                  style={{ color: "#aaaaaa" }}
+                                  w="100%"
+                                  h="10"
+                                >
+                                  {String.fromCharCode
+                                    .apply(
+                                      String,
+                                      bet.options[
+                                        playerAccountInfo[index].option_index
+                                      ].name
+                                    )
+                                    .substr(
+                                      0,
+                                      String.fromCharCode
+                                        .apply(
+                                          String,
+                                          bet.options[
+                                            playerAccountInfo[index]
+                                              .option_index
+                                          ].name
+                                        )
+                                        .indexOf("\0")
+                                    )}
+                                </GridItem>
+                              </Grid>
+                            </GridItem>
+                            <GridItem w="100%" h="10">
+                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                                <GridItem w="100%" h="10">
+                                  Stake
+                                </GridItem>
+                                <GridItem
+                                  style={{ color: "#aaaaaa" }}
+                                  w="100%"
+                                  h="10"
+                                >
+                                  {playerAccountInfo[index].bet_amount /
+                                    100000000}
+                                </GridItem>
+                              </Grid>
+                            </GridItem>
 
-                          <GridItem w="100%" h="10">
-                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                              <GridItem w="100%" h="10">
-                                Pot
-                              </GridItem>
-                              <GridItem
-                                style={{ color: "#aaaaaa" }}
-                                w="100%"
-                                h="10"
-                              >
-                                {bet.balance/100000000}
-                              </GridItem>
-                            </Grid>
-                          </GridItem>
-                          <GridItem w="100%" h="10">
-                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                              <GridItem w="100%" h="10">
-                                Time
-                              </GridItem>
-                              <GridItem
-                                style={{ color: "#aaaaaa" }}
-                                w="100%"
-                                h="10"
-                              >
-                                {bet.time} {bet.time > 1 ? "hours" : "hour"}
-                              </GridItem>
-                            </Grid>
-                          </GridItem>
-                          <GridItem w="100%" h="10">
-                            <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                              <GridItem w="100%" h="10">
-                                Players
-                              </GridItem>
-                              <GridItem
-                                style={{ color: "#aaaaaa" }}
-                                w="100%"
-                                h="10"
-                              >
-                                {bet.player_count}
-                              </GridItem>
-                            </Grid>
-                          </GridItem>
-                        </Grid>
-                      </Card.Footer>
-                    </Card>
-                  </Container>
-                  
+                            <GridItem w="100%" h="10">
+                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                                <GridItem w="100%" h="10">
+                                  Pot
+                                </GridItem>
+                                <GridItem
+                                  style={{ color: "#aaaaaa" }}
+                                  w="100%"
+                                  h="10"
+                                >
+                                  {bet.balance / 100000000}
+                                </GridItem>
+                              </Grid>
+                            </GridItem>
+                            <GridItem w="100%" h="10">
+                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                                <GridItem w="100%" h="10">
+                                  Time
+                                </GridItem>
+                                <GridItem
+                                  style={{ color: "#aaaaaa" }}
+                                  w="100%"
+                                  h="10"
+                                >
+                                  {bet.time} {bet.time > 1 ? "hours" : "hour"}
+                                </GridItem>
+                              </Grid>
+                            </GridItem>
+                            <GridItem w="100%" h="10">
+                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                                <GridItem w="100%" h="10">
+                                  Players
+                                </GridItem>
+                                <GridItem
+                                  style={{ color: "#aaaaaa" }}
+                                  w="100%"
+                                  h="10"
+                                >
+                                  {bet.player_count}
+                                </GridItem>
+                              </Grid>
+                            </GridItem>
+                          </Grid>
+                        </Card.Footer>
+                      </Card>
+                    </Container>
                   );
                 default:
                   return <Container></Container>;
@@ -1061,40 +1176,64 @@ function Dashboard() {
             })}
           </InfiniteScroll>
         </Container>
-        <Modal isOpen={codeDisplayIsOpen} onClose={() => setCodeDisplayIsOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Bet Information</ModalHeader>
-                    <ModalBody>
-                        <h1 style = {{fontSize: "15px"}}><strong>Bet Code: </strong><u><a onClick={() => {
-                          navigator.clipboard.writeText(code)
-                          alert("Copied to Clipboard")
-                          }}>{code}</a></u></h1><br/>
-                        <h3 style = {{fontSize: "15px"}}><strong>Join Link: </strong><u><a onClick={() => {
-                          navigator.clipboard.writeText(window.location.href + "?bet=" + code)
-                          alert("Copied to Clipboard")
-                          }}>{window.location.href + "?bet=" + code}</a></u></h3><br/>
-                        <QRCodeCanvas 
-                        id="qr-gen"
-                        includeMargin={true}
-                        value= {window.location.href + "?bet=" + code} />
-                        <Button onClick={downloadQRCode}>
-                            Download QR Code
-                        </Button>
-                    </ModalBody>
-                    <ModalFooter>
-                      <Button
-                        variant="ghost"
-                        mr={3}
-                        onClick={() => {
-                          setCodeDisplayIsOpen(false);
-                        }}
-                      >
-                        Close
-                      </Button>
-                    </ModalFooter>
-                </ModalContent>
-              </Modal>
+        <Modal
+          isOpen={codeDisplayIsOpen}
+          onClose={() => setCodeDisplayIsOpen(false)}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Bet Information</ModalHeader>
+            <ModalBody>
+              <h1 style={{ fontSize: "15px" }}>
+                <strong>Bet Code: </strong>
+                <u>
+                  <a
+                    onClick={() => {
+                      navigator.clipboard.writeText(code);
+                      alert("Copied to Clipboard");
+                    }}
+                  >
+                    {code}
+                  </a>
+                </u>
+              </h1>
+              <br />
+              <h3 style={{ fontSize: "15px" }}>
+                <strong>Join Link: </strong>
+                <u>
+                  <a
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        window.location.href + "?bet=" + code
+                      );
+                      alert("Copied to Clipboard");
+                    }}
+                  >
+                    {window.location.href + "?bet=" + code}
+                  </a>
+                </u>
+              </h3>
+              <br />
+              <QRCodeCanvas
+                id="qr-gen"
+                includeMargin={true}
+                value={window.location.href + "?bet=" + code}
+              />
+              <Button onClick={downloadQRCode}>Download QR Code</Button>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant="ghost"
+                mr={3}
+                onClick={() => {
+                  setCodeDisplayIsOpen(false);
+                }}
+              >
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </GridItem>
       <Row>
         <div className="holder">
