@@ -323,7 +323,7 @@ export function Sidebar(props) {
       let tempStr = betName + " ".repeat(20-betName.length);
       setBetName(tempStr);
 
-      let timestamp = Math.floor(Date.now() / 1000) + (time * 3600); //TIME IN HOURS
+      let timestamp = Date.now() + (time * 3600000); //TIME IN HOURS
 
       //let index = uniqueHash(betName + maxBet + allOptions);
 
