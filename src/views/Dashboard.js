@@ -992,7 +992,6 @@ function Dashboard() {
                                     "en-US",
                                     { timeStyle: "short" }
                                   )}{" "}
-                                  {bet.time > 1 ? "hours" : "hour"}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1158,7 +1157,6 @@ function Dashboard() {
                                     "en-US",
                                     { timeStyle: "short" }
                                   )}{" "}
-                                  {bet.time > 1 ? "hours" : "hour"}
                                 </GridItem>
                               </Grid>
                             </GridItem>
