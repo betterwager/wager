@@ -761,7 +761,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.time}
+                                  {new Date(bet.time).toLocaleTimeString("en-US", {timeStyle: "short"})}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -905,7 +905,7 @@ function Dashboard() {
                                   w="100%"
                                   h="10"
                                 >
-                                  {bet.time} {bet.time > 1 ? "hours" : "hour"}
+                                  {new Date(bet.time).toLocaleTimeString("en-US", {timeStyle: "short"})} {bet.time > 1 ? "hours" : "hour"}
                                 </GridItem>
                               </Grid>
                             </GridItem>
@@ -1031,7 +1031,7 @@ function Dashboard() {
                                 w="100%"
                                 h="10"
                               >
-                                {bet.time} {bet.time > 1 ? "hours" : "hour"}
+                                {new Date(bet.time).toLocaleTimeString("en-US", {timeStyle: "short"})} {bet.time > 1 ? "hours" : "hour"}
                               </GridItem>
                             </Grid>
                           </GridItem>
