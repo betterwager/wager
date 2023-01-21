@@ -6,6 +6,7 @@ import {
   Icon,
   Input,
   Modal,
+  GridItem,
   ModalBody,
   ModalContent,
   ModalFooter,
@@ -475,7 +476,6 @@ export function Sidebar(props) {
       }).then(() => {
         setAddLeaderIsOpen(false);
         setAddLeaderSuccessIsOpen(true);
-        window.location.reload();
       });
     } else {
       alert("Fill out all fields");
@@ -753,14 +753,7 @@ export function Sidebar(props) {
 
   return (
     <>
-      <Sider
-        style={{
-          position: "fixed",
-          height: "100vh",
-          width: "10vw",
-          backgroundColor: "#195F50",
-        }}
-      >
+
         <Container
           style={{
             marginLeft: "1vh",
@@ -789,7 +782,7 @@ export function Sidebar(props) {
           }
           mode="inline"
         >
-          <SubMenu key="sub1" title={email} icon={<UserOutlined />}>
+          <SubMenu key="sub1" title={email.slice(0, 15) + '...'} icon={<UserOutlined />}>
             <Menu.Item onClick={() => setAccIsOpen(true)} key="8">
               Account Details
             </Menu.Item>
@@ -1231,7 +1224,6 @@ export function Sidebar(props) {
             </a>
           </Menu.Item>
         </Menu>
-      </Sider>
 
       <Modal isOpen={accIsOpen} onClose={() => setAccIsOpen(false)}>
         <ModalOverlay />

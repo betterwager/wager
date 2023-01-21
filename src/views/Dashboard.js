@@ -7,6 +7,7 @@ import "@aws-amplify/ui-react/styles.css";
 import {
   useToast,
   Grid,
+  SimpleGrid,
   Modal,
   NumberInput,
   NumberInputField,
@@ -299,6 +300,7 @@ function Dashboard() {
       isClosable: true,
     });
     setBetIsOpen(false);
+    getBets(publicKey)
   };
 
   const handleJoinBet = async (id) => {
@@ -457,17 +459,26 @@ function Dashboard() {
       color="blackAlpha.700"
       fontWeight="bold"
       minHeight="100vh"
+      style = {{
+        boxSizing: "border-box",
+        overflowY: "hidden"
+      }}
     >
-      <GridItem colSpan={2} area={"nav"}>
+      <GridItem colSpan={2} area={"nav"}  style={{
+          height: "100vh",
+          overflow: "hidden",
+          marginBottom:"-5000px",
+          paddingBottom:"5000px",
+          backgroundColor: "#195F50",
+        }}>
         <Sidebar refresh={getBets} user={currentUser} />
       </GridItem>
 
-      <GridItem colSpan={19} pl="2" bg="#F7F8FC" area={"header"}>
+      <GridItem colSpan={19} bg="#F7F8FC" area={"header"}>
         <br />
         <div
           style={{
             marginLeft: "4rem",
-
             color: "white",
             fontSize: "25px",
           }}
@@ -476,8 +487,8 @@ function Dashboard() {
         </div>
       </GridItem>
 
-      <GridItem pl="2" colSpan={19} bg="#F7F8FC" area={"main"}>
-        <Container style={{ height: "100%" }}>
+      <GridItem colSpan={19} bg="#F7F8FC" area={"main"}>
+        <Container style={{ height: "100%", maxWidth: "70vw" }}>
           <Row
             style={{ margin: "5%", marginTop: "1%", marginBottom: "1%" }}
             xs={1}
@@ -561,10 +572,21 @@ function Dashboard() {
               </Card>
             </Col>
           </Row>
+          <div
+            id="scrollableDiv"
+            style={{
+              height: "75vh",
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column-reverse',
+            }}>
           <InfiniteScroll
             dataLength={allUserBets.length}
             hasMore={false}
             loader={<h4>Loading...</h4>}
+            scrollableTarget="scrollableDiv"
+            style = {{boxSizing: "border-box",
+            overflowX: "hidden"}}
             endMessage={
               <Row style={{ textAlign: "right" }}>
                 <Button
@@ -656,7 +678,7 @@ function Dashboard() {
                 case 1:
                   return (
                     <Container key={index}>
-                      <Card style={{ margin: "1rem", marginLeft: 50 }}>
+                      <Card style={{ marginTop: "1rem", marginBottom: "1rem" }}>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
@@ -717,7 +739,7 @@ function Dashboard() {
                           </Row>
                         </Card.Body>
                         <Card.Footer style={{ backgroundColor: "#fff" }}>
-                          <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+                          <SimpleGrid columns={[1, null, 5]}>
                             <GridItem w="100%" h="10">
                               <Grid templateColumns="repeat(2, 1fr)" gap={3}>
                                 <GridItem w="100%" h="10">
@@ -794,7 +816,7 @@ function Dashboard() {
                                 </GridItem>
                               </Grid>
                             </GridItem>
-                          </Grid>
+                          </SimpleGrid>
                         </Card.Footer>
                       </Card>
                     </Container>
@@ -803,7 +825,7 @@ function Dashboard() {
                 case 2:
                   return (
                     <Container key={index}>
-                      <Card style={{ margin: "1rem", marginLeft: 50 }}>
+                      <Card style={{ marginTop: "1rem", marginBottom: "1rem" }}>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
@@ -896,7 +918,7 @@ function Dashboard() {
                           </Row>
                         </Card.Body>
                         <Card.Footer style={{ backgroundColor: "#fff" }}>
-                          <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+                          <SimpleGrid columns={[1, null, 5]}>
                             <GridItem w="100%" h="10">
                               <Grid templateColumns="repeat(2, 1fr)" gap={3}>
                                 <GridItem w="100%" h="10">
@@ -973,7 +995,7 @@ function Dashboard() {
                                 </GridItem>
                               </Grid>
                             </GridItem>
-                          </Grid>
+                          </SimpleGrid>
                         </Card.Footer>
                       </Card>
                     </Container>
@@ -982,7 +1004,7 @@ function Dashboard() {
                 case 3:
                   return (
                     <Container key={index}>
-                      <Card style={{ margin: "1rem", marginLeft: 50 }}>
+                      <Card style={{ marginTop: "1rem", marginBottom: "1rem" }}>
                         <Card.Body>
                           <Row>
                             <Col style={{ textAlign: "left" }}>
@@ -1044,7 +1066,7 @@ function Dashboard() {
                           </Row>
                       </Card.Body>
                       <Card.Footer style={{ backgroundColor: "#fff" }}>
-                        <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+                          <SimpleGrid columns={[1, null, 5]}>
                           <GridItem w="100%" h="10">
                             <Grid templateColumns="repeat(2, 1fr)" gap={3}>
                               <GridItem w="100%" h="10">
@@ -1119,7 +1141,7 @@ function Dashboard() {
                                 </GridItem>
                               </Grid>
                             </GridItem>
-                          </Grid>
+                          </SimpleGrid>
                         </Card.Footer>
                       </Card>
                     </Container>
@@ -1129,6 +1151,7 @@ function Dashboard() {
               }
             })}
           </InfiniteScroll>
+          </div>
         </Container>
         <Modal
           isOpen={codeDisplayIsOpen}
@@ -1158,12 +1181,12 @@ function Dashboard() {
                   <a
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        window.location.href + "?bet=" + code
+                        window.location.href + "?bet=" + code.replace(" ", "%20")
                       );
                       alert("Copied to Clipboard");
                     }}
                   >
-                    {window.location.href + "?bet=" + code}
+                    {window.location.href + "?bet=" + code.replace(" ", "%20")}
                   </a>
                 </u>
               </h3>
@@ -1171,7 +1194,7 @@ function Dashboard() {
               <QRCodeCanvas
                 id="qr-gen"
                 includeMargin={true}
-                value={window.location.href + "?bet=" + code}
+                value={window.location.href + "?bet=" + code.replace(" ", "%20")}
               />
               <Button onClick={downloadQRCode}>Download QR Code</Button>
             </ModalBody>
@@ -1189,13 +1212,6 @@ function Dashboard() {
           </ModalContent>
         </Modal>
       </GridItem>
-      <Row>
-        <div className="holder">
-          <h1>
-            <a href="/#">K</a>
-          </h1>
-        </div>
-      </Row>
     </Grid>
   );
 }

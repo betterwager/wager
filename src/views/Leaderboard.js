@@ -24,6 +24,9 @@ import {
   TableCaption,
   TableContainer,
 } from "@chakra-ui/react";
+import {Row} from "react-bootstrap"
+import { RepeatIcon } from "@chakra-ui/icons";
+import InfiniteScroll from "react-infinite-scroll-component";
 import Sidebar from './Sidebar.js'
 import {QRCodeCanvas} from 'qrcode.react';
 import { DataGrid} from '@mui/x-data-grid';
@@ -50,14 +53,10 @@ function Leaderboard(){
     const users = await API.graphql({ query: queries.listUsers })
     return users
   }
-  const getBoards = async () => {
-    const boards = await API.graphql({ query: queries.listLeaderboards})
-    return boards
-  }
-
-  useEffect(() => {
+  const getBoards = useCallback(async () => {
     let allBoards,email;
-    getBoards().catch(console.error)
+    const boards = await API.graphql({ query: queries.listLeaderboards})
+    .catch(console.error)
     .then((boards) => {
       allBoards = boards.data.listLeaderboards.items
       allBoards = allBoards.filter(board => board.users.includes(Auth.user.attributes.email))
@@ -80,22 +79,25 @@ function Leaderboard(){
         setCurrentBoard(list)
         setCode(allBoards[0].id)
       }
-    })
+      getUsers().catch(console.error)
+      .then((users) => {
+        users = users.data.listUsers.items;
+        setAllUsers(users)
+        let currentUser = users.find(x => x.email == email);
+        let boardUserList = []
+        let board = allBoards[0].users
+        for (var i = 0; i < board.length; i ++){
+          boardUserList.push(users.find(user => user.email == board[i]))
+        }
+        setBoardUsers(boardUserList)
+        setCurrentUser(currentUser);
 
-    getUsers().catch(console.error)
-    .then((users) => {
-      users = users.data.listUsers.items;
-      setAllUsers(users)
-      let currentUser = users.find(x => x.email == email);
-      let boardUserList = []
-      let board = allBoards[0].users
-      for (var i = 0; i < board.length; i ++){
-        boardUserList.push(users.find(user => user.email == board[i]))
-      }
-      setBoardUsers(boardUserList)
-      setCurrentUser(currentUser);
-      
-})},[])
+    })
+  })})
+
+  useEffect(() => {
+    getBoards().catch(console.error)
+    },[])
 
 
     const handleCurrentBoard = (e) => {
@@ -139,15 +141,21 @@ function Leaderboard(){
         color="blackAlpha.700"
         fontWeight="bold"
         minHeight="100vh"
+        style = {{
+          boxSizing: "border-box",
+          overflowY: "hidden"
+        }}
       >
 
-      <GridItem
-      
-          colSpan={2}
-          area={"nav"}
-        >
-      <Sidebar/>
-        </GridItem>
+      <GridItem colSpan={2} area={"nav"}  style={{
+          height: "100vh",
+          backgroundColor: "#195F50",
+          overflow: "hidden",
+          marginBottom:"-5000px",
+          paddingBottom:"5000px",
+        }}>
+        <Sidebar user={currentUser} />
+      </GridItem>
 
         <GridItem
           colSpan={19}
@@ -202,6 +210,38 @@ function Leaderboard(){
           </Button>
           </Flex>
           </div>
+          <div
+            id="scrollableDiv2"
+            style={{
+              overflow: 'auto',
+              height: "75vh",
+              display: 'flex',
+              flexDirection: 'column',
+              boxSizing: "border-box",
+              overflowX: "hidden"
+            }}>
+          <InfiniteScroll
+            dataLength={boardUsers.length}
+            hasMore={false}
+            loader={<h4>Loading...</h4>}
+            scrollableTarget="scrollableDiv2"
+            style = {{boxSizing: "border-box",
+            overflowX: "hidden"}}
+            endMessage={
+              <Row style={{ textAlign: "right" }}>
+                <Button
+                  colorScheme="black"
+                  variant="ghost"
+                  rightIcon={<RepeatIcon />}
+                  onClick={() => {
+                    getBoards().catch(console.error)
+                  }}
+                >
+                  Refresh
+                </Button>
+              </Row>
+            }
+          >
           {currentBoard == null ? (<></>) :
           (
           <TableContainer  style={{
@@ -231,35 +271,9 @@ function Leaderboard(){
           )
           }
 
-          {result.length != 0 && (
-            <>
-              <SimpleGrid columns={3}>
-                <Box columns={1}>
-                  <h1 style={{ fontSize: "50px" }}>Member:</h1>
-                  <br/>
-                  {result.map((member) => (
-                    <>
-                    <h3 style={{ fontSize: "20px"}}>{member.firstname} {member.lastname}</h3>
-                    <br/>
-                    </>
-                  ))}
-                </Box>
-                <Box columns={1}>
-
-                </Box>
-                <Box columns={1}>
-                  <h1 style={{ fontSize: "50px" }}>Score:</h1>
-                  <br/>
-                  {result.map((member) => (
-                    <>
-                    <h3 style={{ fontSize: "20px" }}>{member.betting_score}</h3>
-                    <br/>
-                    </>
-                  ))}
-                </Box>
-              </SimpleGrid>
-            </>
-          )}
+        </InfiniteScroll>
+        </div>
+        
         </GridItem>
 
         <Modal isOpen={codeDisplayIsOpen} onClose={() => setCodeDisplayIsOpen(false)}>
@@ -272,13 +286,13 @@ function Leaderboard(){
                           alert("Copied to Clipboard")
                           }}>{code}</a></u></h1><br/>
                         <h3 style = {{fontSize: "15px"}}><strong>Join Link: </strong><u><a onClick={() => {
-                          navigator.clipboard.writeText(window.location.href + "?leaderboard=" + code)
+                          navigator.clipboard.writeText(window.location.href + "?leaderboard=" + code.replace(" ", "%20"))
                           alert("Copied to Clipboard")
-                          }}>{window.location.href + "?leaderboard=" + code}</a></u></h3><br/>
+                          }}>{window.location.href + "?leaderboard=" + code.replace(" ", "%20")}</a></u></h3><br/>
                         <QRCodeCanvas 
                         id="qr-gen"
                         includeMargin={true}
-                        value= {window.location.href + "?leaderboard=" + code} />
+                        value= {window.location.href + "?leaderboard=" + code.replace(" ", "%20")} />
                         <Button onClick={downloadQRCodeLeader}>
                             Download QR Code
                         </Button>

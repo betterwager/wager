@@ -79,7 +79,7 @@ function App(){
                 <Routes>
                   <Route exact path={HOME} element={<Home />} />
                   <Route exact path={DASHBOARD} element={<Dashboard />} />
-                  <Route exact path={LEADERBOARD} element={<Leaderboard />} />
+                  <Route exact path={LEADERBOARD} element={<Leaderboard/>} />
                 </Routes>
               </Router>
               </ChakraProvider>
