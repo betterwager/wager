@@ -20,7 +20,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 import {
   WalletDisconnectButton,
@@ -52,6 +52,7 @@ import { Layout, Menu } from "antd";
 import { API, Auth } from "aws-amplify";
 import { Buffer } from "buffer";
 import { Button, Container, Form } from "react-bootstrap";
+import uniqueHash from "unique-hash"
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { NavLink as Link } from "react-router-dom";
@@ -86,7 +87,6 @@ export function Sidebar(props) {
   const [trustScore, setTrustScore] = useState("");
   const [bettingScore, setBettingScore] = useState("");
   const [leaderboards, setLeaderboards] = useState([]);
-  const [allBoards, setAllBoards] = useState([]);
 
   const [user, setUser] = useState({});
   const [userID, setUserID] = useState("");
@@ -131,17 +131,26 @@ export function Sidebar(props) {
     return boards;
   };
 
+  const userUpdate = useCallback(async (newUser) => {
+    const promise = await API.graphql({
+    query: mutations.updateUser,
+    variables: { input: newUser },
+    })
+    return promise
+});
+
+  const leaderUpdate = useCallback(async (newLeader) => {
+    const promise = await API.graphql({
+      query: mutations.updateLeaderboard,
+      variables: { input: newLeader }
+    })
+    return promise
+  })
+
   useEffect(() => {
-    let allBoards;
-    getBoards()
-      .catch(console.error)
-      .then((boards) => {
-        allBoards = boards.data.listLeaderboards.items;
-        allBoards = allBoards.map((board) => board.id);
-        setAllBoards(allBoards);
-        getUsers()
-          .catch(console.error)
-          .then((users) => {
+      getUsers()
+        .catch(console.error)
+        .then((users) => {
             let email = Auth.user.attributes.email;
             setEmail(email);
             let currentUser = users.data.listUsers.items.find(
@@ -178,7 +187,6 @@ export function Sidebar(props) {
             if (publicKey != null && !newUser) {
               setEditIsOpen(false);
             }
-          });
       });
   }, []);
 
@@ -440,43 +448,44 @@ export function Sidebar(props) {
   const handleLeaderSubmit = async (e) => {
     if (leaderName != "") {
       let board = {
+        id: leaderName,
         users: [Auth.user.attributes.email],
         name: leaderName,
       };
-      let id;
+      let id = leaderName
       const leaderboard = await API.graphql({
         query: mutations.createLeaderboard,
         variables: { input: board },
-      }).then((res) => {
-        id = res.data.createLeaderboard.id;
+      })
+      .then((res) => {
         setJoinLeaderCode(id);
-      });
+        let currentBoards = user.leaderboards;
+        currentBoards.push(id);
+  
+        const fullName = firstName + " " + lastName;
+        let newUser = {
+          id: user.id,
+          email: email,
+          name: fullName,
+          birthdate: birthdate,
+          phonenumber: phoneNumber,
+          trustscore: user.trustscore,
+          bettingscore: user.bettingscore,
+          bets: user.bets,
+          leaderboards: currentBoards,
+          _version: user._version,
+        };
 
-      let currentBoards = user.leaderboards;
-      currentBoards.push(id);
-
-      const fullName = firstName + " " + lastName;
-
-      let newUser = {
-        id: user.id,
-        email: email,
-        name: fullName,
-        birthdate: birthdate,
-        phonenumber: phoneNumber,
-        trustscore: user.trustscore,
-        bettingscore: user.bettingscore,
-        bets: user.bets,
-        leaderboards: currentBoards,
-        _version: user._version,
-      };
-
-      const userUpdate = await API.graphql({
-        query: mutations.updateUser,
-        variables: { input: newUser },
-      }).then(() => {
+        userUpdate(newUser)
+      })
+      .then(() => {
         setAddLeaderIsOpen(false);
         setAddLeaderSuccessIsOpen(true);
-      });
+      })
+      .catch(() => {
+        alert("Choose another Leaderboard Name")
+        return;
+      })
     } else {
       alert("Fill out all fields");
     }
@@ -649,14 +658,12 @@ export function Sidebar(props) {
               _version: user._version,
             };
 
-            const promise = await API.graphql({
-              query: mutations.updateUser,
-              variables: { input: newUser },
-            }).then((res) => {
+            userUpdate(newUser).then((res) => {
               setEditIsOpen(false);
             });
           } else {
             let newUser = {
+              id: uniqueHash(email),
               email: email,
               name: name,
               birthdate: birthdate,
@@ -689,63 +696,60 @@ export function Sidebar(props) {
   const handleJoinLeaderSubmit = async () => {
     if (joinLeaderCode != "") {
       let currentBoards = user.leaderboards;
-      if (
-        !currentBoards.includes(joinLeaderCode) &&
-        allBoards.includes(joinLeaderCode)
-      ) {
-        currentBoards.push(joinLeaderCode);
-        const fullName = firstName + " " + lastName;
-
-        let newUser = {
-          id: user.id,
-          email: email,
-          name: fullName,
-          birthdate: birthdate,
-          phonenumber: phoneNumber,
-          trustscore: user.trustscore,
-          bettingscore: user.bettingscore,
-          bets: user.bets,
-          leaderboards: currentBoards,
-          _version: user._version,
-        };
-
-        const userUpdate = await API.graphql({
-          query: mutations.updateUser,
-          variables: { input: newUser },
-        });
-
-        const currentLeaderboard = await API.graphql({
+      if (!currentBoards.includes(joinLeaderCode)) {
+       const currentLeaderboard = await API.graphql({
           query: queries.getLeaderboard,
           variables: { id: joinLeaderCode },
-        });
+        })
+        .then(() => {
+          currentBoards.push(joinLeaderCode);
+          const fullName = firstName + " " + lastName;
 
-        let current = currentLeaderboard.data.getLeaderboard;
-        let currentUsers = current.users;
-        if (!currentUsers.includes(email)) {
-          currentUsers.push(email);
-          let board = {
-            id: current.id,
-            users: email,
-            name: current.name,
+          let newUser = {
+            id: user.id,
+            email: email,
+            name: fullName,
+            birthdate: birthdate,
+            phonenumber: phoneNumber,
+            trustscore: user.trustscore,
+            bettingscore: user.bettingscore,
+            bets: user.bets,
+            leaderboards: currentBoards,
+            _version: user._version,
           };
 
-          const leaderboard = await API.graphql({
-            query: mutations.updateLeaderboard,
-            variables: { input: board }
+          userUpdate(newUser)
+          .then(() => {
+            let current = currentLeaderboard.data.getLeaderboard;
+            let currentUsers = current.users;
+            if (!currentUsers.includes(email)) {
+              currentUsers.push(email);
+              let board = {
+                id: current.id,
+                users: email,
+                name: current.name,
+              };
+
+              leaderUpdate(board);
+              setJoinLeaderIsOpen(false);
+              toast({
+                title: "Leaderboard Joined!",
+                description: "Now it's time to brag.",
+                status: "success",
+                duration: 9000,
+                isClosable: true,
+              });
+              window.location.reload();
+
+          }})
+          .catch((e) => {
+            alert("Invalid Leaderboard Code");
+            return;
           })
-        }
-        setJoinLeaderIsOpen(false);
-        toast({
-          title: "Leaderboard Joined!",
-          description: "Now it's time to brag.",
-          status: "success",
-          duration: 9000,
-          isClosable: true,
-        });
-        window.location.reload();
-      } else {
-        alert("Invalid Leaderboard Code");
-      }
+        })
+    }else {
+        alert("User is already enrolled in the leaderboard");
+    }
     } else {
       alert("Fill out all fields");
     }
@@ -996,7 +1000,7 @@ export function Sidebar(props) {
                         <a
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              window.location.href + "?bet=" + joinCode
+                              window.location.href + "?bet=" + joinCode.replace(" ", "%20")
                             );
                             alert("Copied to Clipboard");
                           }}
@@ -1135,7 +1139,7 @@ export function Sidebar(props) {
                             navigator.clipboard.writeText(
                               window.location.href +
                                 "?leaderboard=" +
-                                joinLeaderCode
+                                joinLeaderCode.replace(" ", "%20")
                             );
                             alert("Copied to Clipboard");
                           }}
