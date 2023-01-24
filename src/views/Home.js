@@ -22,11 +22,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Col, Container, Form, Nav, Navbar, Row } from "react-bootstrap";
 import NavbarCollapse from "react-bootstrap/esm/NavbarCollapse";
-import {DASHBOARD} from "../App.js";
+import { DASHBOARD } from "../App.js";
 //icon imports
 import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
 //image imports
-import creation from '../assets/creation.svg';
+import creation from "../assets/creation.svg";
 import hero from "../assets/hero.svg";
 import payout from "../assets/payout.svg";
 import voting from "../assets/voting.svg";
@@ -75,41 +75,41 @@ const Home = (props) => {
       setEmail("");
       setMessage("");
     }
-  }
+  };
 
-  const handleValidateEmail = async(e) => {
+  const handleValidateEmail = async (e) => {
     e.preventDefault();
     let error = !email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
-  error &&
-    toast({
-      title: "Invalid Email",
-      description: "Make sure to enter a valid email address!",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-    });
-  if (!error) {
-    const res = await axios.get(
-      `https://sheet.best/api/sheets/c122b525-c0e2-4ebd-997e-614116491820`
-    );
-    let users = res.data.map(user => user.email);
-    if (users.includes(email)){
-      navigate(DASHBOARD);
-    }else{
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+    error &&
       toast({
         title: "Invalid Email",
-        description: "Email address is not registered for alpha testing",
+        description: "Make sure to enter a valid email address!",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
+    if (!error) {
+      const res = await axios.get(
+        `https://sheet.best/api/sheets/c122b525-c0e2-4ebd-997e-614116491820`
+      );
+      let users = res.data.map((user) => user.email);
+      if (users.includes(email)) {
+        navigate(DASHBOARD);
+      } else {
+        toast({
+          title: "Invalid Email",
+          description: "Email address is not registered for alpha testing",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     }
-  }
-  }
+  };
 
   return (
     <>
@@ -191,7 +191,12 @@ const Home = (props) => {
                 together.
               </Text>
               <Box paddingTop={3}>
-                <Button backgroundColor="#195F50" color={"#fff"} size="lg" onClick={() => navigate(DASHBOARD)}>
+                <Button
+                  backgroundColor="#195F50"
+                  color={"#fff"}
+                  size="lg"
+                  onClick={() => navigate(DASHBOARD)}
+                >
                   Start Betting
                 </Button>
               </Box>
@@ -389,7 +394,7 @@ const Home = (props) => {
                   <FormLabel>First name</FormLabel>
                   <Input
                     placeholder="First name"
-                    value = {first}
+                    value={first}
                     onChange={(e) => {
                       setFirst(e.target.value);
                     }}
@@ -470,43 +475,47 @@ const Home = (props) => {
             </Text>
           </Box>
           <Text>
-            © 2023 <u><a className="text-reset" href="https://wager.social">
-              Wager.social
-            </a></u> All rights reserved.
+            © 2023{" "}
+            <u>
+              <a className="text-reset" href="https://wager.social">
+                Wager.social
+              </a>
+            </u>{" "}
+            All rights reserved.
           </Text>
         </Box>
       </footer>
 
       <Modal isOpen={validateIsOpen} onClose={() => setValidateIsOpen(false)}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Validate Email</ModalHeader>
-        <ModalBody>
-        <FormControl isRequired>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    type="email"
-                    onChange={(e) => {
-                      setEmail(e.target.value)
-                    }}
-                    value={email}
-                    placeholder="Email"
-                  />
-          </FormControl>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Validate Email</ModalHeader>
+          <ModalBody>
+            <FormControl isRequired>
+              <FormLabel>Email</FormLabel>
+              <Input
+                type="email"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                }}
+                value={email}
+                placeholder="Email"
+              />
+            </FormControl>
           </ModalBody>
           <ModalFooter>
-             <Button
-               variant="ghost"
-               mr={3}
-               onClick={() => setValidateIsOpen(false)}
-             >
+            <Button
+              variant="ghost"
+              mr={3}
+              onClick={() => setValidateIsOpen(false)}
+            >
               Close
             </Button>
             <Button colorScheme="blue" onClick={handleValidateEmail}>
               Submit
             </Button>
           </ModalFooter>
-      </ModalContent>
+        </ModalContent>
       </Modal>
     </>
   );

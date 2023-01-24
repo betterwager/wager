@@ -6,10 +6,10 @@ import {
   Col,
   FloatingLabel,
   Button,
-  Form
+  Form,
 } from "react-bootstrap";
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 //Functions
 const Signup = () => {
@@ -85,24 +85,28 @@ const Signup = () => {
             </FloatingLabel>
           </Col>
         </Row>
-        <br/>
+        <br />
         <Row>
           <Col>
-          <Form.Label className="text-secondary">Phone Number</Form.Label>
+            <Form.Label className="text-secondary">Phone Number</Form.Label>
             <PhoneInput
-            placeholder="Enter phone number"
-            value = {phonenumber}
-            onChange={setPhoneNumber}/>
+              placeholder="Enter phone number"
+              value={phonenumber}
+              onChange={setPhoneNumber}
+            />
           </Col>
           <Col>
-          <FloatingLabel
-          controlId="floatingInput"
-          label="Date of Birth"
-          className="mt-4 text-secondary"
-        >
-          
-          <Form.Control type="date" name="dob" onChange={(e) => setBirthdate(e.target.value)}/>
-          </FloatingLabel>
+            <FloatingLabel
+              controlId="floatingInput"
+              label="Date of Birth"
+              className="mt-4 text-secondary"
+            >
+              <Form.Control
+                type="date"
+                name="dob"
+                onChange={(e) => setBirthdate(e.target.value)}
+              />
+            </FloatingLabel>
           </Col>
         </Row>
 

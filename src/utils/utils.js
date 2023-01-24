@@ -71,10 +71,10 @@ export function NewWagerInstruction(
       max_bet: max_bet,
       min_players: min_players,
       max_players: max_players,
-      time : time,
+      time: time,
       player_count: 0,
       vote_count: 0,
-      winner_index : 0,
+      winner_index: 0,
       bump_seed: bump_seed,
       state: 1,
     },
@@ -85,9 +85,7 @@ export function NewWagerInstruction(
 }
 
 export function JoinBetInstruction() {
-  const layout = BufferLayout.struct([
-    BufferLayout.u8("instruction"),
-  ]);
+  const layout = BufferLayout.struct([BufferLayout.u8("instruction")]);
   const data = Buffer.alloc(layout.span);
   layout.encode(
     {
@@ -140,9 +138,7 @@ export function VoteInstruction(option_index) {
 }
 
 export function PayoutInstruction() {
-  const layout = BufferLayout.struct([
-    BufferLayout.u8("instruction"),
-  ]);
+  const layout = BufferLayout.struct([BufferLayout.u8("instruction")]);
   const data = Buffer.alloc(layout.span);
   layout.encode(
     {

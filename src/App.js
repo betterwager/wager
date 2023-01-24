@@ -1,12 +1,12 @@
 //React Imports
-import {React, useMemo} from "react";
+import { React, useMemo } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 //Styling Imports
 import "./App.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'antd/dist/antd.min.css';
-import '@aws-amplify/ui-react/styles.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "antd/dist/antd.min.css";
+import "@aws-amplify/ui-react/styles.css";
 import { ChakraProvider } from "@chakra-ui/react";
 
 //Web3 Imports
@@ -24,14 +24,13 @@ import {
 } from "@solana/wallet-adapter-react-ui";
 
 //Cloud Imports
-import awsExports from './aws-exports.js';
-import {Amplify} from "aws-amplify"
+import awsExports from "./aws-exports.js";
+import { Amplify } from "aws-amplify";
 
 //Internal Imports
 import Dashboard from "./views/Dashboard.js";
 import Home from "./views/Home.js";
 import Leaderboard from "./views/Leaderboard.js";
-
 
 Amplify.configure(awsExports);
 
@@ -41,10 +40,7 @@ export var LOGIN = "/login";
 export var SIGNUP = "/signup";
 export var LEADERBOARD = "/Leaderboard";
 
-
-
-
-function App(){
+function App() {
   const network = WalletAdapterNetwork.Devnet;
 
   // You can also provide a custom RPC endpoint.
@@ -68,25 +64,24 @@ function App(){
     ],
     []
   );
-  
 
-    return (
-        <ConnectionProvider endpoint={endpoint}>
-          <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider>
-              <ChakraProvider>
-              <Router>
-                <Routes>
-                  <Route exact path={HOME} element={<Home />} />
-                  <Route exact path={DASHBOARD} element={<Dashboard />} />
-                  <Route exact path={LEADERBOARD} element={<Leaderboard/>} />
-                </Routes>
-              </Router>
-              </ChakraProvider>
-            </WalletModalProvider>
-          </WalletProvider>
-        </ConnectionProvider>
-    );
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <ChakraProvider>
+            <Router>
+              <Routes>
+                <Route exact path={HOME} element={<Home />} />
+                <Route exact path={DASHBOARD} element={<Dashboard />} />
+                <Route exact path={LEADERBOARD} element={<Leaderboard />} />
+              </Routes>
+            </Router>
+          </ChakraProvider>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
 }
 
 export default App;

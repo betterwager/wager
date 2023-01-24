@@ -52,7 +52,7 @@ import { Layout, Menu } from "antd";
 import { API, Auth } from "aws-amplify";
 import { Buffer } from "buffer";
 import { Button, Container, Form } from "react-bootstrap";
-import uniqueHash from "unique-hash"
+import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { NavLink as Link } from "react-router-dom";
@@ -133,76 +133,73 @@ export function Sidebar(props) {
 
   const userUpdate = useCallback(async (newUser) => {
     const promise = await API.graphql({
-    query: mutations.updateUser,
-    variables: { input: newUser },
-    })
-    return promise
-});
+      query: mutations.updateUser,
+      variables: { input: newUser },
+    });
+    return promise;
+  });
 
   const leaderUpdate = useCallback(async (newLeader) => {
     const promise = await API.graphql({
       query: mutations.updateLeaderboard,
-      variables: { input: newLeader }
-    })
-    return promise
-  })
+      variables: { input: newLeader },
+    });
+    return promise;
+  });
 
   useEffect(() => {
-      getUsers()
-        .catch(console.error)
-        .then((users) => {
-            let email = Auth.user.attributes.email;
-            setEmail(email);
-            let currentUser = users.data.listUsers.items.find(
-              (x) => x.email == email
-            );
-            setUser(currentUser);
-            if (currentUser != null) {
-              let names = currentUser.name.split(" ");
-              setFirstName(names[0]);
-              setLastName(names[1]);
-              setBirthdate(currentUser.birthdate);
-              setPhoneNumber(currentUser.phonenumber);
-              setLeaderboards(currentUser.leaderboards);
-              setTrustScore(currentUser.trustscore);
-              setBettingScore(currentUser.bettingscore);
+    getUsers()
+      .catch(console.error)
+      .then((users) => {
+        let email = Auth.user.attributes.email;
+        setEmail(email);
+        let currentUser = users.data.listUsers.items.find(
+          (x) => x.email == email
+        );
+        setUser(currentUser);
+        if (currentUser != null) {
+          let names = currentUser.name.split(" ");
+          setFirstName(names[0]);
+          setLastName(names[1]);
+          setBirthdate(currentUser.birthdate);
+          setPhoneNumber(currentUser.phonenumber);
+          setLeaderboards(currentUser.leaderboards);
+          setTrustScore(currentUser.trustscore);
+          setBettingScore(currentUser.bettingscore);
 
-              const queryParameters = new URLSearchParams(
-                window.location.search
-              );
-              if (queryParameters.has("bet")) {
-                betAPICall(queryParameters.get("bet"));
-                setJoinCode(queryParameters.get("bet"));
-                setJoinIsOpen(true);
-              }
-              if (queryParameters.has("leaderboard")) {
-                setJoinLeaderCode(queryParameters.get("leaderboard"));
-                setJoinLeaderIsOpen(true);
-              }
-            } else {
-              setEditIsOpen(true);
-              setNewUser(true);
-              setStart1IsOpen(true);
-            }
-            if (publicKey != null && !newUser) {
-              setEditIsOpen(false);
-            }
+          const queryParameters = new URLSearchParams(window.location.search);
+          if (queryParameters.has("bet")) {
+            betAPICall(queryParameters.get("bet"));
+            setJoinCode(queryParameters.get("bet"));
+            setJoinIsOpen(true);
+          }
+          if (queryParameters.has("leaderboard")) {
+            setJoinLeaderCode(queryParameters.get("leaderboard"));
+            setJoinLeaderIsOpen(true);
+          }
+        } else {
+          setEditIsOpen(true);
+          setNewUser(true);
+          setStart1IsOpen(true);
+        }
+        if (publicKey != null && !newUser) {
+          setEditIsOpen(false);
+        }
       });
   }, []);
-
 
   const betAPICall = async (betParam) => {
     //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
     //Param: betParam is the url parameter
     let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(betParam, 0, 20)],
-        programId
-      );
+      [Buffer.from(betParam, 0, 20)],
+      programId
+    );
 
-      let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(betParam, 0, 20), publicKey.toBytes()],
-        programId
-      );
+    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+      [Buffer.from(betParam, 0, 20), publicKey.toBytes()],
+      programId
+    );
     let instruction = new TransactionInstruction({
       keys: [
         {
@@ -264,7 +261,7 @@ export function Sidebar(props) {
 
   const getBets = () => {
     props.refresh(publicKey);
-  }
+  };
 
   //Handling Methods
   const clearBetState = () => {
@@ -310,7 +307,6 @@ export function Sidebar(props) {
     setOption(e.target.value);
   };
 
-
   const handleOptionEnter = () => {
     if (OptionsList.indexOf(option) == -1) {
       if (option === "DELETE" || option == "") {
@@ -324,15 +320,20 @@ export function Sidebar(props) {
 
   const handleBetSubmit = async (e) => {
     e.preventDefault();
-    if (parseInt(maxPlayers) >= parseInt(minPlayers) && parseFloat(maxBet) >= parseFloat(minBet) && OptionsList != [] && time >= 0) {
-      let totalOptions = [...OptionsList]
+    if (
+      parseInt(maxPlayers) >= parseInt(minPlayers) &&
+      parseFloat(maxBet) >= parseFloat(minBet) &&
+      OptionsList != [] &&
+      time >= 0
+    ) {
+      let totalOptions = [...OptionsList];
       while (totalOptions.length < 8) {
         totalOptions.push("zero");
       }
-      let tempStr = betName + " ".repeat(20-betName.length);
+      let tempStr = betName + " ".repeat(20 - betName.length);
       setBetName(tempStr);
 
-      let timestamp = Date.now() + (time * 3600000); //TIME IN HOURS
+      let timestamp = Date.now() + time * 3600000; //TIME IN HOURS
 
       //let index = uniqueHash(betName + maxBet + allOptions);
 
@@ -345,10 +346,10 @@ export function Sidebar(props) {
         [Buffer.from(tempStr, 0, 20), publicKey.toBytes()],
         programId
       );
-        console.log(betName);
-        console.log(potPDA.toBase58());
-        console.log(potBump);
-        console.log(PublicKey.isOnCurve(potPDA));
+      console.log(betName);
+      console.log(potPDA.toBase58());
+      console.log(potBump);
+      console.log(PublicKey.isOnCurve(potPDA));
 
       console.log([
         { name: totalOptions[0], vote_count: 0 },
@@ -399,14 +400,14 @@ export function Sidebar(props) {
           maxBet,
           //Options
           [
-            { name: Buffer.from(totalOptions[0]), bet_count : 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[1]), bet_count : 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[2]), bet_count : 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[3]), bet_count : 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[4]), bet_count : 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[5]), bet_count : 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[6]), bet_count : 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[7]), bet_count : 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[0]), bet_count: 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[1]), bet_count: 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[2]), bet_count: 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[3]), bet_count: 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[4]), bet_count: 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[5]), bet_count: 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[6]), bet_count: 0, vote_count: 0 },
+            { name: Buffer.from(totalOptions[7]), bet_count: 0, vote_count: 0 },
           ],
           timestamp,
           potBump
@@ -452,40 +453,40 @@ export function Sidebar(props) {
         users: [Auth.user.attributes.email],
         name: leaderName,
       };
-      let id = leaderName
+      let id = leaderName;
       const leaderboard = await API.graphql({
         query: mutations.createLeaderboard,
         variables: { input: board },
       })
-      .then((res) => {
-        setJoinLeaderCode(id);
-        let currentBoards = user.leaderboards;
-        currentBoards.push(id);
-  
-        const fullName = firstName + " " + lastName;
-        let newUser = {
-          id: user.id,
-          email: email,
-          name: fullName,
-          birthdate: birthdate,
-          phonenumber: phoneNumber,
-          trustscore: user.trustscore,
-          bettingscore: user.bettingscore,
-          bets: user.bets,
-          leaderboards: currentBoards,
-          _version: user._version,
-        };
+        .then((res) => {
+          setJoinLeaderCode(id);
+          let currentBoards = user.leaderboards;
+          currentBoards.push(id);
 
-        userUpdate(newUser)
-      })
-      .then(() => {
-        setAddLeaderIsOpen(false);
-        setAddLeaderSuccessIsOpen(true);
-      })
-      .catch(() => {
-        alert("Choose another Leaderboard Name")
-        return;
-      })
+          const fullName = firstName + " " + lastName;
+          let newUser = {
+            id: user.id,
+            email: email,
+            name: fullName,
+            birthdate: birthdate,
+            phonenumber: phoneNumber,
+            trustscore: user.trustscore,
+            bettingscore: user.bettingscore,
+            bets: user.bets,
+            leaderboards: currentBoards,
+            _version: user._version,
+          };
+
+          userUpdate(newUser);
+        })
+        .then(() => {
+          setAddLeaderIsOpen(false);
+          setAddLeaderSuccessIsOpen(true);
+        })
+        .catch(() => {
+          alert("Choose another Leaderboard Name");
+          return;
+        });
     } else {
       alert("Fill out all fields");
     }
@@ -532,7 +533,7 @@ export function Sidebar(props) {
     //let option = betOption;
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
-    let tempStr = joinCode + " ".repeat(20-joinCode.length);
+    let tempStr = joinCode + " ".repeat(20 - joinCode.length);
     setJoinCode(tempStr);
 
     //Sending Bet Transaction and Balance for Bet
@@ -697,11 +698,10 @@ export function Sidebar(props) {
     if (joinLeaderCode != "") {
       let currentBoards = user.leaderboards;
       if (!currentBoards.includes(joinLeaderCode)) {
-       const currentLeaderboard = await API.graphql({
+        const currentLeaderboard = await API.graphql({
           query: queries.getLeaderboard,
           variables: { id: joinLeaderCode },
-        })
-        .then(() => {
+        }).then(() => {
           currentBoards.push(joinLeaderCode);
           const fullName = firstName + " " + lastName;
 
@@ -719,37 +719,37 @@ export function Sidebar(props) {
           };
 
           userUpdate(newUser)
-          .then(() => {
-            let current = currentLeaderboard.data.getLeaderboard;
-            let currentUsers = current.users;
-            if (!currentUsers.includes(email)) {
-              currentUsers.push(email);
-              let board = {
-                id: current.id,
-                users: email,
-                name: current.name,
-              };
+            .then(() => {
+              let current = currentLeaderboard.data.getLeaderboard;
+              let currentUsers = current.users;
+              if (!currentUsers.includes(email)) {
+                currentUsers.push(email);
+                let board = {
+                  id: current.id,
+                  users: email,
+                  name: current.name,
+                };
 
-              leaderUpdate(board);
-              setJoinLeaderIsOpen(false);
-              toast({
-                title: "Leaderboard Joined!",
-                description: "Now it's time to brag.",
-                status: "success",
-                duration: 9000,
-                isClosable: true,
-              });
-              window.location.reload();
-
-          }})
-          .catch((e) => {
-            alert("Invalid Leaderboard Code");
-            return;
-          })
-        })
-    }else {
+                leaderUpdate(board);
+                setJoinLeaderIsOpen(false);
+                toast({
+                  title: "Leaderboard Joined!",
+                  description: "Now it's time to brag.",
+                  status: "success",
+                  duration: 9000,
+                  isClosable: true,
+                });
+                window.location.reload();
+              }
+            })
+            .catch((e) => {
+              alert("Invalid Leaderboard Code");
+              return;
+            });
+        });
+      } else {
         alert("User is already enrolled in the leaderboard");
-    }
+      }
     } else {
       alert("Fill out all fields");
     }
@@ -757,477 +757,501 @@ export function Sidebar(props) {
 
   return (
     <>
-
-        <Container
-          style={{
-            marginLeft: "1vh",
-            marginTop: "3vh",
-            marginBottom: "3vh",
-            width: "100%",
-            alignContent: "center",
-          }}
+      <Container
+        style={{
+          marginLeft: "1vh",
+          marginTop: "3vh",
+          marginBottom: "3vh",
+          width: "100%",
+          alignContent: "center",
+        }}
+      >
+        <div style={{ marginLeft: "0px", padding: "0.5vw" }}>
+          <NavLink to={HOME}>
+            <img
+              height="40vh"
+              className="img-responsive"
+              src={logo}
+              alt="logo"
+            />
+          </NavLink>
+        </div>
+      </Container>
+      <Menu
+        style={{ backgroundColor: "#195F50" }}
+        theme="dark"
+        defaultSelectedKeys={
+          window.location.pathname == DASHBOARD ||
+          window.location.pathname == DASHBOARD.toLowerCase()
+            ? ["1"]
+            : ["2"]
+        }
+        mode="inline"
+      >
+        <SubMenu
+          key="sub1"
+          title={email.slice(0, 15) + "..."}
+          icon={<UserOutlined />}
         >
-          <div style={{ marginLeft: "0px", padding: "0.5vw" }}>
-            <NavLink to={HOME}>
-              <img
-                height="40vh"
-                className="img-responsive"
-                src={logo}
-                alt="logo"
-              />
-            </NavLink>
-          </div>
-        </Container>
-        <Menu
-          style={{ backgroundColor: "#195F50" }}
-          theme="dark"
-          defaultSelectedKeys={
-            window.location.pathname == DASHBOARD || window.location.pathname == DASHBOARD.toLowerCase() ? ["1"] : ["2"]
-          }
-          mode="inline"
-        >
-          <SubMenu key="sub1" title={email.slice(0, 15) + '...'} icon={<UserOutlined />}>
-            <Menu.Item onClick={() => setAccIsOpen(true)} key="8">
-              Account Details
-            </Menu.Item>
-            <Menu.Item onClick={handleSignOut} key="9">
-              Sign Out
-            </Menu.Item>
-          </SubMenu>
-          <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}>
-            <a href={DASHBOARD}>Dashboard</a>
+          <Menu.Item onClick={() => setAccIsOpen(true)} key="8">
+            Account Details
           </Menu.Item>
-          <Menu.Item key="2" icon={<CrownOutlined />}>
-            <a href={LEADERBOARD}>Leaderboard</a>
+          <Menu.Item onClick={handleSignOut} key="9">
+            Sign Out
           </Menu.Item>
-        </Menu>
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <Menu style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
-          {window.location.pathname == DASHBOARD || window.location.pathname == DASHBOARD.toLowerCase()? (
-            <>
-              <Menu.Item
-                onClick={() => {
-                  if (publicKey == null){
-                    setEditIsOpen(true);
-                  }else{
-                    setAddIsOpen(true);
-                  }
-                }}
-                icon={<PlusCircleOutlined />}
-                key="6"
-              >
-                Create a Bet
-              </Menu.Item>
-              <Menu.Item
-                onClick={() => {
-                  if (publicKey == null){
-                    setEditIsOpen(true);
-                  }else{
-                  setJoinIsOpen(true)
-                  }
-                }}
-                icon={<CheckOutlined />}
-                key="7"
-              >
-                Join Bet
-              </Menu.Item>
+        </SubMenu>
+        <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}>
+          <a href={DASHBOARD}>Dashboard</a>
+        </Menu.Item>
+        <Menu.Item key="2" icon={<CrownOutlined />}>
+          <a href={LEADERBOARD}>Leaderboard</a>
+        </Menu.Item>
+      </Menu>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <Menu style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
+        {window.location.pathname == DASHBOARD ||
+        window.location.pathname == DASHBOARD.toLowerCase() ? (
+          <>
+            <Menu.Item
+              onClick={() => {
+                if (publicKey == null) {
+                  setEditIsOpen(true);
+                } else {
+                  setAddIsOpen(true);
+                }
+              }}
+              icon={<PlusCircleOutlined />}
+              key="6"
+            >
+              Create a Bet
+            </Menu.Item>
+            <Menu.Item
+              onClick={() => {
+                if (publicKey == null) {
+                  setEditIsOpen(true);
+                } else {
+                  setJoinIsOpen(true);
+                }
+              }}
+              icon={<CheckOutlined />}
+              key="7"
+            >
+              Join Bet
+            </Menu.Item>
 
-              <Modal isOpen={addIsOpen} onClose={() => setAddIsOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Create New Bet</ModalHeader>
-                  <Form>
-                    <ModalBody>
-                      <>
+            <Modal isOpen={addIsOpen} onClose={() => setAddIsOpen(false)}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Create New Bet</ModalHeader>
+                <Form>
+                  <ModalBody>
+                    <>
+                      <FormControl isRequired>
+                        <FormLabel>Bet Name</FormLabel>
+                        <Input
+                          onChange={handleBetNameChange}
+                          placeholder="Bet name"
+                        />
+                      </FormControl>
+
+                      <br />
+                      <Flex>
                         <FormControl isRequired>
-                          <FormLabel>Bet Name</FormLabel>
-                          <Input
-                            onChange={handleBetNameChange}
-                            placeholder="Bet name"
-                          />
-                        </FormControl>
-
-                        <br />
-                        <Flex>
-                          <FormControl isRequired>
-                            <FormLabel>Minimum Players</FormLabel>
-                            <NumberInput
-                              onChange={handleminPlayersChange}
-                              min={2}
-                            >
-                              <NumberInputField />
-                              <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                              </NumberInputStepper>
-                            </NumberInput>
-                          </FormControl>
-
-                          <FormControl isRequired>
-                            <FormLabel>Maximum Players</FormLabel>
-                            <NumberInput
-                              onChange={handlemaxPlayersChange}
-                              min={minPlayers}
-                            >
-                              <NumberInputField />
-                              <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                              </NumberInputStepper>
-                            </NumberInput>
-                          </FormControl>
-                        </Flex>
-
-                        <br />
-                        <Flex>
-                          <FormControl isRequired>
-                            <FormLabel>Minimum Bet ($)</FormLabel>
-                            <NumberInput
-                              onChange={handleminBetChange}
-                              min={0.0}
-                              precision={2}
-                              step={0.5}
-                            >
-                              <NumberInputField />
-                              <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                              </NumberInputStepper>
-                            </NumberInput>
-                          </FormControl>
-
-                          <FormControl isRequired>
-                            <FormLabel>Maximum Bet ($)</FormLabel>
-                            <NumberInput
-                              onChange={handlemaxBetChange}
-                              min={minBet}
-                              precision={2}
-                              step={0.5}
-                            >
-                              <NumberInputField />
-                              <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                              </NumberInputStepper>
-                            </NumberInput>
-                          </FormControl>
-                        </Flex>
-
-                        <br />
-
-                        <Flex>
-                          <FormControl>
-                            <FormLabel>Options</FormLabel>
-                            <Input
-                              onChange={handleOptionNewChange}
-                              value={option}
-                              placeholder="Enter Option"
-                            />
-                            <Button
-                              variant="secondary"
-                              onClick={handleOptionEnter}
-                              style={{ marginTop: 10 }}
-                            >
-                              Log Option
-                            </Button>
-                            <br />
-                          </FormControl>
-                        </Flex>
-                        <br />
-                        {OptionsList.map((option) => {
-                          return <p key={option}>{option}</p>;
-                        })}
-
-                        <br />
-
-                        <FormControl isRequired>
-                          <FormLabel>Hours to Bet</FormLabel>
+                          <FormLabel>Minimum Players</FormLabel>
                           <NumberInput
-                            onChange={handleTimeChange}
-                            value = {time}
-                            placeholder="Enter Time for Betting"
+                            onChange={handleminPlayersChange}
+                            min={2}
                           >
                             <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
                           </NumberInput>
                         </FormControl>
-                      </>
-                    </ModalBody>
-                    <ModalFooter>
-                      <Button
-                        variant="ghost"
-                        mr={3}
+
+                        <FormControl isRequired>
+                          <FormLabel>Maximum Players</FormLabel>
+                          <NumberInput
+                            onChange={handlemaxPlayersChange}
+                            min={minPlayers}
+                          >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </FormControl>
+                      </Flex>
+
+                      <br />
+                      <Flex>
+                        <FormControl isRequired>
+                          <FormLabel>Minimum Bet ($)</FormLabel>
+                          <NumberInput
+                            onChange={handleminBetChange}
+                            min={0.0}
+                            precision={2}
+                            step={0.5}
+                          >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </FormControl>
+
+                        <FormControl isRequired>
+                          <FormLabel>Maximum Bet ($)</FormLabel>
+                          <NumberInput
+                            onChange={handlemaxBetChange}
+                            min={minBet}
+                            precision={2}
+                            step={0.5}
+                          >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </FormControl>
+                      </Flex>
+
+                      <br />
+
+                      <Flex>
+                        <FormControl>
+                          <FormLabel>Options</FormLabel>
+                          <Input
+                            onChange={handleOptionNewChange}
+                            value={option}
+                            placeholder="Enter Option"
+                          />
+                          <Button
+                            variant="secondary"
+                            onClick={handleOptionEnter}
+                            style={{ marginTop: 10 }}
+                          >
+                            Log Option
+                          </Button>
+                          <br />
+                        </FormControl>
+                      </Flex>
+                      <br />
+                      {OptionsList.map((option) => {
+                        return <p key={option}>{option}</p>;
+                      })}
+
+                      <br />
+
+                      <FormControl isRequired>
+                        <FormLabel>Hours to Bet</FormLabel>
+                        <NumberInput
+                          onChange={handleTimeChange}
+                          value={time}
+                          placeholder="Enter Time for Betting"
+                        >
+                          <NumberInputField />
+                        </NumberInput>
+                      </FormControl>
+                    </>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      variant="ghost"
+                      mr={3}
+                      onClick={() => {
+                        setAddIsOpen(false);
+                        clearBetState();
+                      }}
+                    >
+                      Close
+                    </Button>
+                    <Button onClick={handleBetSubmit} variant="primary">
+                      Wager!
+                    </Button>
+                  </ModalFooter>
+                </Form>
+              </ModalContent>
+            </Modal>
+
+            <Modal
+              isOpen={addSuccessIsOpen}
+              onClose={() => {
+                setAddSuccessIsOpen(false);
+                setJoinCode("");
+              }}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Bet Created!</ModalHeader>
+                <ModalBody>
+                  <h1 style={{ fontSize: "15px" }}>
+                    <strong>Bet Code:</strong>
+                    <u>
+                      <a
                         onClick={() => {
-                          setAddIsOpen(false);
-                          clearBetState();
+                          navigator.clipboard.writeText(joinCode);
+                          alert("Copied to Clipboard");
                         }}
                       >
-                        Close
-                      </Button>
-                      <Button onClick={handleBetSubmit} variant="primary">
-                        Wager!
-                      </Button>
-                    </ModalFooter>
-                  </Form>
-                </ModalContent>
-              </Modal>
+                        {" "}
+                        {joinCode}
+                      </a>
+                    </u>
+                  </h1>
+                  <br />
+                  <h3 style={{ fontSize: "15px" }}>
+                    <strong>Join Link:</strong>{" "}
+                    <u>
+                      <a
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            window.location.href +
+                              "?bet=" +
+                              joinCode.replace(" ", "%20")
+                          );
+                          alert("Copied to Clipboard");
+                        }}
+                      >
+                        {window.location.href + "?bet=" + joinCode}
+                      </a>
+                    </u>
+                  </h3>
+                  <br />
+                  <QRCodeCanvas
+                    id="qr-gen1"
+                    includeMargin={true}
+                    value={window.location.href + "?bet=" + joinCode}
+                  />
 
-              <Modal
-                isOpen={addSuccessIsOpen}
-                onClose={() => {
-                  setAddSuccessIsOpen(false);
-                  setJoinCode("");
-                }}
-              >
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Bet Created!</ModalHeader>
+                  <Button onClick={downloadQRCode}>Download QR Code</Button>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    variant="ghost"
+                    mr={3}
+                    onClick={() => {
+                      setAddSuccessIsOpen(false);
+                      setJoinCode("");
+                    }}
+                  >
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+
+            <Modal isOpen={joinIsOpen} onClose={() => setJoinIsOpen(false)}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Join Bet</ModalHeader>
+                <Form onSubmit={(e) => handleJoinBet(e)}>
                   <ModalBody>
-                  <h1 style = {{fontSize: "15px"}}><strong>Bet Code:</strong><u><a onClick={() => {
-                          navigator.clipboard.writeText(joinCode)
-                          alert("Copied to Clipboard")
-                          }}> {joinCode}</a></u></h1><br/>
-                    <h3 style={{ fontSize: "15px" }}>
-                      <strong>Join Link:</strong>{" "}
-                      <u>
-                        <a
-                          onClick={() => {
-                            navigator.clipboard.writeText(
-                              window.location.href + "?bet=" + joinCode.replace(" ", "%20")
-                            );
-                            alert("Copied to Clipboard");
-                          }}
-                        >
-                          {window.location.href + "?bet=" + joinCode}
-                        </a>
-                      </u>
-                    </h3>
-                    <br />
-                    <QRCodeCanvas
-                      id="qr-gen1"
-                      includeMargin={true}
-                      value={window.location.href + "?bet=" + joinCode}
-                    />
-
-                    <Button onClick={downloadQRCode}>Download QR Code</Button>
+                    <>
+                      <FormControl isRequired>
+                        <FormLabel>Bet Code</FormLabel>
+                        <Input
+                          placeholder="Bet Code"
+                          value={joinCode}
+                          onChange={handlejoinCodeChange}
+                        />
+                      </FormControl>
+                    </>
                   </ModalBody>
+
                   <ModalFooter>
                     <Button
                       variant="ghost"
                       mr={3}
-                      onClick={() => {
-                        setAddSuccessIsOpen(false);
-                        setJoinCode("");
-                      }}
+                      onClick={() => setJoinIsOpen(false)}
                     >
                       Close
                     </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-
-              <Modal isOpen={joinIsOpen} onClose={() => setJoinIsOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Join Bet</ModalHeader>
-                  <Form onSubmit={(e) => handleJoinBet(e)}>
-                    <ModalBody>
-                      <>
-                        <FormControl isRequired>
-                          <FormLabel>Bet Code</FormLabel>
-                          <Input
-                            placeholder="Bet Code"
-                            value={joinCode}
-                            onChange={handlejoinCodeChange}
-                          />
-                        </FormControl>
-                      </>
-                    </ModalBody>
-
-                    <ModalFooter>
-                      <Button
-                        variant="ghost"
-                        mr={3}
-                        onClick={() => setJoinIsOpen(false)}
-                      >
-                        Close
-                      </Button>
-                      <Button type="submit" variant="primary">
-                        Wager!
-                      </Button>
-                    </ModalFooter>
-                  </Form>
-                </ModalContent>
-              </Modal>
-            </>
-          ) : (
-            <>
-              <Menu.Item
-                onClick={() => setAddLeaderIsOpen(true)}
-                icon={<PlusCircleOutlined />}
-                key="6"
-              >
-                Create a Leaderboard
-              </Menu.Item>
-              <Menu.Item
-                onClick={() => setJoinLeaderIsOpen(true)}
-                icon={<CheckOutlined />}
-                key="7"
-              >
-                Join Leaderboard
-              </Menu.Item>
-
-              <Modal
-                isOpen={addLeaderIsOpen}
-                onClose={() => setAddLeaderIsOpen(false)}
-              >
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Create New Leaderboard</ModalHeader>
-                  <Form>
-                    <ModalBody>
-                      <>
-                        <FormControl isRequired>
-                          <FormLabel>Leaderboard Name</FormLabel>
-                          <Input
-                            onChange={handleLeaderNameChange}
-                            placeholder="Bet name"
-                          />
-                        </FormControl>
-                      </>
-                    </ModalBody>
-                    <ModalFooter>
-                      <Button
-                        variant="ghost"
-                        mr={3}
-                        onClick={() => setAddLeaderIsOpen(false)}
-                      >
-                        Close
-                      </Button>
-                      <Button onClick={handleLeaderSubmit} variant="primary">
-                        Create
-                      </Button>
-                    </ModalFooter>
-                  </Form>
-                </ModalContent>
-              </Modal>
-
-              <Modal
-                isOpen={addLeaderSuccessIsOpen}
-                onClose={() => setAddLeaderSuccessIsOpen(false)}
-              >
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Leaderboard Created!</ModalHeader>
-                  <ModalBody>
-                  <h1 style = {{fontSize: "15px"}}><strong>Leaderboard Code:</strong><u><a onClick={() => {
-                          navigator.clipboard.writeText(joinLeaderCode)
-                          alert("Copied to Clipboard")
-                          }}> {joinLeaderCode}</a></u></h1><br/>
-                    <h3 style={{ fontSize: "15px" }}>
-                      <strong>Join Link:</strong>{" "}
-                      <u>
-                        <a
-                          onClick={() => {
-                            navigator.clipboard.writeText(
-                              window.location.href +
-                                "?leaderboard=" +
-                                joinLeaderCode.replace(" ", "%20")
-                            );
-                            alert("Copied to Clipboard");
-                          }}
-                        >
-                          {window.location.href +
-                            "?leaderboard=" +
-                            joinLeaderCode}
-                        </a>
-                      </u>
-                    </h3>
-                    <br />
-                    <QRCodeCanvas
-                      id="qr-gen2"
-                      includeMargin={true}
-                      value={
-                        window.location.href + "?leaderboard=" + joinLeaderCode
-                      }
-                    />
-                    <Button onClick={downloadQRCodeLeader}>
-                      Download QR Code
-                    </Button>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      variant="ghost"
-                      mr={3}
-                      onClick={() => {
-                        setAddLeaderSuccessIsOpen(false);
-                        setJoinLeaderCode("");
-                      }}
-                    >
-                      Close
+                    <Button type="submit" variant="primary">
+                      Wager!
                     </Button>
                   </ModalFooter>
-                </ModalContent>
-              </Modal>
-
-              <Modal
-                isOpen={joinLeaderIsOpen}
-                onClose={() => setJoinLeaderIsOpen(false)}
-              >
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Join Leaderboard</ModalHeader>
-                  <Form>
-                    <ModalBody>
-                      <>
-                        <FormControl isRequired>
-                          <FormLabel>Leaderboard Code</FormLabel>
-                          <Input
-                            placeholder="Leaderboard Code"
-                            value={joinLeaderCode}
-                            onChange={handlejoinLeaderCodeChange}
-                          />
-                        </FormControl>
-                      </>
-                    </ModalBody>
-
-                    <ModalFooter>
-                      <Button
-                        variant="ghost"
-                        mr={3}
-                        onClick={() => setJoinLeaderIsOpen(false)}
-                      >
-                        Close
-                      </Button>
-                      <Button
-                        onClick={handleJoinLeaderSubmit}
-                        variant="primary"
-                      >
-                        Join
-                      </Button>
-                    </ModalFooter>
-                  </Form>
-                </ModalContent>
-              </Modal>
-            </>
-          )}
-          <Menu.Item icon={<ExclamationCircleOutlined />} key = "8">
-            <a
-              href="https://forms.gle/r288veKH6uAU6spUA"
-              target="_blank"
-        
+                </Form>
+              </ModalContent>
+            </Modal>
+          </>
+        ) : (
+          <>
+            <Menu.Item
+              onClick={() => setAddLeaderIsOpen(true)}
+              icon={<PlusCircleOutlined />}
+              key="6"
             >
-              Contact Support
-            </a>
-          </Menu.Item>
-        </Menu>
+              Create a Leaderboard
+            </Menu.Item>
+            <Menu.Item
+              onClick={() => setJoinLeaderIsOpen(true)}
+              icon={<CheckOutlined />}
+              key="7"
+            >
+              Join Leaderboard
+            </Menu.Item>
+
+            <Modal
+              isOpen={addLeaderIsOpen}
+              onClose={() => setAddLeaderIsOpen(false)}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Create New Leaderboard</ModalHeader>
+                <Form>
+                  <ModalBody>
+                    <>
+                      <FormControl isRequired>
+                        <FormLabel>Leaderboard Name</FormLabel>
+                        <Input
+                          onChange={handleLeaderNameChange}
+                          placeholder="Bet name"
+                        />
+                      </FormControl>
+                    </>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      variant="ghost"
+                      mr={3}
+                      onClick={() => setAddLeaderIsOpen(false)}
+                    >
+                      Close
+                    </Button>
+                    <Button onClick={handleLeaderSubmit} variant="primary">
+                      Create
+                    </Button>
+                  </ModalFooter>
+                </Form>
+              </ModalContent>
+            </Modal>
+
+            <Modal
+              isOpen={addLeaderSuccessIsOpen}
+              onClose={() => setAddLeaderSuccessIsOpen(false)}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Leaderboard Created!</ModalHeader>
+                <ModalBody>
+                  <h1 style={{ fontSize: "15px" }}>
+                    <strong>Leaderboard Code:</strong>
+                    <u>
+                      <a
+                        onClick={() => {
+                          navigator.clipboard.writeText(joinLeaderCode);
+                          alert("Copied to Clipboard");
+                        }}
+                      >
+                        {" "}
+                        {joinLeaderCode}
+                      </a>
+                    </u>
+                  </h1>
+                  <br />
+                  <h3 style={{ fontSize: "15px" }}>
+                    <strong>Join Link:</strong>{" "}
+                    <u>
+                      <a
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            window.location.href +
+                              "?leaderboard=" +
+                              joinLeaderCode.replace(" ", "%20")
+                          );
+                          alert("Copied to Clipboard");
+                        }}
+                      >
+                        {window.location.href +
+                          "?leaderboard=" +
+                          joinLeaderCode}
+                      </a>
+                    </u>
+                  </h3>
+                  <br />
+                  <QRCodeCanvas
+                    id="qr-gen2"
+                    includeMargin={true}
+                    value={
+                      window.location.href + "?leaderboard=" + joinLeaderCode
+                    }
+                  />
+                  <Button onClick={downloadQRCodeLeader}>
+                    Download QR Code
+                  </Button>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    variant="ghost"
+                    mr={3}
+                    onClick={() => {
+                      setAddLeaderSuccessIsOpen(false);
+                      setJoinLeaderCode("");
+                    }}
+                  >
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+
+            <Modal
+              isOpen={joinLeaderIsOpen}
+              onClose={() => setJoinLeaderIsOpen(false)}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Join Leaderboard</ModalHeader>
+                <Form>
+                  <ModalBody>
+                    <>
+                      <FormControl isRequired>
+                        <FormLabel>Leaderboard Code</FormLabel>
+                        <Input
+                          placeholder="Leaderboard Code"
+                          value={joinLeaderCode}
+                          onChange={handlejoinLeaderCodeChange}
+                        />
+                      </FormControl>
+                    </>
+                  </ModalBody>
+
+                  <ModalFooter>
+                    <Button
+                      variant="ghost"
+                      mr={3}
+                      onClick={() => setJoinLeaderIsOpen(false)}
+                    >
+                      Close
+                    </Button>
+                    <Button onClick={handleJoinLeaderSubmit} variant="primary">
+                      Join
+                    </Button>
+                  </ModalFooter>
+                </Form>
+              </ModalContent>
+            </Modal>
+          </>
+        )}
+        <Menu.Item icon={<ExclamationCircleOutlined />} key="8">
+          <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank">
+            Contact Support
+          </a>
+        </Menu.Item>
+      </Menu>
 
       <Modal isOpen={accIsOpen} onClose={() => setAccIsOpen(false)}>
         <ModalOverlay />
@@ -1389,7 +1413,9 @@ export function Sidebar(props) {
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Set up and share bets with your friends with access through your{" "}
                 <u>
-                  <a href="https://phantom.app/" target="_blank">Phantom</a>
+                  <a href="https://phantom.app/" target="_blank">
+                    Phantom
+                  </a>
                 </u>{" "}
                 wallet
               </Text>{" "}
