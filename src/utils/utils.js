@@ -38,23 +38,24 @@ export function NewWagerInstruction(
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
     BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
-    BufferLayout.u32("balance"),
+    BufferLayout.nu64("balance"),
     BufferLayout.seq(
       BufferLayout.struct([
         BufferLayout.seq(BufferLayout.u8(), 20, "name"),
-        BufferLayout.u16("bet_count"),
-        BufferLayout.u16("vote_count"),
+        BufferLayout.u8("bet_count"),
+        BufferLayout.u8("vote_count"),
+        BufferLayout.nu64("bet_total"),
       ]),
       8,
       "options"
     ),
-    BufferLayout.u32("min_bet"),
-    BufferLayout.u32("max_bet"),
-    BufferLayout.u16("min_players"),
-    BufferLayout.u16("max_players"),
-    BufferLayout.u16("player_count"),
+    BufferLayout.nu64("min_bet"),
+    BufferLayout.nu64("max_bet"),
+    BufferLayout.u8("min_players"),
+    BufferLayout.u8("max_players"),
+    BufferLayout.u8("player_count"),
     BufferLayout.nu64("time"),
-    BufferLayout.u16("vote_count"),
+    BufferLayout.u8("vote_count"),
     BufferLayout.u8("winner_index"),
     BufferLayout.u8("bump_seed"),
     BufferLayout.u8("state"),
@@ -101,7 +102,7 @@ export function MakeBetInstruction(option_index, playerBump, amount) {
   const layout = BufferLayout.struct([
     BufferLayout.u8("instruction"),
     BufferLayout.u8("option_index"),
-    BufferLayout.u32("amount"),
+    BufferLayout.nu64("amount"),
     BufferLayout.u8("voted"),
     BufferLayout.u8("bump_seed"),
   ]);

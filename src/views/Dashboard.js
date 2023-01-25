@@ -114,23 +114,24 @@ function Dashboard() {
 
   const wagerLayout = BufferLayout.struct([
     BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
-    BufferLayout.u32("balance"),
+    BufferLayout.nu64("balance"),
     BufferLayout.seq(
       BufferLayout.struct([
         BufferLayout.seq(BufferLayout.u8(), 20, "name"),
-        BufferLayout.u16("bet_count"),
-        BufferLayout.u16("vote_count"),
+        BufferLayout.u8("bet_count"),
+        BufferLayout.u8("vote_count"),
+        BufferLayout.nu64("bet_total"),
       ]),
       8,
       "options"
     ),
-    BufferLayout.u32("min_bet"),
-    BufferLayout.u32("max_bet"),
-    BufferLayout.u16("min_players"),
-    BufferLayout.u16("max_players"),
-    BufferLayout.u16("player_count"),
+    BufferLayout.nu64("min_bet"),
+    BufferLayout.nu64("max_bet"),
+    BufferLayout.u8("min_players"),
+    BufferLayout.u8("max_players"),
+    BufferLayout.u8("player_count"),
     BufferLayout.nu64("time"),
-    BufferLayout.u16("vote_count"),
+    BufferLayout.u8("vote_count"),
     BufferLayout.u8("winner_index"),
     BufferLayout.u8("bump_seed"),
     BufferLayout.u8("state"),
@@ -138,7 +139,7 @@ function Dashboard() {
 
   const playerLayout = BufferLayout.struct([
     BufferLayout.u8("option_index"),
-    BufferLayout.u32("bet_amount"),
+    BufferLayout.nu64("bet_amount"),
     BufferLayout.u8("voted"),
     BufferLayout.u8("bump_seed"),
   ]);
@@ -146,13 +147,6 @@ function Dashboard() {
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
     return users;
-  };
-
-  const style = {
-    height: 30,
-    border: "1px solid green",
-    margin: 6,
-    padding: 8,
   };
 
   const getBets = useCallback(async () => {
@@ -164,7 +158,7 @@ function Dashboard() {
     let tempBets = await connection.getParsedProgramAccounts(programId, {
       filters: [
         {
-          dataSize: 243,
+          dataSize: 299,
         },
       ],
     });
@@ -292,6 +286,9 @@ function Dashboard() {
       lastValidBlockHeight,
       signature,
     });
+    const transactionResults = await connection.getTransaction(signature);
+    console.log(transactionResults.meta.logMessages);
+
     toast({
       title: "Bet Successfully Placed.",
       description: joinCode,
