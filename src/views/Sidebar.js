@@ -59,6 +59,8 @@ import { NavLink as Link } from "react-router-dom";
 import styled from "styled-components";
 import { DASHBOARD, HOME, LEADERBOARD } from "../App.js";
 import logo from "../assets/Wager.svg";
+
+import DateTimePicker from 'react-datetime-picker';
 import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
 require("@solana/wallet-adapter-react-ui/styles.css");
 const { Sider } = Layout;
@@ -99,7 +101,7 @@ export function Sidebar(props) {
   const [maxBet, setMaxBet] = useState(0.0);
   const [allOptions, setAllOptions] = useState([]);
   const [option, setOption] = useState("");
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState(null);
 
   const [editIsOpen, setEditIsOpen] = useState(false);
   const [accIsOpen, setAccIsOpen] = useState(false);
@@ -273,7 +275,7 @@ export function Sidebar(props) {
     setOption("");
     setAllOptions([]);
     OptionsList = [];
-    setTime(0);
+    setTime(null);
   };
 
   const handleBetNameChange = (e) => {
@@ -324,7 +326,7 @@ export function Sidebar(props) {
       parseInt(maxPlayers) >= parseInt(minPlayers) &&
       parseFloat(maxBet) >= parseFloat(minBet) &&
       OptionsList != [] &&
-      time >= 0
+      time != null
     ) {
       let totalOptions = [...OptionsList];
       while (totalOptions.length < 8) {
@@ -333,7 +335,8 @@ export function Sidebar(props) {
       let tempStr = betName + " ".repeat(20 - betName.length);
       setBetName(tempStr);
 
-      let timestamp = Date.now() + time * 3600000; //TIME IN HOURS
+
+      let timestamp = time.getTime();
 
       //let index = uniqueHash(betName + maxBet + allOptions);
 
@@ -932,7 +935,7 @@ export function Sidebar(props) {
 
                       <Flex>
                         <FormControl>
-                          <FormLabel>Options</FormLabel>
+                          <FormLabel>Options (All possible results)</FormLabel>
                           <Input
                             onChange={handleOptionNewChange}
                             value={option}
@@ -956,14 +959,8 @@ export function Sidebar(props) {
                       <br />
 
                       <FormControl isRequired>
-                        <FormLabel>Hours to Bet</FormLabel>
-                        <NumberInput
-                          onChange={handleTimeChange}
-                          value={time}
-                          placeholder="Enter Time for Betting"
-                        >
-                          <NumberInputField />
-                        </NumberInput>
+                        <FormLabel>When does Betting End?</FormLabel>
+                        <DateTimePicker onChange={handleTimeChange} value={time} />
                       </FormControl>
                     </>
                   </ModalBody>
