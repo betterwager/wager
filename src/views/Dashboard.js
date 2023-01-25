@@ -48,7 +48,7 @@ import { Buffer } from "buffer";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import * as subscriptions from "../graphql/subscriptions";
-import { Auth, API } from "aws-amplify";
+import { Auth, API, a } from "aws-amplify";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import uniqueHash from "unique-hash";
 import { ConsoleLogger } from "@aws-amplify/core";
@@ -905,26 +905,7 @@ function Dashboard() {
                                       style={{ margin: "1%" }}
                                       colorScheme="purple"
                                       variant="outline"
-                                      placeholder={String.fromCharCode
-                                        .apply(
-                                          String,
-                                          bet.options[
-                                            playerAccountInfo[index]
-                                              .option_index
-                                          ].name
-                                        )
-                                        .substr(
-                                          0,
-                                          String.fromCharCode
-                                            .apply(
-                                              String,
-                                              bet.options[
-                                                playerAccountInfo[index]
-                                                  .option_index
-                                              ].name
-                                            )
-                                            .indexOf("\0")
-                                        )}
+                                      disabled
                                     />
                                   )}
 
@@ -1077,26 +1058,27 @@ function Dashboard() {
                                   colorScheme="purple"
                                   variant="outline"
                                 >
-                                  You Chose:{" "}
+                                  Winning Option:{" "}
                                   {String.fromCharCode
-                                    .apply(
-                                      String,
-                                      bet.options[
-                                        playerAccountInfo[index].option_index
-                                      ].name
-                                    )
-                                    .substr(
-                                      0,
-                                      String.fromCharCode
                                         .apply(
                                           String,
                                           bet.options[
-                                            playerAccountInfo[index]
-                                              .option_index
+                                            allUserBets[index]
+                                              .winner_index
                                           ].name
                                         )
-                                        .indexOf("\0")
-                                    )}
+                                        .substr(
+                                          0,
+                                          String.fromCharCode
+                                            .apply(
+                                              String,
+                                              bet.options[
+                                                allUserBets[index]
+                                                  .winner_index
+                                              ].name
+                                            )
+                                            .indexOf("\0")
+                                        )}
                                 </Button>
                                 {true ? (
                                   <Button
