@@ -276,6 +276,7 @@ export function Sidebar(props) {
     setAllOptions([]);
     OptionsList = [];
     setTime(null);
+    setAllOptions([]);
   };
 
   const handleBetNameChange = (e) => {
@@ -602,6 +603,7 @@ export function Sidebar(props) {
     });
     //use account info to join based on if bet in id is active
     setJoinIsOpen(false);
+    setJoinCode("");
     toast({
       title: joinCode + " Successfuly Joined.",
       description: "Now let's get betting!",
