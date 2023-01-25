@@ -336,7 +336,7 @@ export function Sidebar(props) {
       setBetName(tempStr);
 
 
-      let timestamp = time.getTime();
+      let timestamp = time.getTime()/1000;
 
       //let index = uniqueHash(betName + maxBet + allOptions);
 

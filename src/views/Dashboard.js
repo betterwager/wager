@@ -819,7 +819,7 @@ function Dashboard() {
                                     w="100%"
                                     h="10"
                                   >
-                                    {new Date(bet.time).toLocaleTimeString(
+                                    {new Date(bet.time * 1000).toLocaleTimeString(
                                       "en-US",
                                       { timeStyle: "short" }
                                     )}
@@ -1024,7 +1024,7 @@ function Dashboard() {
                                     w="100%"
                                     h="10"
                                   >
-                                    {new Date(bet.time).toLocaleTimeString(
+                                    {new Date(bet.time  * 1000).toLocaleTimeString(
                                       "en-US",
                                       { timeStyle: "short" }
                                     )}{" "}
@@ -1195,7 +1195,7 @@ function Dashboard() {
                                     w="100%"
                                     h="10"
                                   >
-                                    {new Date(bet.time).toLocaleTimeString(
+                                    {new Date(bet.time  * 1000).toLocaleTimeString(
                                       "en-US",
                                       { timeStyle: "short" }
                                     )}{" "}
