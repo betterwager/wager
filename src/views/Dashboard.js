@@ -579,7 +579,7 @@ function Dashboard() {
               height: "75vh",
               overflow: "auto",
               display: "flex",
-              flexDirection: "column-reverse",
+              flexDirection: "column",
             }}
           >
             <InfiniteScroll

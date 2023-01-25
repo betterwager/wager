@@ -960,7 +960,7 @@ export function Sidebar(props) {
 
                       <FormControl isRequired>
                         <FormLabel>When does Betting End?</FormLabel>
-                        <DateTimePicker onChange={handleTimeChange} value={time} />
+                        <DateTimePicker minDate = {new Date()} onChange={handleTimeChange} value={time} />
                       </FormControl>
                     </>
                   </ModalBody>
