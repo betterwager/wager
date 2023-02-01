@@ -27,7 +27,7 @@ import {
 import { Row } from "react-bootstrap";
 import { RepeatIcon } from "@chakra-ui/icons";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Sidebar from "./Sidebar.js";
+import Sidebar from "../components/Sidebar.js";
 import { QRCodeCanvas } from "qrcode.react";
 import { DataGrid } from "@mui/x-data-grid";
 import { withAuthenticator } from "@aws-amplify/ui-react";
@@ -35,6 +35,7 @@ import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import * as subscriptions from "../graphql/subscriptions";
 import { Auth, API } from "aws-amplify";
+import LeaderInfoModal from "../components/LeaderInfoModal.js";
 
 function Leaderboard() {
   const [allUsers, setAllUsers] = useState([]);
@@ -47,7 +48,6 @@ function Leaderboard() {
   const [boardUsers, setBoardUsers] = useState([]);
   const [code, setCode] = useState("");
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
-  const path = window.location.pathname;
 
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
@@ -122,19 +122,6 @@ function Leaderboard() {
     setBoardUsers(boardUserList);
   };
 
-  const downloadQRCodeLeader = () => {
-    // Generate download with use canvas and stream
-    const canvas = document.getElementById("qr-gen");
-    const pngUrl = canvas
-      .toDataURL("image/png")
-      .replace("image/png", "image/octet-stream");
-    let downloadLink = document.createElement("a");
-    downloadLink.href = pngUrl;
-    downloadLink.download = `${code}.png`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-  };
   return (
     <Grid
       templateAreas={`"nav header"
@@ -281,72 +268,12 @@ function Leaderboard() {
         </div>
       </GridItem>
 
-      <Modal
+      <LeaderInfoModal
         isOpen={codeDisplayIsOpen}
-        onClose={() => setCodeDisplayIsOpen(false)}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Leaderboard Information</ModalHeader>
-          <ModalBody>
-            <h1 style={{ fontSize: "15px" }}>
-              <strong>Leaderboard Code: </strong>
-              <u>
-                <a
-                  onClick={() => {
-                    navigator.clipboard.writeText(code);
-                    alert("Copied to Clipboard");
-                  }}
-                >
-                  {code}
-                </a>
-              </u>
-            </h1>
-            <br />
-            <h3 style={{ fontSize: "15px" }}>
-              <strong>Join Link: </strong>
-              <u>
-                <a
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      window.location.href +
-                        "?leaderboard=" +
-                        code.replace(" ", "%20")
-                    );
-                    alert("Copied to Clipboard");
-                  }}
-                >
-                  {window.location.href +
-                    "?leaderboard=" +
-                    code.replace(" ", "%20")}
-                </a>
-              </u>
-            </h3>
-            <br />
-            <QRCodeCanvas
-              id="qr-gen"
-              includeMargin={true}
-              value={
-                window.location.href +
-                "?leaderboard=" +
-                code.replace(" ", "%20")
-              }
-            />
-            <Button onClick={downloadQRCodeLeader}>Download QR Code</Button>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="ghost"
-              mr={3}
-              onClick={() => {
-                setCodeDisplayIsOpen(false);
-              }}
-            >
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+        setIsOpen={codeDisplayIsOpen}
+        code={code}
+        setCode={setCode}
+      />
     </Grid>
   );
 }

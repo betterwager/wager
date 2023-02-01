@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, Col, Container, Form, Nav, Navbar, Row } from "react-bootstrap";
 import NavbarCollapse from "react-bootstrap/esm/NavbarCollapse";
 import { DASHBOARD } from "../App.js";
+import ContactForm from "../components/ContactForm.js";
 //icon imports
 import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
 //image imports
@@ -32,50 +33,10 @@ import payout from "../assets/payout.svg";
 import voting from "../assets/voting.svg";
 
 const Home = (props) => {
-  //State variables for contact form
-  const [first, setFirst] = useState("");
-  const [last, setLast] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const toast = useToast();
   const [validateIsOpen, setValidateIsOpen] = useState(false);
   const navigate = useNavigate();
-
-  //Check Email Validity & Send to API
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    let error = !email
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-    error &&
-      toast({
-        title: "Invalid Email",
-        description: "Make sure to enter a valid email address!",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    if (!error) {
-      await axios.post(
-        `https://sheet.best/api/sheets/c122b525-c0e2-4ebd-997e-614116491820`,
-        { first, last, email, message }
-      );
-      toast({
-        title: "Success!",
-        description:
-          "We've got your contact and message noted and will reach out soon.",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-      setFirst("");
-      setLast("");
-      setEmail("");
-      setMessage("");
-    }
-  };
+  const toast = useToast();
+  const [email, setEmail] = useState("");
 
   const handleValidateEmail = async (e) => {
     e.preventDefault();
@@ -379,78 +340,12 @@ const Home = (props) => {
           </Container>
         </Container>
       </section>
-      <section id="contact" style={{ paddingTop: 20, paddingBottom: 50 }}>
-        <Container className="text-center d-flex-column justify-content-space-around">
-          <Heading as="h1" size="xl" className="text-center">
-            Any Questions?
-          </Heading>
-          <Text as={"p"} className="lead" paddingBottom={3}>
-            Fill out the form below and we will get back to you about Wager
-          </Text>
-          <Form onSubmit={handleSubmit}>
-            <Row>
-              <Col>
-                <FormControl isRequired>
-                  <FormLabel>First name</FormLabel>
-                  <Input
-                    placeholder="First name"
-                    value={first}
-                    onChange={(e) => {
-                      setFirst(e.target.value);
-                    }}
-                  />
-                </FormControl>
-              </Col>
-              <Col>
-                <FormControl isRequired>
-                  <FormLabel>Last name</FormLabel>
-                  <Input
-                    placeholder="Last name"
-                    value={last}
-                    onChange={(e) => {
-                      setLast(e.target.value);
-                    }}
-                  />
-                </FormControl>
-              </Col>
-            </Row>
-            <Row>
-              <FormControl isRequired>
-                <FormLabel>Email</FormLabel>
-                <Input
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </Row>
-            <Row className="mb-3">
-              <FormControl isRequired>
-                <FormLabel>Message</FormLabel>
-                <Input
-                  placeholder="Message"
-                  value={message}
-                  onChange={(e) => {
-                    setMessage(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </Row>
-            <Button
-              width={"100%"}
-              backgroundColor="#195F50"
-              color="#fff"
-              variant="outline"
-              type="submit"
-              size="lg"
-            >
-              Submit
-            </Button>
-          </Form>
-        </Container>
-      </section>
+      <ContactForm
+        navigate={navigate}
+        toast={toast}
+        email={email}
+        setEmail={setEmail}
+      />
       <footer
         style={{
           backgroundColor: "#F7F8FC",

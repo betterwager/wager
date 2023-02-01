@@ -54,12 +54,15 @@ import uniqueHash from "unique-hash";
 import { ConsoleLogger } from "@aws-amplify/core";
 
 //Internal Imports
-import Sidebar from "./Sidebar.js";
+import Sidebar from "../components/Sidebar.js";
 import {
   MakeBetInstruction,
   VoteInstruction,
   PayoutInstruction,
 } from "../utils/utils.js";
+import MakeBetModal from "../components/MakeBetModal";
+import BetInfoModal from "../components/BetInfoModal";
+import BetDisplayCards from "../components/BetDisplayCards";
 
 function Dashboard() {
   //AWS Object of User
@@ -68,32 +71,29 @@ function Dashboard() {
   const [allUserBets, setUserBets] = useState([]);
   //Current Wagered Bet
   const [currentBet, setCurrentBet] = useState({});
-  //Voted Bet
-  const [currentBetIndex, setCurrentBetIndex] = useState(0);
+
   //All User Bet Addresses for Display
   const [betAddresses, setBetAddresses] = useState([]);
   //Join Code for entering a new Bet
   const [joinCode, setJoinCode] = useState("");
-  //Chosen User Option for a Bet
-  const [betOption, setBetOption] = useState("");
-  //Amount Bet on specific bet
-  const [betValue, setBetValue] = useState(0.0);
   //Open Betting Modal
   const [betIsOpen, setBetIsOpen] = useState(false);
   //Success Toasts
   const toast = useToast();
   //Options for the selected bet
   const [currentOptions, setCurrentOptions] = useState([]);
-  //Voting Option Selected
-  const [voteOption, setVoteOption] = useState("");
-  //Voting Index Selected
-  const [voteIndex, setVoteIndex] = useState(0);
   //Bet Information Modal
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
   //Bet Information Display Current
   const [code, setCode] = useState("");
   //User's actions on all bets
   const [playerAccountInfo, setPlayerAccountInfo] = useState([]);
+  //Voting Option Selected
+  const [voteOption, setVoteOption] = useState("");
+  //Voting Index Selected
+  const [voteIndex, setVoteIndex] = useState(0);
+  //Voted Bet
+  const [currentBetIndex, setCurrentBetIndex] = useState(0);
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -147,168 +147,6 @@ function Dashboard() {
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
     return users;
-  };
-
-  const getBets = useCallback(async () => {
-    let tempAddress = {};
-    let tempBet = {};
-    let allBetAddresses = [];
-    let allBets = [];
-    let allPlayerAccounts = [];
-    let tempBets = await connection.getParsedProgramAccounts(programId, {
-      filters: [
-        {
-          dataSize: 299,
-        },
-      ],
-    });
-    tempBets.forEach(async function (accountInfo, index) {
-      tempBet = wagerLayout.decode(accountInfo.account.data);
-      tempAddress = PublicKey.findProgramAddressSync(
-        [tempBet.bet_identifier, publicKey.toBytes()],
-        programId
-      ); //{
-      console.log(tempAddress[0]);
-      await connection
-        .getAccountInfo(tempAddress[0])
-        .then((playerAccountInfo) => {
-          console.log(playerAccountInfo);
-          if (playerAccountInfo !== null) {
-            console.log("Success!");
-            allBetAddresses.push(accountInfo.pubkey);
-            allBets.push(wagerLayout.decode(accountInfo.account.data));
-            allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
-          }
-        });
-      if (index === tempBets.length - 1) {
-        console.log(allBets);
-        console.log(allBetAddresses);
-        console.log(allPlayerAccounts);
-        setBetAddresses(allBetAddresses);
-        setUserBets(allBets);
-        setPlayerAccountInfo(allPlayerAccounts);
-        console.log(allUserBets);
-      }
-    });
-    //let news;
-    //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
-  }, [publicKey]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    getUsers()
-      .catch(console.error)
-      .then((users) => {
-        users = users.data.listUsers.items;
-        let email = Auth.user.attributes.email;
-        let user;
-        for (var i = 0; i < users.length; i++) {
-          if (users[i].email === email) {
-            user = users[i];
-            break;
-          }
-        }
-        setCurrentUser(user);
-        getBets(publicKey).catch(console.error);
-      });
-  }, [getBets]); // eslint-disable-line react-hooks/exhaustive-deps
-  /* useEffect(() => {
-  }, [getBets,publicKey]); */
-  //getBets(publicKey).catch(console.error);
-
-  const handlejoinCodeChange = (e) => {
-    setJoinCode(e.target.value);
-  };
-
-  const handleBetOption = (e) => {
-    setBetOption(e.target.value);
-  };
-
-  const handleBetValue = (e) => {
-    setBetValue(parseFloat(e));
-  };
-
-  const handleBetting = async (e, index) => {
-    e.preventDefault();
-    let option = betOption;
-    //let value = betValue;
-    //let bet = userBets[index]; //bet object in contention
-    //Sending Bet Transaction and Balance for Bet
-    let tempStr = joinCode + " ".repeat(20 - joinCode.length);
-    setJoinCode(tempStr);
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr)],
-      programId
-    );
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr), publicKey.toBytes()],
-      programId
-    );
-    //Make bet RPC Call(Send Transaction for Make Bet)
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
-        {
-          pubkey: potPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: playerPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: systemProgram,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId,
-      data: MakeBetInstruction(option, playerBump, betValue * 100000000),
-    });
-    const transaction = new Transaction().add(instruction);
-    const {
-      context: { slot: minContextSlot },
-      value: { blockhash, lastValidBlockHeight },
-    } = await connection.getLatestBlockhashAndContext();
-    transaction.recentBlockhash = blockhash;
-    console.log("blockhash retreived");
-
-    const signature = await sendTransaction(transaction, connection, {
-      minContextSlot,
-    });
-    await connection.confirmTransaction({
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    });
-    const transactionResults = await connection.getTransaction(signature);
-    console.log(transactionResults.meta.logMessages);
-
-    toast({
-      title: "Bet Successfully Placed.",
-      description: joinCode,
-      status: "success",
-      duration: 9000,
-      isClosable: true,
-    });
-    setBetIsOpen(false);
-    getBets(publicKey);
-  };
-
-  const handleJoinBet = async (id) => {
-    //use account info to join based on if bet in id is active - WEB3
-  };
-
-  const selectOption = (e, betIndex) => {
-    let list = e.target.value.split("@&@");
-    setVoteOption(list[0]);
-    setVoteIndex(parseInt(list[1]));
-    setCurrentBetIndex(betIndex);
   };
 
   const submitOption = async () => {
@@ -433,19 +271,78 @@ function Dashboard() {
     });
   };
 
-  const downloadQRCode = () => {
-    // Generate download with use canvas and stream
-    const canvas = document.getElementById("qr-gen");
-    const pngUrl = canvas
-      .toDataURL("image/png")
-      .replace("image/png", "image/octet-stream");
-    let downloadLink = document.createElement("a");
-    downloadLink.href = pngUrl;
-    downloadLink.download = `${code}.png`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+  const getBets = useCallback(async () => {
+    let tempAddress = {};
+    let tempBet = {};
+    let allBetAddresses = [];
+    let allBets = [];
+    let allPlayerAccounts = [];
+    let tempBets = await connection.getParsedProgramAccounts(programId, {
+      filters: [
+        {
+          dataSize: 299,
+        },
+      ],
+    });
+    tempBets.forEach(async function (accountInfo, index) {
+      tempBet = wagerLayout.decode(accountInfo.account.data);
+      tempAddress = PublicKey.findProgramAddressSync(
+        [tempBet.bet_identifier, publicKey.toBytes()],
+        programId
+      ); //{
+      console.log(tempAddress[0]);
+      await connection
+        .getAccountInfo(tempAddress[0])
+        .then((playerAccountInfo) => {
+          console.log(playerAccountInfo);
+          if (playerAccountInfo !== null) {
+            console.log("Success!");
+            allBetAddresses.push(accountInfo.pubkey);
+            allBets.push(wagerLayout.decode(accountInfo.account.data));
+            allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
+          }
+        });
+      if (index === tempBets.length - 1) {
+        console.log(allBets);
+        console.log(allBetAddresses);
+        console.log(allPlayerAccounts);
+        setBetAddresses(allBetAddresses);
+        setUserBets(allBets);
+        setPlayerAccountInfo(allPlayerAccounts);
+        console.log(allUserBets);
+      }
+    });
+    //let news;
+    //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
+  }, [publicKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectOption = (e, betIndex) => {
+    let list = e.target.value.split("@&@");
+    setVoteOption(list[0]);
+    setVoteIndex(parseInt(list[1]));
+    setCurrentBetIndex(betIndex);
   };
+
+  useEffect(() => {
+    getUsers()
+      .catch(console.error)
+      .then((users) => {
+        users = users.data.listUsers.items;
+        let email = Auth.user.attributes.email;
+        let user;
+        for (var i = 0; i < users.length; i++) {
+          if (users[i].email === email) {
+            user = users[i];
+            break;
+          }
+        }
+        setCurrentUser(user);
+        getBets(publicKey).catch(console.error);
+      });
+  }, [getBets]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* useEffect(() => {
+  }, [getBets,publicKey]); */
+  //getBets(publicKey).catch(console.error);
 
   return (
     <Grid
@@ -603,675 +500,61 @@ function Dashboard() {
                 </Row>
               }
             >
-              <Modal isOpen={betIsOpen} onClose={() => setBetIsOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Make Bet</ModalHeader>
-                  <ModalBody>
-                    <>
-                      <FormControl isRequired>
-                        <FormLabel>Bet Code</FormLabel>
-                        <Input
-                          placeholder="Bet Code"
-                          value={joinCode}
-                          onChange={(e) => handlejoinCodeChange(e)}
-                        />
-                      </FormControl>
-                      <br />
-                      <FormControl isRequired>
-                        <FormLabel>Bet Option</FormLabel>
-                        <Select
-                          onChange={handleBetOption}
-                          placeholder="Select option"
-                        >
-                          {currentOptions.map((option, index) => {
-                            let name = String.fromCharCode.apply(
-                              String,
-                              option.name
-                            );
-                            name = name.substr(0, name.indexOf("\0"));
-                            if (name !== "zero" && name !== "") {
-                              return (
-                                <option key={name} value={index}>
-                                  {name}
-                                </option>
-                              );
-                            }
-                          })}
-                        </Select>
-                      </FormControl>
-                      <br />
-                      <FormControl isRequired>
-                        <FormLabel>Bet Value ($)</FormLabel>
-                        <NumberInput
-                          onChange={handleBetValue}
-                          min={currentBet.min_bet}
-                          max={currentBet.max_bet}
-                          precision={2}
-                          step={0.5}
-                        >
-                          <NumberInputField />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      </FormControl>
-                    </>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      variant="ghost"
-                      mr={3}
-                      onClick={() => setBetIsOpen(false)}
-                    >
-                      Close
-                    </Button>
-                    <Button colorScheme="blue" onClick={handleBetting}>
-                      Wager!
-                    </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
+              <MakeBetModal
+                getBets={getBets}
+                toast={toast}
+                connection={connection}
+                programId={programId}
+                publicKey={publicKey}
+                sendTransaction={sendTransaction}
+                rentSysvar={rentSysvar}
+                systemProgram={systemProgram}
+                isOpen={betIsOpen}
+                setIsOpen={setBetIsOpen}
+                currentBet={currentBet}
+                currentOptions={currentOptions}
+                joinCode={joinCode}
+                setJoinCode={setJoinCode}
+              />
 
               {allUserBets.map((bet, index) => {
-                switch (bet.state) {
-                  case 1:
-                    return (
-                      <Container key={index}>
-                        <Card
-                          style={{ marginTop: "1rem", marginBottom: "1rem" }}
-                        >
-                          <Card.Body>
-                            <Row>
-                              <Col style={{ textAlign: "left" }}>
-                                <Card.Title>
-                                  <strong>Bet Name:</strong>{" "}
-                                  {String.fromCharCode.apply(
-                                    String,
-                                    bet.bet_identifier
-                                  )}
-                                </Card.Title>
-                                <Card.Text style={{ color: "#aaaaaa" }}>
-                                  Status: Created
-                                </Card.Text>
-                              </Col>
-                              <Col style={{ textAlign: "right" }}>
-                                <Button
-                                  colorScheme="green"
-                                  variant="outline"
-                                  mr={3}
-                                  onClick={() => {
-                                    let name = bet.bet_identifier;
-                                    name = String.fromCharCode.apply(
-                                      String,
-                                      name
-                                    );
-                                    if (name.indexOf(" ") >= 0)
-                                      name = name.trim();
-                                    setCode(name);
-                                    setCodeDisplayIsOpen(true);
-                                  }}
-                                >
-                                  Bet Info
-                                </Button>
-                                <Button
-                                  colorScheme="purple"
-                                  variant="outline"
-                                  mr={3}
-                                  onClick={() => {
-                                    setBetIsOpen(true);
-                                    setCurrentBet(bet);
-                                    let name = bet.bet_identifier;
-                                    name = String.fromCharCode.apply(
-                                      String,
-                                      name
-                                    );
-                                    if (name.indexOf(" ") >= 0)
-                                      name = name.trim();
-                                    setJoinCode(name);
-                                    setCurrentOptions(bet.options);
-                                  }}
-                                  disabled={
-                                    playerAccountInfo[index].bet_amount != 0
-                                  }
-                                >
-                                  Make Bet
-                                </Button>
-                              </Col>
-                            </Row>
-                          </Card.Body>
-                          <Card.Footer style={{ backgroundColor: "#fff" }}>
-                            <SimpleGrid columns={[1, null, 5]}>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Position
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {playerAccountInfo[index].bet_amount == 0
-                                      ? "N/A"
-                                      : String.fromCharCode
-                                          .apply(
-                                            String,
-                                            bet.options[
-                                              playerAccountInfo[index]
-                                                .option_index
-                                            ].name
-                                          )
-                                          .substr(
-                                            0,
-                                            String.fromCharCode
-                                              .apply(
-                                                String,
-                                                bet.options[
-                                                  playerAccountInfo[index]
-                                                    .option_index
-                                                ].name
-                                              )
-                                              .indexOf("\0")
-                                          )}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Stake
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    $
-                                    {playerAccountInfo[index].bet_amount /
-                                      100000000}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Pot
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    ${bet.balance / 100000000}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Time
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {new Date(bet.time * 1000).toLocaleTimeString(
-                                      "en-US",
-                                      { timeStyle: "short" }
-                                    )}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Players
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {bet.player_count}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                            </SimpleGrid>
-                          </Card.Footer>
-                        </Card>
-                      </Container>
-                    );
-
-                  case 2:
-                    return (
-                      <Container key={index}>
-                        <Card
-                          style={{ marginTop: "1rem", marginBottom: "1rem" }}
-                        >
-                          <Card.Body>
-                            <Row>
-                              <Col style={{ textAlign: "left" }}>
-                                <Card.Title>
-                                  <strong>Bet Name:</strong>{" "}
-                                  {String.fromCharCode.apply(
-                                    String,
-                                    bet.bet_identifier
-                                  )}
-                                </Card.Title>
-                                <Card.Text style={{ color: "#aaaaaa" }}>
-                                  Status: Voting
-                                </Card.Text>
-                              </Col>
-                              <Col style={{ textAlign: "right" }}>
-                                <Flex>
-                                  {playerAccountInfo[index].voted == 0 ? (
-                                    <Select
-                                      style={{ margin: "1%" }}
-                                      colorScheme="purple"
-                                      onChange={(e) => {
-                                        selectOption(e, index);
-                                      }}
-                                      variant="outline"
-                                      placeholder="Select option"
-                                    >
-                                      {bet.options.map((option, index) => {
-                                        let name = String.fromCharCode.apply(
-                                          String,
-                                          option.name
-                                        );
-                                        if (name.indexOf("\0") >= 0)
-                                          name = name.substr(
-                                            0,
-                                            name.indexOf("\0")
-                                          );
-                                        if (name !== "zero" && name !== "") {
-                                          return (
-                                            <option
-                                              key={index}
-                                              value={name + "@&@" + index}
-                                            >
-                                              {name}
-                                            </option>
-                                          );
-                                        }
-                                      })}
-                                    </Select>
-                                  ) : (
-                                    <Select
-                                      style={{ margin: "1%" }}
-                                      colorScheme="purple"
-                                      variant="outline"
-                                      disabled
-                                    />
-                                  )}
-
-                                  <br />
-                                  <Button
-                                    disabled={
-                                      playerAccountInfo[index].voted == 1
-                                    }
-                                    variant="primary"
-                                    style={{
-                                      backgroundColor: "purple",
-                                      color: "white",
-                                    }}
-                                    onClick={submitOption}
-                                  >
-                                    Vote
-                                  </Button>
-                                </Flex>
-                              </Col>
-                            </Row>
-                          </Card.Body>
-                          <Card.Footer style={{ backgroundColor: "#fff" }}>
-                            <SimpleGrid columns={[1, null, 5]}>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Position
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {playerAccountInfo[index].bet_amount == 0
-                                      ? "N/A"
-                                      : String.fromCharCode
-                                          .apply(
-                                            String,
-                                            bet.options[
-                                              playerAccountInfo[index]
-                                                .option_index
-                                            ].name
-                                          )
-                                          .substr(
-                                            0,
-                                            String.fromCharCode
-                                              .apply(
-                                                String,
-                                                bet.options[
-                                                  playerAccountInfo[index]
-                                                    .option_index
-                                                ].name
-                                              )
-                                              .indexOf("\0")
-                                          )}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Stake
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    $
-                                    {playerAccountInfo[index].bet_amount /
-                                      100000000}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Pot
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    ${bet.balance / 100000000}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Time
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {new Date(bet.time  * 1000).toLocaleTimeString(
-                                      "en-US",
-                                      { timeStyle: "short" }
-                                    )}{" "}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Players
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {bet.player_count}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                            </SimpleGrid>
-                          </Card.Footer>
-                        </Card>
-                      </Container>
-                    );
-
-                  case 3:
-                    return (
-                      <Container key={index}>
-                        <Card
-                          style={{ marginTop: "1rem", marginBottom: "1rem" }}
-                        >
-                          <Card.Body>
-                            <Row>
-                              <Col style={{ textAlign: "left" }}>
-                                <Card.Title>
-                                  <strong>Bet Name:</strong>{" "}
-                                  {String.fromCharCode.apply(
-                                    String,
-                                    bet.bet_identifier
-                                  )}
-                                </Card.Title>
-                                <Card.Text style={{ color: "#aaaaaa" }}>
-                                  Status: Settled
-                                </Card.Text>
-                              </Col>
-                              <Col style={{ textAlign: "right" }}>
-                                <Button
-                                  style={{ margin: "1%" }}
-                                  colorScheme="purple"
-                                  variant="outline"
-                                >
-                                  Winning Option:{" "}
-                                  {String.fromCharCode
-                                        .apply(
-                                          String,
-                                          bet.options[
-                                            allUserBets[index]
-                                              .winner_index
-                                          ].name
-                                        )
-                                        .substr(
-                                          0,
-                                          String.fromCharCode
-                                            .apply(
-                                              String,
-                                              bet.options[
-                                                allUserBets[index]
-                                                  .winner_index
-                                              ].name
-                                            )
-                                            .indexOf("\0")
-                                        )}
-                                </Button>
-                                {true ? (
-                                  <Button
-                                    style={{ margin: "1%" }}
-                                    colorScheme="purple"
-                                    onClick={() => handlePayout()}
-                                  >
-                                    Settle Funds
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    style={{ margin: "1%" }}
-                                    colorScheme="green"
-                                    variant="outline"
-                                  >
-                                    You Won:
-                                  </Button>
-                                )}
-                              </Col>
-                            </Row>
-                          </Card.Body>
-                          <Card.Footer style={{ backgroundColor: "#fff" }}>
-                            <SimpleGrid columns={[1, null, 5]}>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Position
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {playerAccountInfo[index].bet_amount == 0
-                                      ? "N/A"
-                                      : String.fromCharCode
-                                          .apply(
-                                            String,
-                                            bet.options[
-                                              playerAccountInfo[index]
-                                                .option_index
-                                            ].name
-                                          )
-                                          .substr(
-                                            0,
-                                            String.fromCharCode
-                                              .apply(
-                                                String,
-                                                bet.options[
-                                                  playerAccountInfo[index]
-                                                    .option_index
-                                                ].name
-                                              )
-                                              .indexOf("\0")
-                                          )}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Stake
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {playerAccountInfo[index].bet_amount /
-                                      100000000}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Pot
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {bet.balance / 100000000}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Time
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {new Date(bet.time  * 1000).toLocaleTimeString(
-                                      "en-US",
-                                      { timeStyle: "short" }
-                                    )}{" "}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                              <GridItem w="100%" h="10">
-                                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                                  <GridItem w="100%" h="10">
-                                    Players
-                                  </GridItem>
-                                  <GridItem
-                                    style={{ color: "#aaaaaa" }}
-                                    w="100%"
-                                    h="10"
-                                  >
-                                    {bet.player_count}
-                                  </GridItem>
-                                </Grid>
-                              </GridItem>
-                            </SimpleGrid>
-                          </Card.Footer>
-                        </Card>
-                      </Container>
-                    );
-                  default:
-                    return <Container></Container>;
-                }
+                return (
+                  <BetDisplayCards
+                    key={index}
+                    setCurrentBet={setCurrentBet}
+                    selectOption={selectOption}
+                    state={bet.state}
+                    code={code}
+                    setCode={setCode}
+                    joinCode={joinCode}
+                    setJoinCode={setJoinCode}
+                    playerAccountInfo={playerAccountInfo}
+                    allUserBets={allUserBets}
+                    codeDisplayIsOpen={codeDisplayIsOpen}
+                    setCodeDisplayIsOpen={setCodeDisplayIsOpen}
+                    betAddresses={betAddresses}
+                    bet={bet}
+                    betIsOpen={betIsOpen}
+                    setBetIsOpen={setBetIsOpen}
+                    handlePayout={handlePayout}
+                    submitOption={submitOption}
+                    index={index}
+                    getBets={getBets}
+                    currentBet={currentBet}
+                    setCurrentOptions={setCurrentOptions}
+                    currentOptions={currentOptions}
+                  />
+                );
               })}
             </InfiniteScroll>
           </div>
         </Container>
-        <Modal
+        <BetInfoModal
           isOpen={codeDisplayIsOpen}
-          onClose={() => setCodeDisplayIsOpen(false)}
-        >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Bet Information</ModalHeader>
-            <ModalBody>
-              <h1 style={{ fontSize: "15px" }}>
-                <strong>Bet Code: </strong>
-                <u>
-                  <a
-                    onClick={() => {
-                      navigator.clipboard.writeText(code);
-                      alert("Copied to Clipboard");
-                    }}
-                  >
-                    {code}
-                  </a>
-                </u>
-              </h1>
-              <br />
-              <h3 style={{ fontSize: "15px" }}>
-                <strong>Join Link: </strong>
-                <u>
-                  <a
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        window.location.href +
-                          "?bet=" +
-                          code.replace(" ", "%20")
-                      );
-                      alert("Copied to Clipboard");
-                    }}
-                  >
-                    {window.location.href + "?bet=" + code.replace(" ", "%20")}
-                  </a>
-                </u>
-              </h3>
-              <br />
-              <QRCodeCanvas
-                id="qr-gen"
-                includeMargin={true}
-                value={
-                  window.location.href + "?bet=" + code.replace(" ", "%20")
-                }
-              />
-              <Button onClick={downloadQRCode}>Download QR Code</Button>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                variant="ghost"
-                mr={3}
-                onClick={() => {
-                  setCodeDisplayIsOpen(false);
-                }}
-              >
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+          setIsOpen={setCodeDisplayIsOpen}
+          code={code}
+          setCode={setCode}
+        />
       </GridItem>
     </Grid>
   );
