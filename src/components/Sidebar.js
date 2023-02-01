@@ -60,7 +60,7 @@ import JoinBetModal from "./JoinBetModal";
 import CreateLeaderModal from "./CreateLeaderModal";
 import JoinLeaderModal from "./JoinLeaderModal";
 import AccountInfoModal from "./AccountInfoModal";
-import AccountEditModal from "./AccountEditModal";
+import AccountEditModal from "./modals/AccountEditModal";
 import NewUserModals from "./NewUserModals";
 import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
 
