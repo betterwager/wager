@@ -1,5 +1,8 @@
 import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
+import {useNavigate} from "react-router-dom"
+import {Auth} from "aws-amplify"
+
 
 export const isPhantomInstalled = window.phantom?.solana?.isPhantom;
 

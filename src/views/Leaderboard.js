@@ -36,6 +36,8 @@ import * as mutations from "../graphql/mutations";
 import * as subscriptions from "../graphql/subscriptions";
 import { Auth, API } from "aws-amplify";
 import LeaderInfoModal from "../components/LeaderInfoModal.js";
+import Loading from "../components/Loading.js";
+import Login from "../components/Login.js";
 
 function Leaderboard() {
   const [allUsers, setAllUsers] = useState([]);
@@ -99,6 +101,29 @@ function Leaderboard() {
       });
   });
 
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const checkLogin = async () => {
+    
+    try {
+      const data = await Auth.currentAuthenticatedUser()
+      .then((res) => {
+        console.log(res)
+        setIsAuthenticated(true);
+      })
+    } catch {
+      // User not logged in
+      setIsAuthenticated(false)
+      
+    }
+  }
+  useEffect(()=>{
+    checkLogin();
+  })
+
+
   useEffect(() => {
     getBoards().catch(console.error);
   }, []);
@@ -123,7 +148,8 @@ function Leaderboard() {
   };
 
   return (
-    <Grid
+    (isLoading ? (<Loading/>) : 
+    (isAuthenticated ? (<Grid
       templateAreas={`"nav header"
                             "nav main"`}
       gridTemplateRows={"50px"}
@@ -274,8 +300,7 @@ function Leaderboard() {
         code={code}
         setCode={setCode}
       />
-    </Grid>
-  );
+    </Grid>) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
 }
 
-export default withAuthenticator(Leaderboard);
+export default Leaderboard;

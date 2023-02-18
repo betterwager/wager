@@ -28,6 +28,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { Card, Row, Col, Container } from "react-bootstrap";
+import {useNavigate} from "react-router-dom"
 import { RepeatIcon } from "@chakra-ui/icons";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { QRCodeCanvas } from "qrcode.react";
@@ -55,14 +56,17 @@ import { ConsoleLogger } from "@aws-amplify/core";
 
 //Internal Imports
 import Sidebar from "../components/Sidebar.js";
+import Login from "../components/Login.js";
 import {
   MakeBetInstruction,
   VoteInstruction,
   PayoutInstruction,
+  checkLogin,
 } from "../utils/utils.js";
 import MakeBetModal from "../components/MakeBetModal";
 import BetInfoModal from "../components/BetInfoModal";
 import BetDisplayCards from "../components/BetDisplayCards";
+import Loading from "../components/Loading";
 
 function Dashboard() {
   //AWS Object of User
@@ -94,6 +98,8 @@ function Dashboard() {
   const [voteIndex, setVoteIndex] = useState(0);
   //Voted Bet
   const [currentBetIndex, setCurrentBetIndex] = useState(0);
+
+
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -144,10 +150,37 @@ function Dashboard() {
     BufferLayout.u8("bump_seed"),
   ]);
 
+  useEffect(() => {
+    setIsLoading(false);
+  },[]);
+
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const checkLogin = async () => {
+    
+    try {
+      const data = await Auth.currentAuthenticatedUser()
+      .then((res) => {
+        console.log(res)
+        setIsAuthenticated(true);
+      })
+    } catch {
+      // User not logged in
+      setIsAuthenticated(false)
+      
+    }
+  }
+  useEffect(()=>{
+    checkLogin();
+  })
+
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
     return users;
   };
+
 
   const submitOption = async () => {
     let optionChose = voteOption;
@@ -323,6 +356,7 @@ function Dashboard() {
     setCurrentBetIndex(betIndex);
   };
 
+
   useEffect(() => {
     getUsers()
       .catch(console.error)
@@ -345,7 +379,9 @@ function Dashboard() {
   //getBets(publicKey).catch(console.error);
 
   return (
-    <Grid
+
+    (isLoading ? (<Loading/>) : 
+    (isAuthenticated ? (<Grid
       templateAreas={`"nav header"
                             "nav main"`}
       gridTemplateRows={"50px"}
@@ -556,8 +592,11 @@ function Dashboard() {
           setCode={setCode}
         />
       </GridItem>
-    </Grid>
-  );
+    </Grid>) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
+    )
+    )
+    )
+
 }
 
 /*
@@ -573,4 +612,4 @@ function Dashboard() {
                         ))}
                         */
 
-export default withAuthenticator(Dashboard);
+export default Dashboard;

@@ -1,11 +1,10 @@
 //React Imports
-import { React, useMemo } from "react";
+import { React, useMemo, useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 //Styling Imports
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "antd/dist/antd.min.css";
 import "@aws-amplify/ui-react/styles.css";
 import { ChakraProvider } from "@chakra-ui/react";
 
@@ -25,7 +24,7 @@ import {
 
 //Cloud Imports
 import awsExports from "./aws-exports.js";
-import { Amplify } from "aws-amplify";
+import { Amplify, Auth } from "aws-amplify";
 
 //Internal Imports
 import Dashboard from "./views/Dashboard.js";
@@ -65,6 +64,8 @@ function App() {
     []
   );
 
+  
+
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
@@ -73,8 +74,8 @@ function App() {
             <Router>
               <Routes>
                 <Route exact path={HOME} element={<Home />} />
-                <Route exact path={DASHBOARD} element={<Dashboard />} />
-                <Route exact path={LEADERBOARD} element={<Leaderboard />} />
+                <Route exact path={DASHBOARD} element= {<Dashboard  />} />
+                <Route exact path={LEADERBOARD} element={<Leaderboard  />} />
               </Routes>
             </Router>
           </ChakraProvider>

@@ -51,7 +51,7 @@ import { Button, Container, Form } from "react-bootstrap";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { NavLink as Link } from "react-router-dom";
+import { NavLink as Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { DASHBOARD, HOME, LEADERBOARD } from "../App.js";
 import logo from "../assets/Wager.svg";
@@ -99,6 +99,8 @@ export function Sidebar(props) {
 
   const [joinIsOpen, setJoinIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   //API Calls
 
@@ -164,7 +166,9 @@ export function Sidebar(props) {
   //Handling Methods
 
   const handleSignOut = () => {
-    Auth.signOut();
+    const promise = Auth.signOut()
+    setTimeout(() => navigate("/"), 1000);
+    console.log(promise);
   };
 
   return (

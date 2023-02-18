@@ -12,11 +12,34 @@
       "AmplifyAppId": "d3obrjq5wlrw6x"
     },
     "categories": {
-      "auth": {
-        "wager67d8cf8767d8cf87": {}
-      },
       "api": {
         "wager": {}
+      },
+      "auth": {
+        "wagerf355ace8": {
+          "userPoolId": "us-east-1_0TUiYdZqY",
+          "userPoolName": "WagerPasswordless",
+          "webClientId": "5oeiokpfpea8j9g1qo3olfbbih",
+          "nativeClientId": "5oeiokpfpea8j9g1qo3olfbbih"
+        },
+        "wagerde4d4586": {
+          "userPoolId": "us-east-1_0TUiYdZqY",
+          "userPoolName": "WagerPasswordless",
+          "webClientId": "5oeiokpfpea8j9g1qo3olfbbih",
+          "nativeClientId": "5oeiokpfpea8j9g1qo3olfbbih"
+        },
+        "wager7b00da8e": {
+          "userPoolId": "us-east-1_0TUiYdZqY",
+          "userPoolName": "WagerPasswordless",
+          "webClientId": "5oeiokpfpea8j9g1qo3olfbbih",
+          "nativeClientId": "5oeiokpfpea8j9g1qo3olfbbih"
+        },
+        "wager": {
+          "userPoolId": "us-east-1_TR3YTLjuT",
+          "userPoolName": "Wager",
+          "webClientId": "5mk3om2opg1r70qvt2uj3u2s3c",
+          "nativeClientId": "5mk3om2opg1r70qvt2uj3u2s3c"
+        }
       }
     }
   }

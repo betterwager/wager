@@ -1,53 +1,68 @@
 {
-  "auth": {
-    "wager67d8cf8767d8cf87": {
-      "service": "Cognito",
-      "providerPlugin": "awscloudformation",
-      "dependsOn": [],
-      "customAuth": false,
-      "frontendAuthConfig": {
-        "socialProviders": [],
-        "usernameAttributes": [
-          "EMAIL"
-        ],
-        "signupAttributes": [
-          "EMAIL"
-        ],
-        "passwordProtectionSettings": {
-          "passwordPolicyMinLength": 8,
-          "passwordPolicyCharacters": []
-        },
-        "mfaConfiguration": "OFF",
-        "mfaTypes": [
-          "SMS"
-        ],
-        "verificationMechanisms": [
-          "EMAIL"
-        ]
-      }
-    }
-  },
   "api": {
     "wager": {
-      "service": "AppSync",
-      "providerPlugin": "awscloudformation",
       "dependsOn": [],
       "output": {
         "authConfig": {
-          "defaultAuthentication": {
-            "authenticationType": "API_KEY",
-            "apiKeyConfig": {
-              "apiKeyExpirationDays": 30,
-              "description": "api key description"
-            }
-          },
           "additionalAuthenticationProviders": [
             {
               "authenticationType": "AWS_IAM"
             }
-          ]
+          ],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 30,
+              "description": "api key description"
+            },
+            "authenticationType": "API_KEY"
+          }
         }
-      }
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync"
+    }
+  },
+  "auth": {
+    "wager": {
+      "service": "Cognito",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": true
+    }
+  },
+  "parameters": {
+    "AMPLIFY_auth_wager_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "wager"
+        }
+      ]
+    },
+    "AMPLIFY_auth_wager_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "wager"
+        }
+      ]
+    },
+    "AMPLIFY_auth_wager_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "wager"
+        }
+      ]
+    },
+    "AMPLIFY_auth_wager_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "wager"
+        }
+      ]
     }
   }
 }
