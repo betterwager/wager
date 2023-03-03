@@ -15,8 +15,6 @@ const SignIn = (props) => {
   
     const handleEmailChange = (e) => {
       setEmail(e.target.value);
-      console.log(e.target.value.toString())
-      console.log(error);
     }
   
     const handleSubmit = async (e) => {
@@ -31,7 +29,6 @@ const SignIn = (props) => {
             password: Date.now().toString()
           })
         .then((res) =>{
-            console.log(res);
             props.setAuth(true);
             props.setUser(res);
             
@@ -41,7 +38,6 @@ const SignIn = (props) => {
         try{
             const trust = await Auth.signIn(email)
             .then((res) =>{
-                console.log(res);
                 props.setAuth(true);
                 props.setUser(res);
             })
