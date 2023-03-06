@@ -11,6 +11,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Button,
   ModalOverlay,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -21,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import { API, Auth } from "aws-amplify";
 import * as mutations from "../graphql/mutations";
 import LeaderInfoModal from "./LeaderInfoModal";
@@ -98,7 +99,7 @@ function CreateLeaderModal(props) {
               <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
                 Close
               </Button>
-              <Button onClick={handleLeaderSubmit} variant="primary">
+              <Button onClick={handleLeaderSubmit} colorScheme="green">
                 Create
               </Button>
             </ModalFooter>

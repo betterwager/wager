@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Auth, API, a } from "aws-amplify";
-import { Spinner } from '@chakra-ui/react'
-import { Container, FloatingLabel, Button, Form } from "react-bootstrap";
+import { Spinner,
+  Button } from '@chakra-ui/react'
+import { Container, FloatingLabel, Form } from "react-bootstrap";
 import { isPossiblePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input'
 import OtpInput from 'react-otp-input';
 
@@ -42,23 +43,25 @@ const Validate = (props) => {
   };
 
   return (
-    <Container style={{ maxWidth: 800, alignItems:"center" }} className="mt-5">
+    <Container style={{ maxWidth: "60%", alignItems:"center" }} className="mt-5">
         <h2 className="text-center display-4 fw-bold pb-2">Sign In</h2>
         <h5 className="text-center">Enter the OTP Code sent to your email</h5>
+        
         <OtpInput
         value={code}
         onChange={handleCodeChange}
         numInputs={6}
         isInputNum={true}
         separator={<span>-</span>}
-        containerStyle = {{marginTop:"20px", marginBottom:"10px", marginLeft:"38%", width:"50%"}}
+        containerStyle = {{marginTop:"10px", marginBottom:"20px", marginLeft:"20%", marginRight:"20%", width:"60%"}}
         inputStyle = {{fontSize: "25px"}}
       />
   
           <Button
             disabled={isLoading}
+            colorScheme="green"
             size="lg"
-            style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"25%", width:"50%"}}
+            style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"20%", marginRight:"20%", width:"60%"}}
             className="mt-2 btn-success"
             onClick={handleSubmit}
           >

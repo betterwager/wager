@@ -17,6 +17,7 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   ModalOverlay,
+  Box,
   FormControl,
   FormLabel,
   Input,
@@ -24,6 +25,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  useBreakpointValue,
   GridItem,
   Button,
 } from "@chakra-ui/react";
@@ -57,6 +59,7 @@ import { ConsoleLogger } from "@aws-amplify/core";
 //Internal Imports
 import Sidebar from "../components/Sidebar.js";
 import Login from "../components/Login.js";
+import Header from "../components/Header.js"
 import {
   MakeBetInstruction,
   VoteInstruction,
@@ -67,6 +70,9 @@ import MakeBetModal from "../components/MakeBetModal";
 import BetInfoModal from "../components/BetInfoModal";
 import BetDisplayCards from "../components/BetDisplayCards";
 import Loading from "../components/Loading";
+
+const smVariant = { navigation: 'drawer', navigationButton: true }
+const mdVariant = { navigation: 'sidebar', navigationButton: false }
 
 function Dashboard() {
   //AWS Object of User
@@ -99,7 +105,10 @@ function Dashboard() {
   //Voted Bet
   const [currentBetIndex, setCurrentBetIndex] = useState(0);
 
-
+  //Sidebar Open
+  const [isSidebarOpen, setSidebarOpen] = useState(false)
+  const variants = useBreakpointValue({ base: smVariant, md: mdVariant })
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen)
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -381,59 +390,29 @@ function Dashboard() {
   return (
 
     (isLoading ? (<Loading/>) : 
-    (isAuthenticated ? (<Grid
-      templateAreas={`"nav header"
-                            "nav main"`}
-      gridTemplateRows={"50px"}
-      gridTemplateColumns={"150px"}
-      color="blackAlpha.700"
-      fontWeight="bold"
-      minHeight="100vh"
-      style={{
-        boxSizing: "border-box",
-        overflowY: "hidden",
-      }}
-    >
-      <GridItem
-        colSpan={2}
-        area={"nav"}
-        style={{
-          height: "100vh",
-          overflow: "hidden",
-          marginBottom: "-5000px",
-          paddingBottom: "5000px",
-          backgroundColor: "#195F50",
-        }}
-      >
-        <Sidebar refresh={getBets} user={currentUser} />
-      </GridItem>
-
-      <GridItem colSpan={19} bg="#F7F8FC" area={"header"}>
-        <br />
-        <div
-          style={{
-            marginLeft: "4rem",
-            color: "white",
-            fontSize: "25px",
-          }}
-        >
-          <h1>Dashboard</h1>
-        </div>
-      </GridItem>
-
-      <GridItem colSpan={19} bg="#F7F8FC" area={"main"}>
-        <Container style={{ height: "100%", maxWidth: "70vw" }}>
+    (isAuthenticated ? (<>
+      <Sidebar variant={variants?.navigation}
+        isOpen={isSidebarOpen}
+        onClose={toggleSidebar} refresh={getBets} user={currentUser} />
+      <Box ml={!variants?.navigationButton && 250}>
+        <Header
+          showSidebarButton={variants?.navigationButton}
+          onShowSidebar={toggleSidebar}
+          page="Dashboard"
+        />
+        <GridItem bg="#F7F8FC" style={{height: "100%", margin:"0px"}}>
+        <Container style={{  }}>
           <Row
-            style={{ margin: "5%", marginTop: "1%", marginBottom: "1%" }}
-            xs={1}
-            md={4}
+            xs={2}
+            md={2}
+            lg={4}
             className="g-4"
+            style = {{marginLeft: "3%", marginRight: "3%"}}
           >
             <Col>
               <Card
                 style={{
                   borderColor: "#1D5F50",
-                  width: "100%",
                   textAlign: "center",
                 }}
               >
@@ -453,7 +432,6 @@ function Dashboard() {
               <Card
                 style={{
                   borderColor: "#1D5F50",
-                  width: "100%",
                   textAlign: "center",
                 }}
               >
@@ -471,7 +449,6 @@ function Dashboard() {
               <Card
                 style={{
                   borderColor: "#1D5F50",
-                  width: "100%",
                   textAlign: "center",
                 }}
               >
@@ -489,7 +466,6 @@ function Dashboard() {
               <Card
                 style={{
                   borderColor: "#1D5F50",
-                  width: "100%",
                   textAlign: "center",
                 }}
               >
@@ -509,7 +485,7 @@ function Dashboard() {
           <div
             id="scrollableDiv"
             style={{
-              height: "75vh",
+              height: "80vh",
               overflow: "auto",
               display: "flex",
               flexDirection: "column",
@@ -592,24 +568,14 @@ function Dashboard() {
           setCode={setCode}
         />
       </GridItem>
-    </Grid>) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
+      </Box>
+
+      
+    </>) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
     )
     )
     )
 
 }
-
-/*
- */
-/*
-                        {this.state.bets.map((bet, index) => (
-                            <Card key = {bet.id} style = {{margin:"1rem", width: "90%"}}>
-                                <Card.Header>{bet.name}</Card.Header>
-                                <Card.Body> what bet, time, total players, money, total pot
-                                    <Card.Title>Special title treatment</Card.Title>
-                                </Card.Body>
-                            </Card>
-                        ))}
-                        */
 
 export default Dashboard;

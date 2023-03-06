@@ -16,11 +16,12 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
+  Button,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import React, { useEffect, useState, useCallback } from "react";
 
 import { QRCodeCanvas } from "qrcode.react";
@@ -58,7 +59,7 @@ function NewUserModals(props) {
           </ModalBody>
           <ModalFooter>
             <Button
-              variant="primary"
+              colorScheme="green"
               onClick={() => {
                 setStart1IsOpen(false);
                 setStart2IsOpen(true);
@@ -103,7 +104,7 @@ function NewUserModals(props) {
           </ModalBody>
           <ModalFooter>
             <Button
-              variant="primary"
+              colorScheme="green"
               onClick={() => {
                 setStart2IsOpen(false);
                 setStart3IsOpen(true);
@@ -151,7 +152,7 @@ function NewUserModals(props) {
           </ModalBody>
           <ModalFooter>
             <Button
-              variant="primary"
+              colorScheme="green"
               onClick={() => {
                 setStart3IsOpen(false);
                 setEditIsOpen(true);

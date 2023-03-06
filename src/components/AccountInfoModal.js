@@ -16,11 +16,12 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
+  Button,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import React, { useEffect, useState, useCallback } from "react";
 
 function AccountInfoModal(props) {
@@ -52,6 +53,7 @@ function AccountInfoModal(props) {
           </Button>
           <Button
             mr={3}
+            colorScheme="blue"
             onClick={() => {
               setIsOpen(false);
               setEditIsOpen(true);

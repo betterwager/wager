@@ -22,10 +22,15 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
+  Button,
   NumberInputStepper,
   Text,
+  IconButton
 } from "@chakra-ui/react";
-import { Button, Container, Card, Row, Col, Form } from "react-bootstrap";
+import { Container, Card, Row, Col, Form } from "react-bootstrap";
+import {AiFillInfoCircle} from "react-icons/ai"
+
+import BetDataModal from "./BetDataModal.js"
 
 import {
   PublicKey,
@@ -49,6 +54,7 @@ function BetDisplayCards(props) {
     props.setCodeDisplayIsOpen,
   ];
   const [betIsOpen, setBetIsOpen] = [props.betIsOpen, props.setBetIsOpen];
+  const [betInfoIsOpen, setBetInfoIsOpen] = useState(false);
   const [currentBet, setCurrentBet] = [props.currentBet, props.setCurrentBet];
   const [currentOptions, setCurrentOptions] = [
     props.currentOptions,
@@ -67,12 +73,46 @@ function BetDisplayCards(props) {
       {allUserBets.map((bet, index) => {
         return state >= 1 && state <= 3 ? (
           <Container key={index}>
+                                    <BetDataModal 
+                          position=  {playerAccountInfo[index].bet_amount == 0
+                            ? "N/A"
+                            : String.fromCharCode
+                                .apply(
+                                  String,
+                                  bet.options[
+                                    props.playerAccountInfo[index].option_index
+                                  ].name
+                                )
+                                .substr(
+                                  0,
+                                  String.fromCharCode
+                                    .apply(
+                                      String,
+                                      bet.options[
+                                        props.playerAccountInfo[index]
+                                          .option_index
+                                      ].name
+                                    )
+                                    .indexOf("\0")
+                                )}
+                                stake={playerAccountInfo[index].bet_amount / 100000000}
+                                pot={bet.balance / 100000000}
+                                time={new Date(bet.time * 1000).toLocaleTimeString("en-US", {
+                                  timeStyle: "short",
+                                })}
+                                players={bet.player_count}
+                                isOpen={betInfoIsOpen}
+                                setIsOpen={setBetInfoIsOpen}
+                        />
             <Card style={{ marginTop: "1rem", marginBottom: "1rem" }}>
               {
                 {
                   1: (
                     <Card.Body>
                       <Row>
+                      <Col md="auto">
+                        <IconButton colorScheme="blue" variant="ghost" onClick={() => setBetInfoIsOpen(true)} aria-label='Bet Info' icon={<AiFillInfoCircle />}/>
+                        </Col>
                         <Col style={{ textAlign: "left" }}>
                           <Card.Title>
                             <strong>Bet Name:</strong>{" "}
@@ -87,7 +127,9 @@ function BetDisplayCards(props) {
                         </Col>
                         <Col style={{ textAlign: "right" }}>
                           <Button
-                            color="green"
+                          
+                          style = {{margin:"5px"}}
+                            colorScheme="green"
                             variant="outline"
                             mr={3}
                             onClick={() => {
@@ -101,9 +143,10 @@ function BetDisplayCards(props) {
                             Bet Info
                           </Button>
                           <Button
-                            color="purple"
-                            variant="outline"
+                            colorScheme="purple"
                             mr={3}
+                            
+                            style = {{margin:"5px"}}
                             onClick={() => {
                               setBetIsOpen(true);
                               setCurrentBet(bet);
@@ -125,7 +168,11 @@ function BetDisplayCards(props) {
                   2: (
                     <Card.Body>
                       <Row>
+                        <Col md="auto">
+                        <IconButton colorScheme="blue" variant="ghost" onClick={() => setBetInfoIsOpen(true)} aria-label='Bet Info' icon={<AiFillInfoCircle />}/>
+                        </Col>
                         <Col style={{ textAlign: "left" }}>
+                        <Flex>
                           <Card.Title>
                             <strong>Bet Name:</strong>{" "}
                             {String.fromCharCode.apply(
@@ -133,16 +180,17 @@ function BetDisplayCards(props) {
                               bet.bet_identifier
                             )}
                           </Card.Title>
+                        </Flex>
                           <Card.Text style={{ color: "#aaaaaa" }}>
                             Status: Voting
                           </Card.Text>
+                        
                         </Col>
                         <Col style={{ textAlign: "right" }}>
                           <Flex>
                             {playerAccountInfo[index].voted == 0 ? (
                               <Select
                                 style={{ margin: "1%" }}
-                                color="purple"
                                 onChange={(e) => {
                                   selectOption(e, index);
                                 }}
@@ -171,20 +219,15 @@ function BetDisplayCards(props) {
                             ) : (
                               <Select
                                 style={{ margin: "1%" }}
-                                color="purple"
                                 variant="outline"
                                 disabled
                               />
                             )}
 
-                            <br />
+                            <div style={{margin:"10px"}}></div>
                             <Button
                               disabled={playerAccountInfo[index].voted == 1}
-                              variant="primary"
-                              style={{
-                                backgroundColor: "purple",
-                                color: "white",
-                              }}
+                              colorScheme="purple"
                               onClick={submitOption}
                             >
                               Vote
@@ -198,6 +241,9 @@ function BetDisplayCards(props) {
                   3: (
                     <Card.Body>
                       <Row>
+                      <Col md="auto">
+                        <IconButton  colorScheme="blue" variant="ghost" onClick={() => setBetInfoIsOpen(true)} aria-label='Bet Info' icon={<AiFillInfoCircle />}/>
+                        </Col>
                         <Col style={{ textAlign: "left" }}>
                           <Card.Title>
                             <strong>Bet Name:</strong>{" "}
@@ -237,7 +283,7 @@ function BetDisplayCards(props) {
                           {true ? (
                             <Button
                               style={{ margin: "1%" }}
-                              color="purple"
+                              colorScheme="green"
                               onClick={() => handlePayout()}
                             >
                               Settle Funds
@@ -245,8 +291,7 @@ function BetDisplayCards(props) {
                           ) : (
                             <Button
                               style={{ margin: "1%" }}
-                              color="green"
-                              variant="outline"
+                              colorScheme="green"
                             >
                               You Won:
                             </Button>
@@ -257,84 +302,6 @@ function BetDisplayCards(props) {
                   ),
                 }[state]
               }
-
-              <Card.Footer style={{ backgroundColor: "#fff" }}>
-                <SimpleGrid columns={[1, null, 5]}>
-                  <GridItem w="100%" h="10">
-                    <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                      <GridItem w="100%" h="10">
-                        Position
-                      </GridItem>
-                      <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                        {playerAccountInfo[index].bet_amount == 0
-                          ? "N/A"
-                          : String.fromCharCode
-                              .apply(
-                                String,
-                                bet.options[
-                                  props.playerAccountInfo[index].option_index
-                                ].name
-                              )
-                              .substr(
-                                0,
-                                String.fromCharCode
-                                  .apply(
-                                    String,
-                                    bet.options[
-                                      props.playerAccountInfo[index]
-                                        .option_index
-                                    ].name
-                                  )
-                                  .indexOf("\0")
-                              )}
-                      </GridItem>
-                    </Grid>
-                  </GridItem>
-                  <GridItem w="100%" h="10">
-                    <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                      <GridItem w="100%" h="10">
-                        Stake
-                      </GridItem>
-                      <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                        ${playerAccountInfo[index].bet_amount / 100000000}
-                      </GridItem>
-                    </Grid>
-                  </GridItem>
-
-                  <GridItem w="100%" h="10">
-                    <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                      <GridItem w="100%" h="10">
-                        Pot
-                      </GridItem>
-                      <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                        ${bet.balance / 100000000}
-                      </GridItem>
-                    </Grid>
-                  </GridItem>
-                  <GridItem w="100%" h="10">
-                    <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                      <GridItem w="100%" h="10">
-                        Time
-                      </GridItem>
-                      <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                        {new Date(bet.time * 1000).toLocaleTimeString("en-US", {
-                          timeStyle: "short",
-                        })}
-                      </GridItem>
-                    </Grid>
-                  </GridItem>
-                  <GridItem w="100%" h="10">
-                    <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                      <GridItem w="100%" h="10">
-                        Players
-                      </GridItem>
-                      <GridItem style={{ color: "#aaaaaa" }} w="100%" h="10">
-                        {bet.player_count}
-                      </GridItem>
-                    </Grid>
-                  </GridItem>
-                </SimpleGrid>
-              </Card.Footer>
             </Card>
           </Container>
         ) : (

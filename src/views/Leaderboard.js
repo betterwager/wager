@@ -11,6 +11,7 @@ import {
   Tfoot,
   Flex,
   FormControl,
+  useBreakpointValue,
   Modal,
   ModalBody,
   ModalHeader,
@@ -38,6 +39,10 @@ import { Auth, API } from "aws-amplify";
 import LeaderInfoModal from "../components/LeaderInfoModal.js";
 import Loading from "../components/Loading.js";
 import Login from "../components/Login.js";
+import Header from "../components/Header.js";
+
+const smVariant = { navigation: 'drawer', navigationButton: true }
+const mdVariant = { navigation: 'sidebar', navigationButton: false }
 
 function Leaderboard() {
   const [allUsers, setAllUsers] = useState([]);
@@ -50,6 +55,10 @@ function Leaderboard() {
   const [boardUsers, setBoardUsers] = useState([]);
   const [code, setCode] = useState("");
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
+   //Sidebar Open
+   const [isSidebarOpen, setSidebarOpen] = useState(false)
+   const variants = useBreakpointValue({ base: smVariant, md: mdVariant })
+   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen)
 
   const getUsers = async () => {
     const users = await API.graphql({ query: queries.listUsers });
@@ -125,7 +134,12 @@ function Leaderboard() {
 
 
   useEffect(() => {
-    getBoards().catch(console.error);
+    getBoards()
+    .then(() => {
+      setIsLoading(false);
+    })
+    .catch(console.error);
+    
   }, []);
 
   const handleCurrentBoard = (e) => {
@@ -149,59 +163,26 @@ function Leaderboard() {
 
   return (
     (isLoading ? (<Loading/>) : 
-    (isAuthenticated ? (<Grid
-      templateAreas={`"nav header"
-                            "nav main"`}
-      gridTemplateRows={"50px"}
-      gridTemplateColumns={"150px"}
-      color="blackAlpha.700"
-      fontWeight="bold"
-      minHeight="100vh"
-      style={{
-        boxSizing: "border-box",
-        overflowY: "hidden",
-      }}
-    >
-      <GridItem
-        colSpan={2}
-        area={"nav"}
-        style={{
-          height: "100vh",
-          backgroundColor: "#195F50",
-          overflow: "hidden",
-          marginBottom: "-5000px",
-          paddingBottom: "5000px",
-        }}
-      >
-        <Sidebar user={currentUser} />
-      </GridItem>
-
-      <GridItem colSpan={19} pl="2" bg="#F7F8FC" area={"header"}>
-        <br />
+    (isAuthenticated ? (
+    <>
+    <Sidebar variant={variants?.navigation}
+      isOpen={isSidebarOpen}
+      onClose={toggleSidebar} user={currentUser} />
+    <Box ml={!variants?.navigationButton && 250}>
+      <Header
+        showSidebarButton={variants?.navigationButton}
+        onShowSidebar={toggleSidebar}
+        page="Leaderboard"
+      />
+      <GridItem  bg="#F7F8FC" >
         <div
           style={{
-            marginLeft: "4rem",
-
-            color: "white",
-            fontSize: "25px",
-          }}
-        >
-          <h1>Leaderboard</h1>
-        </div>
-      </GridItem>
-
-      <GridItem pl="2" colSpan={19} bg="#F7F8FC" area={"main"}>
-        <div
-          style={{
-            margin: "4rem",
-            marginBottom: "1rem",
-            color: "white",
-            fontSize: "20px",
+            marginLeft: "5%"
           }}
         >
           <Flex>
             <FormControl
-              style={{ border: "black", maxWidth: "40%", color: "black" }}
+              style={{ border: "black", maxWidth: "40%", marginBottom:"2%", color: "black" }}
             >
               <Select onChange={handleCurrentBoard} variant="filled">
                 {boardNames.map((name, index) => (
@@ -211,9 +192,9 @@ function Leaderboard() {
                 ))}
               </Select>
             </FormControl>
-
+            <div style={{margin:"10px"}}></div>
             <Button
-              variant="primary"
+              colorScheme="green"
               disabled={code == ""}
               style={{ backgroundColor: "green", color: "white" }}
               onClick={() => {
@@ -225,12 +206,12 @@ function Leaderboard() {
               View Join Code
             </Button>
           </Flex>
-        </div>
+        
         <div
           id="scrollableDiv2"
           style={{
             overflow: "auto",
-            height: "75vh",
+            height: "85vh",
             display: "flex",
             flexDirection: "column",
             boxSizing: "border-box",
@@ -263,7 +244,6 @@ function Leaderboard() {
             ) : (
               <TableContainer
                 style={{
-                  marginLeft: "4rem",
                   backgroundColor: "white",
                 }}
                 maxWidth="90%"
@@ -292,15 +272,17 @@ function Leaderboard() {
             )}
           </InfiniteScroll>
         </div>
+        </div>
       </GridItem>
+      </Box>
 
       <LeaderInfoModal
         isOpen={codeDisplayIsOpen}
-        setIsOpen={codeDisplayIsOpen}
+        setIsOpen={setCodeDisplayIsOpen}
         code={code}
         setCode={setCode}
       />
-    </Grid>) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
+    </>) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
 }
 
 export default Leaderboard;

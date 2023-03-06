@@ -7,8 +7,16 @@ import {
   Input,
   Modal,
   GridItem,
+  Box,
+  Drawer,
+  DrawerOverlay,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerBody,
+  DrawerContent,
   ModalBody,
   ModalContent,
+  Button,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
@@ -47,7 +55,7 @@ import {
 import { Layout, Menu } from "antd";
 import { API, Auth } from "aws-amplify";
 import { Buffer } from "buffer";
-import { Button, Container, Form } from "react-bootstrap";
+import {Container, Form } from "react-bootstrap";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -79,7 +87,7 @@ const NavLink = styled(Link)`
   }
 `;
 
-export function Sidebar(props) {
+export function SidebarContent(props) {
   const [user, setUser] = useState({});
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -148,6 +156,7 @@ export function Sidebar(props) {
       });
   }, []);
 
+
   let { connection } = useConnection();
   let { publicKey, sendTransaction } = useWallet();
   const systemProgram = new PublicKey("11111111111111111111111111111111");
@@ -205,6 +214,7 @@ export function Sidebar(props) {
         mode="inline"
       >
         <SubMenu
+          selectable={false}
           key="sub1"
           title={Auth.user.attributes.email.slice(0, 15) + "..."}
           icon={<UserOutlined />}
@@ -247,6 +257,7 @@ export function Sidebar(props) {
             setBirthdate={setBirthdate}
             phoneNumber={phoneNumber}
             setPhoneNumber={setPhoneNumber}
+            toast={toast}
           />
 
           <Menu.Item onClick={handleSignOut} key="9">
@@ -269,7 +280,7 @@ export function Sidebar(props) {
       <br />
       <br />
       <br />
-      <Menu style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
+      <Menu selectable={false} style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
         {window.location.pathname == DASHBOARD ||
         window.location.pathname == DASHBOARD.toLowerCase() ? (
           <>
@@ -359,7 +370,7 @@ export function Sidebar(props) {
             />
           </>
         )}
-        <Menu.Item icon={<ExclamationCircleOutlined />} key="8">
+        <Menu.Item icon={<ExclamationCircleOutlined />}>
           <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank">
             Contact Support
           </a>
@@ -368,5 +379,36 @@ export function Sidebar(props) {
     </>
   );
 }
+
+
+const Sidebar = (props) => {
+  return props.variant === 'sidebar' ? (
+    <Box
+      position="fixed"
+      left={0}
+      p={2}
+      w="250px"
+      top={0}
+      h="100%"
+      bg="#195F50"
+    >
+      <SidebarContent refresh={props.refresh} user={props.user} />
+    </Box>
+  ) : (
+    <Drawer isOpen={props.isOpen} placement="left" onClose={props.onClose}>
+      <DrawerOverlay>
+        <DrawerContent style={{backgroundColor:"#195F50"}}>
+          <DrawerCloseButton style = {{color:"#ffffff"}}/>
+          <DrawerBody>
+
+            <SidebarContent refresh={props.refresh} user={props.user}  />
+
+          </DrawerBody>
+        </DrawerContent>
+      </DrawerOverlay>
+    </Drawer>
+  )
+}
+
 
 export default Sidebar;

@@ -16,11 +16,12 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
+  Button,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
 
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import { QRCodeCanvas } from "qrcode.react";
 
 function LeaderInfoModal(props) {
@@ -48,7 +49,7 @@ function LeaderInfoModal(props) {
         <ModalHeader>Leaderboard Information</ModalHeader>
         <ModalBody>
           <h1 style={{ fontSize: "15px" }}>
-            <strong>Leaderboard Code:</strong>
+            <strong>Leaderboard Code: </strong>
             <u>
               <a
                 onClick={() => {
@@ -56,7 +57,6 @@ function LeaderInfoModal(props) {
                   alert("Copied to Clipboard");
                 }}
               >
-                {" "}
                 {code}
               </a>
             </u>
@@ -85,7 +85,7 @@ function LeaderInfoModal(props) {
             includeMargin={true}
             value={window.location.href + "?leaderboard=" + code}
           />
-          <Button onClick={downloadQRCode}>Download QR Code</Button>
+          <Button colorScheme="blue" onClick={downloadQRCode}>Download QR Code</Button>
         </ModalBody>
         <ModalFooter>
           <Button

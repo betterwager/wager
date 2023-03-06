@@ -16,12 +16,13 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
+  Button,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
-import { Button, Container, Form } from "react-bootstrap";
+import {  Container, Form } from "react-bootstrap";
 import {
   PublicKey,
   Transaction,
@@ -221,7 +222,7 @@ function JoinBetModal(props) {
             <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
               Close
             </Button>
-            <Button type="submit" variant="primary">
+            <Button type="submit" colorScheme="green">
               Wager!
             </Button>
           </ModalFooter>

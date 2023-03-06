@@ -18,11 +18,12 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Button,
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 
 import {
   PublicKey,
@@ -199,7 +200,7 @@ function MakeBetModal(props) {
           <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
             Close
           </Button>
-          <Button colorScheme="blue" onClick={handleBetting}>
+          <Button colorScheme="green" onClick={handleBetting}>
             Wager!
           </Button>
         </ModalFooter>

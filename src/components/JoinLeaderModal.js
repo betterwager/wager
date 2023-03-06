@@ -16,12 +16,13 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
+  Button,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import { API, Auth } from "aws-amplify";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
@@ -128,7 +129,7 @@ function JoinLeaderModal(props) {
             <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
               Close
             </Button>
-            <Button onClick={handleJoinLeaderSubmit} variant="primary">
+            <Button onClick={handleJoinLeaderSubmit} colorScheme="green">
               Join
             </Button>
           </ModalFooter>

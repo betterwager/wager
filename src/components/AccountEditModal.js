@@ -17,13 +17,14 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Button,
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
-import { Button, Container, Form } from "react-bootstrap";
+import {  Container, Form } from "react-bootstrap";
 import { API, Auth } from "aws-amplify";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
@@ -31,6 +32,8 @@ import {
   WalletDisconnectButton,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import * as bs58 from "bs58";
 
 function AccountEditModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
@@ -38,6 +41,7 @@ function AccountEditModal(props) {
   const [user, userUpdate] = [props.user, props.userUpdate];
   const [newUser, setNewUser] = [props.newUser, props.setNewUser];
   const publicKey = props.publicKey;
+  const toast = props.toast
 
   const [firstName, setFirstName] = [props.firstName, props.setFirstName];
   const [lastName, setLastName] = [props.lastName, props.setLastName];
@@ -71,8 +75,10 @@ function AccountEditModal(props) {
       ) {
         let birthday = +new Date(birthdate);
         let age = ~~((Date.now() - birthday) / 31557600000);
+        console.log(user);
         if (age >= 21) {
-          if (user != null) {
+          if (user != null && JSON.stringify(user) !== '{}') {
+            console.log("first")
             let newUser = {
               id: user.id,
               email: email,
@@ -82,8 +88,16 @@ function AccountEditModal(props) {
               _version: user._version,
             };
 
-            userUpdate(newUser).then((res) => {
+            userUpdate(newUser)
+            .then((res) => {
               setIsOpen(false);
+              toast({
+                title: "User Information Updated",
+                description: "Now let's get betting!",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
             });
           } else {
             let newUser = {
@@ -104,6 +118,13 @@ function AccountEditModal(props) {
             }).then((res) => {
               setNewUser(false);
               setIsOpen(false);
+              toast({
+                title: "User Information Updated",
+                description: "Now let's get betting!",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
             });
           }
         } else {
@@ -116,6 +137,22 @@ function AccountEditModal(props) {
       alert("Connect Solana Wallet");
     }
   };
+
+  const handleAirdrop = async () => {
+    if (publicKey != null && publicKey.toString() != ""){
+      const connection = new Connection("https://api.devnet.solana.com");
+      let txhash = await connection.requestAirdrop(new PublicKey(props.publicKey.toString()), 1e9)
+      .then(() => {
+        toast({
+          title: "Devnet SOL Airdropped",
+          description: "Now let's get betting!",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      })
+    }
+  }
 
   return (
     <Modal isOpen={isOpen}>
@@ -170,16 +207,18 @@ function AccountEditModal(props) {
                 onClick={() => {
                   setIsOpen(false);
                 }}
-                style={{ margin: "1%" }}
               />
-
+              <div style = {{margin: "10px"}}></div>
               <WalletDisconnectButton
                 onClick={() => {
                   setIsOpen(false);
                 }}
-                style={{ margin: "1%" }}
               />
             </Flex>
+            <br/>
+            <Button colorScheme="purple" size={"md"} onClick={handleAirdrop}>
+              Airdrop 1 SOL to Wallet
+            </Button>
           </ModalBody>
           <ModalFooter>
             <Button
@@ -193,7 +232,7 @@ function AccountEditModal(props) {
             >
               Close
             </Button>
-            <Button variant="primary" onClick={handleEditSubmit}>
+            <Button colorScheme="blue" onClick={handleEditSubmit}>
               Submit
             </Button>
           </ModalFooter>

@@ -16,11 +16,13 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
+  
+  Button,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
 
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import { QRCodeCanvas } from "qrcode.react";
 
 function BetInfoModal(props) {
@@ -54,7 +56,7 @@ function BetInfoModal(props) {
         <ModalHeader>Bet Information</ModalHeader>
         <ModalBody>
           <h1 style={{ fontSize: "15px" }}>
-            <strong>Bet Code:</strong>
+            <strong>Bet Code: </strong>
             <u>
               <a
                 onClick={() => {
@@ -62,7 +64,6 @@ function BetInfoModal(props) {
                   alert("Copied to Clipboard");
                 }}
               >
-                {" "}
                 {code}
               </a>
             </u>
@@ -90,7 +91,7 @@ function BetInfoModal(props) {
             value={window.location.href + "?bet=" + code}
           />
 
-          <Button onClick={downloadQRCode}>Download QR Code</Button>
+          <Button colorScheme="blue" onClick={downloadQRCode}>Download QR Code</Button>
         </ModalBody>
         <ModalFooter>
           <Button

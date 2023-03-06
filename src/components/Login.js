@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Container, FloatingLabel, Button, Form } from "react-bootstrap";
-import { isPossiblePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input'
 
 import SignIn from "./SignIn";
 import Validate from "./Validate";

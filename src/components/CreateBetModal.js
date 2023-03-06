@@ -12,16 +12,19 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  IconButton,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
+  Button,
   NumberInputField,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
-import { Button, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
+import {AddIcon} from '@chakra-ui/icons'
 import {
   PublicKey,
   Transaction,
@@ -321,24 +324,23 @@ function CreateBetModal(props) {
 
                 <br />
 
-                <Flex>
                   <FormControl>
                     <FormLabel>Options (All possible results)</FormLabel>
+                    <Flex>
                     <Input
                       onChange={handleOptionNewChange}
                       value={option}
                       placeholder="Enter Option"
                     />
-                    <Button
-                      variant="secondary"
+                    <IconButton
+                      colorScheme="green"
+                      aria-label='Add Option'
+                      icon={<AddIcon />}
                       onClick={handleOptionEnter}
-                      style={{ marginTop: 10 }}
-                    >
-                      Log Option
-                    </Button>
-                    <br />
+                    />
+                    </Flex>
                   </FormControl>
-                </Flex>
+                
                 <br />
                 {OptionsList.map((option) => {
                   return <p key={option}>{option}</p>;
@@ -367,7 +369,7 @@ function CreateBetModal(props) {
               >
                 Close
               </Button>
-              <Button onClick={handleBetSubmit} variant="primary">
+              <Button onClick={handleBetSubmit} colorScheme="green" >
                 Wager!
               </Button>
             </ModalFooter>
