@@ -399,10 +399,11 @@ function Dashboard() {
         <Header
           showSidebarButton={variants?.navigationButton}
           onShowSidebar={toggleSidebar}
+          toast={toast}
           page="Dashboard"
         />
-        <GridItem bg="#F7F8FC" style={{height: "100%", margin:"0px"}}>
-        <Container style={{  }}>
+        <GridItem bg="#F7F8FC" style={{height: "100%"}}>
+        <Container>
           <Row
             xs={2}
             md={2}
@@ -486,7 +487,7 @@ function Dashboard() {
           <div
             id="scrollableDiv"
             style={{
-              height: "80vh",
+              height: "70vh",
               overflow: "auto",
               display: "flex",
               flexDirection: "column",
@@ -498,20 +499,6 @@ function Dashboard() {
               loader={<h4>Loading...</h4>}
               scrollableTarget="scrollableDiv"
               style={{ boxSizing: "border-box", overflowX: "hidden" }}
-              endMessage={
-                <Row style={{ textAlign: "right" }}>
-                  <Button
-                    colorScheme="black"
-                    variant="ghost"
-                    rightIcon={<RepeatIcon />}
-                    onClick={() => {
-                      getBets(publicKey);
-                    }}
-                  >
-                    Refresh
-                  </Button>
-                </Row>
-              }
             >
               <MakeBetModal
                 getBets={getBets}
@@ -561,6 +548,20 @@ function Dashboard() {
               })}
             </InfiniteScroll>
           </div>
+          <Row style={{ textAlign: "right" }}>
+                  <Button
+                    colorScheme="black"
+                    variant="ghost"
+                    rightIcon={<RepeatIcon />}
+                    onClick={() => {
+                      getBets(publicKey);
+                    }}
+                    style = {{marginBottom:"100px"}}
+                  >
+                    Refresh
+                  </Button>
+                </Row>
+      
         </Container>
         <BetInfoModal
           isOpen={codeDisplayIsOpen}
@@ -568,6 +569,7 @@ function Dashboard() {
           code={code}
           setCode={setCode}
         />
+
       </GridItem>
       </Box>
 

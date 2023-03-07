@@ -63,14 +63,9 @@ import { NavLink as Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { DASHBOARD, HOME, LEADERBOARD } from "../App.js";
 import logo from "../assets/Wager.svg";
-import CreateBetModal from "./CreateBetModal";
-import JoinBetModal from "./JoinBetModal";
-import CreateLeaderModal from "./CreateLeaderModal";
-import JoinLeaderModal from "./JoinLeaderModal";
 import AccountInfoModal from "./AccountInfoModal";
 import AccountEditModal from "./AccountEditModal";
 import NewUserModals from "./NewUserModals";
-import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
 
 require("@solana/wallet-adapter-react-ui/styles.css");
 const { Sider } = Layout;
@@ -95,8 +90,6 @@ export function SidebarContent(props) {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const [accIsOpen, setAccIsOpen] = useState(false);
-  const [addIsOpen, setAddIsOpen] = useState(false);
-  const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
 
   const [editIsOpen, setEditIsOpen] = useState(false);
 
@@ -105,10 +98,11 @@ export function SidebarContent(props) {
 
   const [start1IsOpen, setStart1IsOpen] = useState(false);
 
-  const [joinIsOpen, setJoinIsOpen] = useState(false);
-  const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
+  
 
   const navigate = useNavigate();
+  
+  let { publicKey, sendTransaction } = useWallet();
 
   //API Calls
 
@@ -157,20 +151,7 @@ export function SidebarContent(props) {
   }, []);
 
 
-  let { connection } = useConnection();
-  let { publicKey, sendTransaction } = useWallet();
-  const systemProgram = new PublicKey("11111111111111111111111111111111");
-  const rentSysvar = new PublicKey(
-    "SysvarRent111111111111111111111111111111111"
-  );
 
-  const programId = new PublicKey(
-    "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
-  );
-
-  const getBets = () => {
-    props.refresh(publicKey);
-  };
 
   //Handling Methods
 
@@ -281,95 +262,6 @@ export function SidebarContent(props) {
       <br />
       <br />
       <Menu selectable={false} style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
-        {window.location.pathname == DASHBOARD ||
-        window.location.pathname == DASHBOARD.toLowerCase() ? (
-          <>
-            <Menu.Item
-              onClick={() => {
-                if (publicKey == null) {
-                  setEditIsOpen(true);
-                } else {
-                  setAddIsOpen(true);
-                }
-              }}
-              icon={<PlusCircleOutlined />}
-              key="6"
-            >
-              Create a Bet
-            </Menu.Item>
-
-            <CreateBetModal
-              getBets={getBets}
-              toast={toast}
-              connection={connection}
-              programId={programId}
-              publicKey={publicKey}
-              sendTransaction={sendTransaction}
-              rentSysvar={rentSysvar}
-              systemProgram={systemProgram}
-              isOpen={addIsOpen}
-              setIsOpen={setAddIsOpen}
-            />
-
-            <Menu.Item
-              onClick={() => {
-                if (publicKey == null) {
-                  setEditIsOpen(true);
-                } else {
-                  setJoinIsOpen(true);
-                }
-              }}
-              icon={<CheckOutlined />}
-              key="7"
-            >
-              Join Bet
-            </Menu.Item>
-
-            <JoinBetModal
-              getBets={getBets}
-              toast={toast}
-              connection={connection}
-              programId={programId}
-              publicKey={publicKey}
-              sendTransaction={sendTransaction}
-              rentSysvar={rentSysvar}
-              systemProgram={systemProgram}
-              isOpen={joinIsOpen}
-              setIsOpen={setJoinIsOpen}
-            />
-          </>
-        ) : (
-          <>
-            <Menu.Item
-              onClick={() => setAddLeaderIsOpen(true)}
-              icon={<PlusCircleOutlined />}
-              key="6"
-            >
-              Create a Leaderboard
-            </Menu.Item>
-            <Menu.Item
-              onClick={() => setJoinLeaderIsOpen(true)}
-              icon={<CheckOutlined />}
-              key="7"
-            >
-              Join Leaderboard
-            </Menu.Item>
-
-            <CreateLeaderModal
-              isOpen={addLeaderIsOpen}
-              setIsOpen={setAddLeaderIsOpen}
-              user={user}
-              userUpdate={userUpdate}
-            />
-
-            <JoinLeaderModal
-              isOpen={joinLeaderIsOpen}
-              setIsOpen={setJoinLeaderIsOpen}
-              user={user}
-              userUpdate={userUpdate}
-            />
-          </>
-        )}
         <Menu.Item icon={<ExclamationCircleOutlined />}>
           <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank">
             Contact Support

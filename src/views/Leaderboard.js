@@ -172,6 +172,7 @@ function Leaderboard() {
       <Header
         showSidebarButton={variants?.navigationButton}
         onShowSidebar={toggleSidebar}
+        user={currentUser}
         page="Leaderboard"
       />
       <GridItem  bg="#F7F8FC" >
@@ -211,7 +212,7 @@ function Leaderboard() {
           id="scrollableDiv2"
           style={{
             overflow: "auto",
-            height: "85vh",
+            height: "75vh",
             display: "flex",
             flexDirection: "column",
             boxSizing: "border-box",
@@ -224,20 +225,6 @@ function Leaderboard() {
             loader={<h4>Loading...</h4>}
             scrollableTarget="scrollableDiv2"
             style={{ boxSizing: "border-box", overflowX: "hidden" }}
-            endMessage={
-              <Row style={{ textAlign: "right" }}>
-                <Button
-                  colorScheme="black"
-                  variant="ghost"
-                  rightIcon={<RepeatIcon />}
-                  onClick={() => {
-                    getBoards().catch(console.error);
-                  }}
-                >
-                  Refresh
-                </Button>
-              </Row>
-            }
           >
             {currentBoard == null ? (
               <></>
@@ -273,6 +260,18 @@ function Leaderboard() {
           </InfiniteScroll>
         </div>
         </div>
+        <Row style={{ textAlign: "right" }}>
+                <Button
+                  colorScheme="black"
+                  variant="ghost"
+                  rightIcon={<RepeatIcon />}
+                  onClick={() => {
+                    getBoards().catch(console.error);
+                  }}
+                >
+                  Refresh
+                </Button>
+        </Row>
       </GridItem>
       </Box>
 
