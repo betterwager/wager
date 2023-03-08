@@ -64,14 +64,16 @@ function BetDisplayCards(props) {
   const playerAccountInfo = props.playerAccountInfo;
   const allUserBets = props.allUserBets;
 
+  const bet = props.bet
+  const index = props.index
+
   const handlePayout = props.handlePayout;
   const submitOption = props.submitOption;
   const selectOption = props.selectOption;
 
   return (
     <>
-      {allUserBets.map((bet, index) => {
-        return state >= 1 && state <= 3 ? (
+      {state >= 1 && state <= 3 ? (
           <Container key={index}>
                                     <BetDataModal 
                           position=  {playerAccountInfo[index].bet_amount == 0
@@ -306,8 +308,8 @@ function BetDisplayCards(props) {
           </Container>
         ) : (
           <Container key={index}></Container>
-        );
-      })}
+        )
+      }
     </>
   );
 }

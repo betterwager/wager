@@ -371,7 +371,6 @@ function Dashboard() {
           setBetAddresses(allBetAddresses);
           setUserBets(allBets);
           setPlayerAccountInfo(allPlayerAccounts);
-          console.log(allUserBets);
         }
       });
     }
