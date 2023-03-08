@@ -10,7 +10,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 
 //Web3 Imports
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { GlowWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { GlowWalletAdapter, PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
 import {
   ConnectionProvider,
   WalletProvider,
@@ -59,6 +59,7 @@ function App() {
        * instantiate its legacy wallet adapter here. Common legacy adapters can be found
        * in the npm package `@solana/wallet-adapter-wallets`.
        */
+      new PhantomWalletAdapter(),
       new GlowWalletAdapter(),
     ],
     []

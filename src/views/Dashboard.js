@@ -194,6 +194,14 @@ function Dashboard() {
     return users;
   };
 
+  const userUpdate = async (newUser) => {
+    const promise = await API.graphql({
+      query: mutations.updateUser,
+      variables: { input: newUser },
+    });
+    return promise;
+  };
+
 
   const submitOption = async () => {
     if (voteOption == ""){
@@ -321,6 +329,28 @@ function Dashboard() {
     const signature = await sendTransaction(transaction, connection, {
       minContextSlot,
     });
+  
+  
+  let confirmedTransaction = await connection.getTransaction(signature, {maxSupportedTransactionVersion : 2});
+      let logs = confirmedTransaction.meta.logMessages;
+      console.log(logs);
+      let winnings = parseInt(logs[logs.length - 3].match(/\d/g).join(''), 10);
+      console.log((Math.log(winnings) * Math.log10(playerAccountInfo[index].bet_amount)) / 10000000);
+      if (isNaN(winnings) == false) {
+        let newUser = {
+          id: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.name,
+          birthdate: currentUser.birthdate,
+          phonenumber: currentUser.phonenumber,
+          trustscore: currentUser.trustscore,
+          bettingscore: ((Math.log(winnings) * Math.log10((playerAccountInfo[index].bet_amount)* 10)) / 10000000),
+          bets: currentUser.bets,
+          leaderboards: currentUser.leaderboards,
+          _version: currentUser._version,
+        }
+        userUpdate(newUser);
+      }
     await connection.confirmTransaction({
       blockhash,
       lastValidBlockHeight,
