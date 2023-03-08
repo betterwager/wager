@@ -115,7 +115,6 @@ export function SidebarContent(props) {
       query: queries.getUser,
       variables: { id: uniqueHash(Auth.user.attributes.email) },
     });
-    console.log(promise);
     return promise;
   };
   const getBoards = async () => {
@@ -127,7 +126,7 @@ export function SidebarContent(props) {
     const promise = await API.graphql({
       query: mutations.updateUser,
       variables: { input: newUser },
-    });
+    })
     return promise;
   });
 
@@ -160,7 +159,6 @@ export function SidebarContent(props) {
   const handleSignOut = () => {
     const promise = Auth.signOut()
     setTimeout(() => navigate("/"), 1000);
-    console.log(promise);
   };
 
   return (
@@ -241,6 +239,7 @@ export function SidebarContent(props) {
             phoneNumber={phoneNumber}
             setPhoneNumber={setPhoneNumber}
             toast={toast}
+            setUser={setUser}
           />
 
           <Menu.Item onClick={handleSignOut} key="9">

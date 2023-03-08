@@ -24,7 +24,8 @@ import * as mutations from "../graphql/mutations";
 function AccountEditModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
 
-  const [user, userUpdate] = [props.user, props.userUpdate];
+  const [user, setUser] = [props.user, props.setUser];
+  const userUpdate = props.userUpdate
   const [newUser, setNewUser] = [props.newUser, props.setNewUser];
   const publicKey = props.publicKey;
   const toast = props.toast
@@ -60,10 +61,8 @@ function AccountEditModal(props) {
       ) {
         let birthday = +new Date(birthdate);
         let age = ~~((Date.now() - birthday) / 31557600000);
-        console.log(user);
         if (age >= 18) {
           if (user != null && JSON.stringify(user) !== '{}') {
-            console.log("first")
             let newUser = {
               id: user.id,
               email: email,
@@ -75,6 +74,7 @@ function AccountEditModal(props) {
 
             userUpdate(newUser)
             .then((res) => {
+              setUser(res.data.updateUser)
               setIsOpen(false);
               toast({
                 title: "User Information Updated",
@@ -93,14 +93,15 @@ function AccountEditModal(props) {
               phonenumber: phoneNumber,
               trustscore: 100,
               bettingscore: 0,
-              bets: [],
               leaderboards: [],
+              bets: []
             };
 
             const promise = await API.graphql({
               query: mutations.createUser,
               variables: { input: newUser },
             }).then((res) => {
+              setUser(newUser)
               setNewUser(false);
               setIsOpen(false);
               toast({

@@ -89,6 +89,12 @@ function NewUserModals(props) {
                     Phantom
                   </a>
                 </u>{" "}
+                or{" "}
+                <u>
+                  <a href="https://glow.app/" target="_blank">
+                    Glow
+                  </a>
+                </u>{" "}
                 wallet
               </Text>{" "}
               <br />
@@ -137,7 +143,7 @@ function NewUserModals(props) {
             <Flex>
               <Icon as={RiNumber2} h={"7%"} w={"7%"} color="#195F50" />
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
-                Connect your Phantom wallet to the account to link your bets to
+                Connect your Phantom or Glow wallet to the account to link your bets to
                 the account
               </Text>{" "}
               <br />
