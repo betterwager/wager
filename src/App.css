@@ -53,7 +53,6 @@
 html body {
   padding: 0;
   margin: 0;
-  overflow-y: inherit;
 }
 
 .App {
@@ -61,4 +60,21 @@ html body {
   width: 100vw;
   max-width: 900px;
   padding: 1rem;
+}
+
+.sol-button {
+  background-color: #512da8;
+  width:110px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: 'DM Sans', 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 24px;
+  border-radius: 4px;
 }

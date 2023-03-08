@@ -164,18 +164,17 @@ function Leaderboard() {
   return (
     (isLoading ? (<Loading/>) : 
     (isAuthenticated ? (
-    <>
+    <div style= {{overflow:"hidden"}}>
     <Sidebar variant={variants?.navigation}
       isOpen={isSidebarOpen}
       onClose={toggleSidebar} user={currentUser} />
-    <Box ml={!variants?.navigationButton && 250}>
+    <Box ml={!variants?.navigationButton && 250}  bg="#F7F8FC" style = {{display: "flex", flexFlow: "column", height: "100vh"}}>
       <Header
         showSidebarButton={variants?.navigationButton}
         onShowSidebar={toggleSidebar}
         user={currentUser}
         page="Leaderboard"
       />
-      <GridItem  bg="#F7F8FC" >
         <div
           style={{
             marginLeft: "5%"
@@ -216,7 +215,7 @@ function Leaderboard() {
             display: "flex",
             flexDirection: "column",
             boxSizing: "border-box",
-            overflowX: "hidden",
+            overflowX: "hidden"
           }}
         >
           <InfiniteScroll
@@ -225,6 +224,18 @@ function Leaderboard() {
             loader={<h4>Loading...</h4>}
             scrollableTarget="scrollableDiv2"
             style={{ boxSizing: "border-box", overflowX: "hidden" }}
+            endMessage={<Row style={{ textAlign: "right" }}>
+            <Button
+              colorScheme="black"
+              variant="ghost"
+              rightIcon={<RepeatIcon />}
+              onClick={() => {
+                getBoards().catch(console.error);
+              }}
+            >
+              Refresh
+            </Button>
+    </Row>}
           >
             {currentBoard == null ? (
               <></>
@@ -260,19 +271,7 @@ function Leaderboard() {
           </InfiniteScroll>
         </div>
         </div>
-        <Row style={{ textAlign: "right" }}>
-                <Button
-                  colorScheme="black"
-                  variant="ghost"
-                  rightIcon={<RepeatIcon />}
-                  onClick={() => {
-                    getBoards().catch(console.error);
-                  }}
-                >
-                  Refresh
-                </Button>
-        </Row>
-      </GridItem>
+        
       </Box>
 
       <LeaderInfoModal
@@ -281,7 +280,7 @@ function Leaderboard() {
         code={code}
         setCode={setCode}
       />
-    </>) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
+    </div>) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
 }
 
 export default Leaderboard;

@@ -70,6 +70,7 @@ import {
 import MakeBetModal from "../components/MakeBetModal";
 import BetInfoModal from "../components/BetInfoModal";
 import BetDisplayCards from "../components/BetDisplayCards";
+import WalletEntryModal from "../components/WalletEntryModal";
 import Loading from "../components/Loading";
 
 const smVariant = { navigation: 'drawer', navigationButton: true }
@@ -110,6 +111,8 @@ function Dashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const variants = useBreakpointValue({ base: smVariant, md: mdVariant })
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen)
+
+  const [walletIsOpen, setWalletIsOpen] = useState(false)
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -193,72 +196,83 @@ function Dashboard() {
 
 
   const submitOption = async () => {
-    let optionChose = voteOption;
-    let index = currentBetIndex;
-    let votedIndex = voteIndex;
-
-    let betID = allUserBets[index].bet_identifier;
-    //use bet id and option to process vote for user
-    let potPDA = betAddresses[index];
-
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [betID, publicKey.toBytes()],
-      programId
-    );
-    //Make bet RPC Call(Send Transaction for Make Bet)
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
-        {
-          pubkey: potPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: playerPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: systemProgram,
-          isSigner: false,
-          isWritable: false,
-        },
-        {
-          pubkey: programId,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId,
-      data: VoteInstruction(votedIndex),
-    });
-    const transaction = new Transaction().add(instruction);
-    const {
-      context: { slot: minContextSlot },
-      value: { blockhash, lastValidBlockHeight },
-    } = await connection.getLatestBlockhashAndContext();
-    transaction.recentBlockhash = blockhash;
-    console.log("blockhash retrieved");
-    const signature = await sendTransaction(transaction, connection, {
-      minContextSlot,
-    });
-    await connection.confirmTransaction({
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    });
-    toast({
-      title: "Voting Success!",
-      description: "You voted for: " + optionChose,
-      status: "success",
-      duration: 9000,
-      isClosable: true,
-    });
+    if (voteOption == ""){
+      toast({
+        title: "Enter Vote",
+        description: "Please choose a voting option",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+    }else{
+      let optionChose = voteOption;
+      let index = currentBetIndex;
+      let votedIndex = voteIndex;
+  
+      let betID = allUserBets[index].bet_identifier;
+      //use bet id and option to process vote for user
+      let potPDA = betAddresses[index];
+  
+      let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
+        [betID, publicKey.toBytes()],
+        programId
+      );
+      //Make bet RPC Call(Send Transaction for Make Bet)
+      let instruction = new TransactionInstruction({
+        keys: [
+          {
+            pubkey: publicKey,
+            isSigner: true,
+            isWritable: true,
+          },
+          {
+            pubkey: potPDA,
+            isSigner: false,
+            isWritable: true,
+          },
+          {
+            pubkey: playerPDA,
+            isSigner: false,
+            isWritable: true,
+          },
+          {
+            pubkey: systemProgram,
+            isSigner: false,
+            isWritable: false,
+          },
+          {
+            pubkey: programId,
+            isSigner: false,
+            isWritable: false,
+          },
+        ],
+        programId: programId,
+        data: VoteInstruction(votedIndex),
+      });
+      const transaction = new Transaction().add(instruction);
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight },
+      } = await connection.getLatestBlockhashAndContext();
+      transaction.recentBlockhash = blockhash;
+      console.log("blockhash retrieved");
+      const signature = await sendTransaction(transaction, connection, {
+        minContextSlot,
+      });
+      await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      });
+      toast({
+        title: "Voting Success!",
+        description: "You voted for: " + optionChose,
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+    
   };
 
   const handlePayout = async () => {
@@ -315,46 +329,52 @@ function Dashboard() {
   };
 
   const getBets = useCallback(async () => {
-    let tempAddress = {};
-    let tempBet = {};
-    let allBetAddresses = [];
-    let allBets = [];
-    let allPlayerAccounts = [];
-    let tempBets = await connection.getParsedProgramAccounts(programId, {
-      filters: [
-        {
-          dataSize: 299,
-        },
-      ],
-    });
-    tempBets.forEach(async function (accountInfo, index) {
-      tempBet = wagerLayout.decode(accountInfo.account.data);
-      tempAddress = PublicKey.findProgramAddressSync(
-        [tempBet.bet_identifier, publicKey.toBytes()],
-        programId
-      ); //{
-      console.log(tempAddress[0]);
-      await connection
-        .getAccountInfo(tempAddress[0])
-        .then((playerAccountInfo) => {
-          console.log(playerAccountInfo);
-          if (playerAccountInfo !== null) {
-            console.log("Success!");
-            allBetAddresses.push(accountInfo.pubkey);
-            allBets.push(wagerLayout.decode(accountInfo.account.data));
-            allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
-          }
-        });
-      if (index === tempBets.length - 1) {
-        console.log(allBets);
-        console.log(allBetAddresses);
-        console.log(allPlayerAccounts);
-        setBetAddresses(allBetAddresses);
-        setUserBets(allBets);
-        setPlayerAccountInfo(allPlayerAccounts);
-        console.log(allUserBets);
-      }
-    });
+    if (publicKey == null){
+      setBetAddresses([]);
+      setPlayerAccountInfo([])
+      setUserBets([])
+    }else{
+      let tempAddress = {};
+      let tempBet = {};
+      let allBetAddresses = [];
+      let allBets = [];
+      let allPlayerAccounts = [];
+      let tempBets = await connection.getParsedProgramAccounts(programId, {
+        filters: [
+          {
+            dataSize: 299,
+          },
+        ],
+      });
+      tempBets.forEach(async function (accountInfo, index) {
+        tempBet = wagerLayout.decode(accountInfo.account.data);
+        tempAddress = PublicKey.findProgramAddressSync(
+          [tempBet.bet_identifier, publicKey.toBytes()],
+          programId
+        ); //{
+        console.log(tempAddress[0]);
+        await connection
+          .getAccountInfo(tempAddress[0])
+          .then((playerAccountInfo) => {
+            console.log(playerAccountInfo);
+            if (playerAccountInfo !== null) {
+              console.log("Success!");
+              allBetAddresses.push(accountInfo.pubkey);
+              allBets.push(wagerLayout.decode(accountInfo.account.data));
+              allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
+            }
+          });
+        if (index === tempBets.length - 1) {
+          console.log(allBets);
+          console.log(allBetAddresses);
+          console.log(allPlayerAccounts);
+          setBetAddresses(allBetAddresses);
+          setUserBets(allBets);
+          setPlayerAccountInfo(allPlayerAccounts);
+          console.log(allUserBets);
+        }
+      });
+    }
     //let news;
     //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
   }, [publicKey]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -391,18 +411,18 @@ function Dashboard() {
   return (
 
     (isLoading ? (<Loading/>) : 
-    (isAuthenticated ? (<>
+    (isAuthenticated ? (
+      <div style= {{overflow:"hidden"}}>
       <Sidebar variant={variants?.navigation}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar} refresh={getBets} user={currentUser} />
-      <Box ml={!variants?.navigationButton && 250}>
+      <Box ml={!variants?.navigationButton && 250} bg="#F7F8FC" style={{height: "100vh"}}>
         <Header
           showSidebarButton={variants?.navigationButton}
           onShowSidebar={toggleSidebar}
           toast={toast}
           page="Dashboard"
         />
-        <GridItem bg="#F7F8FC" style={{height: "100%"}}>
         <Container>
           <Row
             xs={2}
@@ -487,7 +507,7 @@ function Dashboard() {
           <div
             id="scrollableDiv"
             style={{
-              height: "70vh",
+              height: "75vh",
               overflow: "auto",
               display: "flex",
               flexDirection: "column",
@@ -498,6 +518,24 @@ function Dashboard() {
               hasMore={false}
               loader={<h4>Loading...</h4>}
               scrollableTarget="scrollableDiv"
+              endMessage={<Row style={{ textAlign: "right" }}>
+              <Button
+                colorScheme="black"
+                variant="ghost"
+                rightIcon={<RepeatIcon />}
+                onClick={() => {
+                  if(publicKey==null){
+                    setWalletIsOpen(true);
+                    getBets(null);
+                  }else{
+                    getBets(publicKey);
+                  }
+                }}
+                style = {{marginBottom:"100px"}}
+              >
+                Refresh
+              </Button>
+            </Row>}
               style={{ boxSizing: "border-box", overflowX: "hidden" }}
             >
               <MakeBetModal
@@ -548,36 +586,24 @@ function Dashboard() {
               })}
             </InfiniteScroll>
           </div>
-          <Row style={{ textAlign: "right" }}>
-                  <Button
-                    colorScheme="black"
-                    variant="ghost"
-                    rightIcon={<RepeatIcon />}
-                    onClick={() => {
-                      getBets(publicKey);
-                    }}
-                    style = {{marginBottom:"100px"}}
-                  >
-                    Refresh
-                  </Button>
-                </Row>
+
       
         </Container>
-        <BetInfoModal
+
+      </Box>
+    <BetInfoModal
           isOpen={codeDisplayIsOpen}
           setIsOpen={setCodeDisplayIsOpen}
           code={code}
           setCode={setCode}
         />
-
-      </GridItem>
-      </Box>
-
-      
-    </>) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
+    
+    <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen}/>
+    </div>) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
     )
     )
     )
+    
 
 }
 

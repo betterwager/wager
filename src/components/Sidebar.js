@@ -42,6 +42,7 @@ import {
   CheckOutlined,
   CrownOutlined,
   DashboardOutlined,
+  DollarCircleOutlined,
   ExclamationCircleOutlined,
   PlusCircleOutlined,
   UserOutlined,
@@ -55,7 +56,7 @@ import {
 import { Layout, Menu } from "antd";
 import { API, Auth } from "aws-amplify";
 import { Buffer } from "buffer";
-import {Container, Form } from "react-bootstrap";
+import {Container, Form, Navbar} from "react-bootstrap";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -66,6 +67,7 @@ import logo from "../assets/Wager.svg";
 import AccountInfoModal from "./AccountInfoModal";
 import AccountEditModal from "./AccountEditModal";
 import NewUserModals from "./NewUserModals";
+import WalletEntryModal from "./WalletEntryModal";
 
 require("@solana/wallet-adapter-react-ui/styles.css");
 const { Sider } = Layout;
@@ -92,6 +94,8 @@ export function SidebarContent(props) {
   const [accIsOpen, setAccIsOpen] = useState(false);
 
   const [editIsOpen, setEditIsOpen] = useState(false);
+
+  const [walletIsOpen, setWalletIsOpen] = useState(false)
 
   const [newUser, setNewUser] = useState(false);
   const toast = useToast();
@@ -144,8 +148,6 @@ export function SidebarContent(props) {
         if (currentUser == null) {
           setNewUser(true);
           setStart1IsOpen(true);
-        } else if (publicKey != null && !newUser) {
-          setEditIsOpen(false);
         }
       });
   }, []);
@@ -162,7 +164,7 @@ export function SidebarContent(props) {
   };
 
   return (
-    <>
+    <div style= {{overflow:"hidden"}}>
       <Container
         style={{
           marginLeft: "1vh",
@@ -172,16 +174,16 @@ export function SidebarContent(props) {
           alignContent: "center",
         }}
       >
-        <div style={{ marginLeft: "0px", padding: "0.5vw" }}>
-          <NavLink to={HOME}>
-            <img
-              height="40vh"
-              className="img-responsive"
-              src={logo}
-              alt="logo"
-            />
-          </NavLink>
-        </div>
+        <div style = {{marginLeft: "10px"}}>
+          <Navbar.Brand href={HOME}>
+            <Flex align={"center"} w={"100%"}>
+                    <Icon h={"20%"} w={"20%"} as={FaDice} color="#ffffff" />
+                    <Text fontSize="3xl" fontWeight={"bold"} color="#ffffff">
+                      Wager
+                    </Text>
+            </Flex>
+          </Navbar.Brand>
+        </div>  
       </Container>
       <Menu
         style={{ backgroundColor: "#195F50" }}
@@ -262,13 +264,19 @@ export function SidebarContent(props) {
       <br />
       <br />
       <Menu selectable={false} style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
+      <Menu.Item onClick={() => {setWalletIsOpen(true)}} icon={<DollarCircleOutlined />}>
+            Connect Wallet
+        </Menu.Item>
+
+        <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen}/>
+
         <Menu.Item icon={<ExclamationCircleOutlined />}>
           <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank">
             Contact Support
           </a>
         </Menu.Item>
       </Menu>
-    </>
+    </div>
   );
 }
 

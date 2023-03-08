@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { API, Auth } from "aws-amplify";
+import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
 import * as mutations from "../graphql/mutations";
-import { Box, Center, IconButton, Text, Flex, Menu, MenuItem, MenuButton, MenuList} from '@chakra-ui/react'
+import { Box, Center,Icon, IconButton, Text, Flex, Menu, MenuItem, MenuButton, MenuList} from '@chakra-ui/react'
+import { Navbar } from 'react-bootstrap';
 import { AddIcon, HamburgerIcon } from '@chakra-ui/icons'
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
@@ -56,9 +58,25 @@ const Header = (props) => {
   });
 
   return (
-    <Flex bg="#F7F8FC" p={4} color="white" justifyContent="center">
-      <div style = {{margin: "10px"}}></div>
-        <Text as='b' style={{color:"#000000"}} fontSize="xl">{props.page}</Text>
+    <>
+    {props.showSidebarButton && (
+    <Navbar
+        style={{
+          borderBottom: "solid",
+          borderColor: "#195F50",
+          backgroundColor: "#F7F8FC",
+        }}
+        
+      >
+      <Navbar.Brand style = {{marginLeft: "10px"}}>
+          <Flex align={"center"} w={"100%"}>
+                  <Icon h={"40%"} w={"40%"} as={FaDice} color="#195F50" />
+                  <Text fontSize="3xl" fontWeight={"bold"} color="#195F50">
+                    Wager
+                  </Text>
+          </Flex>
+        </Navbar.Brand>      
+
       <Box flex="1" />
       <Menu >
         <MenuButton isDisabled={publicKey==null} colorScheme="green" as={IconButton} >
@@ -149,6 +167,7 @@ const Header = (props) => {
           <>
           <IconButton
             icon={<HamburgerIcon w={8} h={8} />}
+            style = {{marginRight:"10px"}}
             colorScheme="blackAlpha"
             variant="outline"
             onClick={props.onShowSidebar}
@@ -157,7 +176,102 @@ const Header = (props) => {
         )}
       </Box>
 
+
+    </Navbar>
+    )}
+      
+    <Flex bg="#F7F8FC" p={4} color="white" justifyContent="center">
+
+        <Text as='b' style={{color:"#000000"}} fontSize="xl">{props.page}</Text>
+      
+        {!props.showSidebarButton &&
+        <> 
+        <Box flex="1" />
+        <Menu >
+        <MenuButton isDisabled={publicKey==null} colorScheme="green" as={IconButton} >
+        <AddIcon w={8} h={8} />
+        </MenuButton>
+        <MenuList style={{color:"#000000"}}>
+          {props.page == "Dashboard" ?
+          <>
+            <MenuItem
+            onClick={() => {
+                setAddIsOpen(true);
+            }}
+            >
+              Create a Bet
+            </MenuItem>
+
+            <CreateBetModal
+              getBets={getBets}
+              toast={toast}
+              connection={connection}
+              programId={programId}
+              publicKey={publicKey}
+              sendTransaction={sendTransaction}
+              rentSysvar={rentSysvar}
+              systemProgram={systemProgram}
+              isOpen={addIsOpen}
+              setIsOpen={setAddIsOpen}
+            />
+
+            <MenuItem
+              onClick={() => {
+                  setJoinIsOpen(true);
+                
+              }}
+            >Join a Bet
+            </MenuItem>
+
+            <JoinBetModal
+              getBets={getBets}
+              toast={toast}
+              connection={connection}
+              programId={programId}
+              publicKey={publicKey}
+              sendTransaction={sendTransaction}
+              rentSysvar={rentSysvar}
+              systemProgram={systemProgram}
+              isOpen={joinIsOpen}
+              setIsOpen={setJoinIsOpen}
+            />
+
+          </> : 
+          <>
+            <MenuItem
+              onClick={() => {setAddLeaderIsOpen(true)}}
+            >
+              Create a Leaderboard
+            </MenuItem>
+
+            <CreateLeaderModal
+              isOpen={addLeaderIsOpen}
+              setIsOpen={setAddLeaderIsOpen}
+              user={user}
+              userUpdate={userUpdate}
+            />
+
+            <MenuItem
+            onClick={() => {setJoinLeaderIsOpen(true)}}
+            >
+              Join a Leaderboard
+            </MenuItem>
+
+            <JoinLeaderModal
+              isOpen={joinLeaderIsOpen}
+              setIsOpen={setJoinLeaderIsOpen}
+              user={user}
+              userUpdate={userUpdate}
+            />
+
+          </>}
+
+        </MenuList>
+      </Menu>
+        </>
+        }
     </Flex>
+    </>
   )
 }
 

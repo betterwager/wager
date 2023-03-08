@@ -1,39 +1,25 @@
 import {
-  useToast,
   Flex,
   FormControl,
   FormLabel,
-  Icon,
   Input,
   Modal,
-  GridItem,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
   Button,
-  Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
 import {  Container, Form } from "react-bootstrap";
 import { API, Auth } from "aws-amplify";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
-import {
-  WalletDisconnectButton,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import * as bs58 from "bs58";
+
 
 function AccountEditModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
@@ -65,7 +51,6 @@ function AccountEditModal(props) {
 
   const handleEditSubmit = async () => {
     let email = Auth.user.attributes.email;
-    if (publicKey != null) {
       const name = firstName + " " + lastName;
       if (
         firstName != "" &&
@@ -76,7 +61,7 @@ function AccountEditModal(props) {
         let birthday = +new Date(birthdate);
         let age = ~~((Date.now() - birthday) / 31557600000);
         console.log(user);
-        if (age >= 21) {
+        if (age >= 18) {
           if (user != null && JSON.stringify(user) !== '{}') {
             console.log("first")
             let newUser = {
@@ -128,31 +113,25 @@ function AccountEditModal(props) {
             });
           }
         } else {
-          alert("Must be 21 years of age or older");
+          toast({
+            title: "Invalid Date of Birth",
+            description: "Must be 18 years of age or older",
+            status: "warning",
+            duration: 3000,
+            isClosable: true,
+          });
         }
       } else {
-        alert("Fill out all fields");
-      }
-    } else {
-      alert("Connect Solana Wallet");
-    }
-  };
-
-  const handleAirdrop = async () => {
-    if (publicKey != null && publicKey.toString() != ""){
-      const connection = new Connection("https://api.devnet.solana.com");
-      let txhash = await connection.requestAirdrop(new PublicKey(props.publicKey.toString()), 1e9)
-      .then(() => {
         toast({
-          title: "Devnet SOL Airdropped",
-          description: "Now let's get betting!",
-          status: "success",
+          title: "Invalid Entry",
+          description: "Please fill out all fields",
+          status: "warning",
           duration: 3000,
           isClosable: true,
         });
-      })
-    }
-  }
+      }
+
+  };
 
   return (
     <Modal isOpen={isOpen}>
@@ -196,36 +175,18 @@ function AccountEditModal(props) {
               <Form.Control
                 type="date"
                 name="dob"
+                max={new Date().toISOString().slice(0, 10)}
                 value={birthdate}
                 onChange={handleBirthdateChange}
               />
             </FormControl>
-            <br />
-            <FormLabel>Solana Wallet Connection</FormLabel>
-            <Flex>
-              <WalletMultiButton
-                onClick={() => {
-                  setIsOpen(false);
-                }}
-              />
-              <div style = {{margin: "10px"}}></div>
-              <WalletDisconnectButton
-                onClick={() => {
-                  setIsOpen(false);
-                }}
-              />
-            </Flex>
-            <br/>
-            <Button colorScheme="purple" size={"md"} onClick={handleAirdrop}>
-              Airdrop 1 SOL to Wallet
-            </Button>
           </ModalBody>
           <ModalFooter>
             <Button
               variant="ghost"
               mr={3}
               onClick={() => {
-                if (publicKey != null && !newUser) {
+                if (!newUser) {
                   setIsOpen(false);
                 }
               }}
