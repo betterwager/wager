@@ -79,7 +79,7 @@ const Header = (props) => {
 
       <Box flex="1" />
       <Menu >
-        <MenuButton isDisabled={publicKey==null} colorScheme="green" as={IconButton} >
+        <MenuButton isDisabled={publicKey==null && props.page == "Dashboard"} colorScheme="green" as={IconButton} >
         <AddIcon w={8} h={8} />
         </MenuButton>
         <MenuList style={{color:"#000000"}}>
