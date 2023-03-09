@@ -81,10 +81,12 @@ function CreateBetModal(props) {
   };
 
   const handleOptionNewChange = (e) => {
+    e.preventDefault()
     setOption(e.target.value);
   };
 
-  const handleOptionEnter = () => {
+  const handleOptionEnter = (e) => {
+    e.preventDefault()
     if (OptionsList.indexOf(option) == -1) {
       if (option === "DELETE" || option == "") {
         OptionsList.splice(OptionsList.length - 1);
@@ -248,7 +250,6 @@ function CreateBetModal(props) {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Create New Bet</ModalHeader>
-          <Form>
             <ModalBody>
               <>
                 <FormControl isRequired>
@@ -323,24 +324,26 @@ function CreateBetModal(props) {
                 </Flex>
 
                 <br />
-
-                  <FormControl>
+                <FormControl>
                     <FormLabel>Options (All possible results)</FormLabel>
-                    <Flex>
-                    <Input
-                      onChange={handleOptionNewChange}
-                      value={option}
-                      placeholder="Enter Option"
-                    />
-                    <IconButton
-                      colorScheme="green"
-                      aria-label='Add Option'
-                      icon={<AddIcon />}
-                      onClick={handleOptionEnter}
-                    />
-                    </Flex>
-                  </FormControl>
-                
+                    
+                      <Form onSubmit={handleOptionEnter}>
+                      <Flex>
+                      <Input
+                        onChange={handleOptionNewChange}
+                        value={option}
+                        placeholder="Enter Option"
+                      />
+                      <IconButton
+                        colorScheme="green"
+                        aria-label='Add Option'
+                        type="submit"
+                        icon={<AddIcon />}
+                      />
+                      
+                  </Flex>
+                    </Form>
+                </FormControl>
                 <br />
                 {OptionsList.map((option) => {
                   return <p key={option}>{option}</p>;
@@ -373,7 +376,6 @@ function CreateBetModal(props) {
                 Wager!
               </Button>
             </ModalFooter>
-          </Form>
         </ModalContent>
       </Modal>
       <BetInfoModal

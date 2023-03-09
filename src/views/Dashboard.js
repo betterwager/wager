@@ -592,6 +592,7 @@ function Dashboard() {
                     selectOption={selectOption}
                     state={bet.state}
                     code={code}
+                    toast={toast}
                     setCode={setCode}
                     joinCode={joinCode}
                     setJoinCode={setJoinCode}
@@ -606,6 +607,11 @@ function Dashboard() {
                     handlePayout={handlePayout}
                     submitOption={submitOption}
                     index={index}
+                    connection={connection}
+                    programId={programId}
+                    systemProgram={systemProgram}
+                    sendTransaction={sendTransaction}
+                    publicKey={publicKey}
                     getBets={getBets}
                     currentBet={currentBet}
                     setCurrentOptions={setCurrentOptions}

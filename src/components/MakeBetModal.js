@@ -151,7 +151,7 @@ function MakeBetModal(props) {
       <ModalContent>
         <ModalHeader>Make Bet</ModalHeader>
         <ModalBody>
-          <>
+          <Form>
             <FormControl isRequired>
               <FormLabel>Bet Code</FormLabel>
               <Input
@@ -194,7 +194,7 @@ function MakeBetModal(props) {
                 </NumberInputStepper>
               </NumberInput>
             </FormControl>
-          </>
+          </Form>
         </ModalBody>
         <ModalFooter>
           <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
