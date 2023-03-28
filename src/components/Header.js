@@ -125,6 +125,8 @@ const Header = (props) => {
               systemProgram={systemProgram}
               isOpen={joinIsOpen}
               setIsOpen={setJoinIsOpen}
+              walletIsOpen={props.walletIsOpen}
+              setWalletIsOpen={props.setWalletIsOpen}
             />
 
           </> : 
@@ -234,6 +236,8 @@ const Header = (props) => {
               systemProgram={systemProgram}
               isOpen={joinIsOpen}
               setIsOpen={setJoinIsOpen}
+              walletIsOpen={props.walletIsOpen}
+              setWalletIsOpen={props.setWalletIsOpen}
             />
 
           </> : 

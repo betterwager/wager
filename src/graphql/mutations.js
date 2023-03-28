@@ -8,7 +8,10 @@ export const createLeaderboard = /* GraphQL */ `
   ) {
     createLeaderboard(input: $input, condition: $condition) {
       id
-      users
+      users {
+        nextToken
+        startedAt
+      }
       name
       createdAt
       updatedAt
@@ -25,7 +28,10 @@ export const updateLeaderboard = /* GraphQL */ `
   ) {
     updateLeaderboard(input: $input, condition: $condition) {
       id
-      users
+      users {
+        nextToken
+        startedAt
+      }
       name
       createdAt
       updatedAt
@@ -42,7 +48,10 @@ export const deleteLeaderboard = /* GraphQL */ `
   ) {
     deleteLeaderboard(input: $input, condition: $condition) {
       id
-      users
+      users {
+        nextToken
+        startedAt
+      }
       name
       createdAt
       updatedAt
@@ -65,8 +74,12 @@ export const createUser = /* GraphQL */ `
       phonenumber
       trustscore
       bettingscore
-      bets
-      leaderboards
+      friends
+      Leaderboards {
+        nextToken
+        startedAt
+      }
+      requests
       createdAt
       updatedAt
       _version
@@ -88,8 +101,12 @@ export const updateUser = /* GraphQL */ `
       phonenumber
       trustscore
       bettingscore
-      bets
-      leaderboards
+      friends
+      Leaderboards {
+        nextToken
+        startedAt
+      }
+      requests
       createdAt
       updatedAt
       _version
@@ -111,8 +128,138 @@ export const deleteUser = /* GraphQL */ `
       phonenumber
       trustscore
       bettingscore
-      bets
-      leaderboards
+      friends
+      Leaderboards {
+        nextToken
+        startedAt
+      }
+      requests
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const createUserLeaderboard = /* GraphQL */ `
+  mutation CreateUserLeaderboard(
+    $input: CreateUserLeaderboardInput!
+    $condition: ModelUserLeaderboardConditionInput
+  ) {
+    createUserLeaderboard(input: $input, condition: $condition) {
+      id
+      leaderboardID
+      userID
+      leaderboard {
+        id
+        name
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      user {
+        id
+        email
+        name
+        birthdate
+        phonenumber
+        trustscore
+        bettingscore
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const updateUserLeaderboard = /* GraphQL */ `
+  mutation UpdateUserLeaderboard(
+    $input: UpdateUserLeaderboardInput!
+    $condition: ModelUserLeaderboardConditionInput
+  ) {
+    updateUserLeaderboard(input: $input, condition: $condition) {
+      id
+      leaderboardID
+      userID
+      leaderboard {
+        id
+        name
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      user {
+        id
+        email
+        name
+        birthdate
+        phonenumber
+        trustscore
+        bettingscore
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const deleteUserLeaderboard = /* GraphQL */ `
+  mutation DeleteUserLeaderboard(
+    $input: DeleteUserLeaderboardInput!
+    $condition: ModelUserLeaderboardConditionInput
+  ) {
+    deleteUserLeaderboard(input: $input, condition: $condition) {
+      id
+      leaderboardID
+      userID
+      leaderboard {
+        id
+        name
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      user {
+        id
+        email
+        name
+        birthdate
+        phonenumber
+        trustscore
+        bettingscore
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
       createdAt
       updatedAt
       _version

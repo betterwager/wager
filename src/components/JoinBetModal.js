@@ -35,6 +35,7 @@ import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
 function JoinBetModal(props) {
   const [joinCode, setJoinCode] = useState("");
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
+  const [walletIsOpen, setWalletIsOpen] = [props.walletIsOpen, props.setWalletIsOpen]
   const toast = props.toast;
 
   const programId = props.programId;
@@ -45,10 +46,12 @@ function JoinBetModal(props) {
 
   useEffect(() => {
     const queryParameters = new URLSearchParams(window.location.search);
-    if (queryParameters.has("bet")) {
+    if (queryParameters.has("bet") && publicKey != null) {
       betAPICall(queryParameters.get("bet"));
       setJoinCode(queryParameters.get("bet"));
       setIsOpen(true);
+    }else{
+      setWalletIsOpen(true);
     }
   }, []);
 

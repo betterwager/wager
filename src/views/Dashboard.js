@@ -451,6 +451,8 @@ function Dashboard() {
           onShowSidebar={toggleSidebar}
           toast={toast}
           page="Dashboard"
+          walletIsOpen={walletIsOpen}
+          setWalletIsOpen={setWalletIsOpen}
         />
         <Container>
           <Row

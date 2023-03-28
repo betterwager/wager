@@ -5,7 +5,10 @@ export const getLeaderboard = /* GraphQL */ `
   query GetLeaderboard($id: ID!) {
     getLeaderboard(id: $id) {
       id
-      users
+      users {
+        nextToken
+        startedAt
+      }
       name
       createdAt
       updatedAt
@@ -24,7 +27,6 @@ export const listLeaderboards = /* GraphQL */ `
     listLeaderboards(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        users
         name
         createdAt
         updatedAt
@@ -52,7 +54,6 @@ export const syncLeaderboards = /* GraphQL */ `
     ) {
       items {
         id
-        users
         name
         createdAt
         updatedAt
@@ -75,8 +76,12 @@ export const getUser = /* GraphQL */ `
       phonenumber
       trustscore
       bettingscore
-      bets
-      leaderboards
+      friends
+      Leaderboards {
+        nextToken
+        startedAt
+      }
+      requests
       createdAt
       updatedAt
       _version
@@ -100,8 +105,8 @@ export const listUsers = /* GraphQL */ `
         phonenumber
         trustscore
         bettingscore
-        bets
-        leaderboards
+        friends
+        requests
         createdAt
         updatedAt
         _version
@@ -134,8 +139,101 @@ export const syncUsers = /* GraphQL */ `
         phonenumber
         trustscore
         bettingscore
-        bets
-        leaderboards
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const getUserLeaderboard = /* GraphQL */ `
+  query GetUserLeaderboard($id: ID!) {
+    getUserLeaderboard(id: $id) {
+      id
+      leaderboardID
+      userID
+      leaderboard {
+        id
+        name
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      user {
+        id
+        email
+        name
+        birthdate
+        phonenumber
+        trustscore
+        bettingscore
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const listUserLeaderboards = /* GraphQL */ `
+  query ListUserLeaderboards(
+    $filter: ModelUserLeaderboardFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listUserLeaderboards(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        leaderboardID
+        userID
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const syncUserLeaderboards = /* GraphQL */ `
+  query SyncUserLeaderboards(
+    $filter: ModelUserLeaderboardFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncUserLeaderboards(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        leaderboardID
+        userID
         createdAt
         updatedAt
         _version

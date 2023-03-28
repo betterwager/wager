@@ -55,6 +55,7 @@ function Leaderboard() {
   const [boardUsers, setBoardUsers] = useState([]);
   const [code, setCode] = useState("");
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
+
    //Sidebar Open
    const [isSidebarOpen, setSidebarOpen] = useState(false)
    const variants = useBreakpointValue({ base: smVariant, md: mdVariant })

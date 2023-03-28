@@ -99,6 +99,7 @@ export function SidebarContent(props) {
 
   const [newUser, setNewUser] = useState(false);
   const toast = useToast();
+  const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen]
 
   const [start1IsOpen, setStart1IsOpen] = useState(false);
 
@@ -200,7 +201,9 @@ export function SidebarContent(props) {
           title={Auth.user.attributes.email.slice(0, 15) + "..."}
           icon={<UserOutlined />}
         >
-          <Menu.Item onClick={() => setAccIsOpen(true)} key="8">
+          <Menu.Item onClick={() => {
+            setAccIsOpen(true)
+            }} key="8">
             Account Details
           </Menu.Item>
 
@@ -263,7 +266,9 @@ export function SidebarContent(props) {
       <br />
       <br />
       <Menu selectable={false} style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
-      <Menu.Item onClick={() => {setWalletIsOpen(true)}} icon={<DollarCircleOutlined />}>
+      <Menu.Item onClick={() => {
+        setWalletIsOpen(true)
+        }} icon={<DollarCircleOutlined />}>
             Connect Wallet
         </Menu.Item>
 
@@ -291,7 +296,7 @@ const Sidebar = (props) => {
       h="100%"
       bg="#195F50"
     >
-      <SidebarContent refresh={props.refresh} user={props.user} />
+      <SidebarContent refresh={props.refresh} user={props.user}  isOpen={props.isOpen} setIsOpen={props.setIsOpen}/>
     </Box>
   ) : (
     <Drawer isOpen={props.isOpen} placement="left" onClose={props.onClose}>
@@ -300,7 +305,7 @@ const Sidebar = (props) => {
           <DrawerCloseButton style = {{color:"#ffffff"}}/>
           <DrawerBody>
 
-            <SidebarContent refresh={props.refresh} user={props.user}  />
+            <SidebarContent refresh={props.refresh} user={props.user}  isOpen={props.isOpen} setIsOpen={props.onClose}/>
 
           </DrawerBody>
         </DrawerContent>

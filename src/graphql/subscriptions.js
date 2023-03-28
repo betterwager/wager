@@ -7,7 +7,10 @@ export const onCreateLeaderboard = /* GraphQL */ `
   ) {
     onCreateLeaderboard(filter: $filter) {
       id
-      users
+      users {
+        nextToken
+        startedAt
+      }
       name
       createdAt
       updatedAt
@@ -23,7 +26,10 @@ export const onUpdateLeaderboard = /* GraphQL */ `
   ) {
     onUpdateLeaderboard(filter: $filter) {
       id
-      users
+      users {
+        nextToken
+        startedAt
+      }
       name
       createdAt
       updatedAt
@@ -39,7 +45,10 @@ export const onDeleteLeaderboard = /* GraphQL */ `
   ) {
     onDeleteLeaderboard(filter: $filter) {
       id
-      users
+      users {
+        nextToken
+        startedAt
+      }
       name
       createdAt
       updatedAt
@@ -59,8 +68,12 @@ export const onCreateUser = /* GraphQL */ `
       phonenumber
       trustscore
       bettingscore
-      bets
-      leaderboards
+      friends
+      Leaderboards {
+        nextToken
+        startedAt
+      }
+      requests
       createdAt
       updatedAt
       _version
@@ -79,8 +92,12 @@ export const onUpdateUser = /* GraphQL */ `
       phonenumber
       trustscore
       bettingscore
-      bets
-      leaderboards
+      friends
+      Leaderboards {
+        nextToken
+        startedAt
+      }
+      requests
       createdAt
       updatedAt
       _version
@@ -99,8 +116,135 @@ export const onDeleteUser = /* GraphQL */ `
       phonenumber
       trustscore
       bettingscore
-      bets
-      leaderboards
+      friends
+      Leaderboards {
+        nextToken
+        startedAt
+      }
+      requests
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const onCreateUserLeaderboard = /* GraphQL */ `
+  subscription OnCreateUserLeaderboard(
+    $filter: ModelSubscriptionUserLeaderboardFilterInput
+  ) {
+    onCreateUserLeaderboard(filter: $filter) {
+      id
+      leaderboardID
+      userID
+      leaderboard {
+        id
+        name
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      user {
+        id
+        email
+        name
+        birthdate
+        phonenumber
+        trustscore
+        bettingscore
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const onUpdateUserLeaderboard = /* GraphQL */ `
+  subscription OnUpdateUserLeaderboard(
+    $filter: ModelSubscriptionUserLeaderboardFilterInput
+  ) {
+    onUpdateUserLeaderboard(filter: $filter) {
+      id
+      leaderboardID
+      userID
+      leaderboard {
+        id
+        name
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      user {
+        id
+        email
+        name
+        birthdate
+        phonenumber
+        trustscore
+        bettingscore
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const onDeleteUserLeaderboard = /* GraphQL */ `
+  subscription OnDeleteUserLeaderboard(
+    $filter: ModelSubscriptionUserLeaderboardFilterInput
+  ) {
+    onDeleteUserLeaderboard(filter: $filter) {
+      id
+      leaderboardID
+      userID
+      leaderboard {
+        id
+        name
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      user {
+        id
+        email
+        name
+        birthdate
+        phonenumber
+        trustscore
+        bettingscore
+        friends
+        requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
       createdAt
       updatedAt
       _version
