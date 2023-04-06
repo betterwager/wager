@@ -5,7 +5,6 @@ export const getUser = /* GraphQL */ `
   query GetUser($id: ID!) {
     getUser(id: $id) {
       id
-      email
       name
       birthdate
       phonenumber
@@ -38,7 +37,6 @@ export const listUsers = /* GraphQL */ `
     listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        email
         name
         birthdate
         phonenumber
@@ -72,7 +70,6 @@ export const syncUsers = /* GraphQL */ `
     ) {
       items {
         id
-        email
         name
         birthdate
         phonenumber
@@ -100,7 +97,6 @@ export const getLeaderboard = /* GraphQL */ `
         items {
           user {
             id
-            email
             name
             phonenumber
             trustscore
@@ -173,7 +169,6 @@ export const getUserLeaderboard = /* GraphQL */ `
       leaderboardId
       user {
         id
-        email
         name
         birthdate
         phonenumber

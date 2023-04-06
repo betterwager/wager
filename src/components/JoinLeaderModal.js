@@ -59,6 +59,9 @@ function JoinLeaderModal(props) {
         userLeaderCreate(userLeaderboard)
         .then(() => {
         setIsOpen(false);
+        let allBoards = props.boardIDs;
+        allBoards.push(uniqueHash(joinLeaderCode))
+        props.setBoardIDs(allBoards)
         toast({
           title: "Leaderboard Joined!",
           description: "Now it's time to brag.",
@@ -66,6 +69,7 @@ function JoinLeaderModal(props) {
           duration: 9000,
           isClosable: true,
         });
+        
         window.location.reload();
         })
         .catch((e) => {

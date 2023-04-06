@@ -8,7 +8,6 @@ export const createUser = /* GraphQL */ `
   ) {
     createUser(input: $input, condition: $condition) {
       id
-      email
       name
       birthdate
       phonenumber
@@ -35,7 +34,6 @@ export const updateUser = /* GraphQL */ `
   ) {
     updateUser(input: $input, condition: $condition) {
       id
-      email
       name
       birthdate
       phonenumber
@@ -62,7 +60,6 @@ export const deleteUser = /* GraphQL */ `
   ) {
     deleteUser(input: $input, condition: $condition) {
       id
-      email
       name
       birthdate
       phonenumber
@@ -153,7 +150,6 @@ export const createUserLeaderboard = /* GraphQL */ `
       leaderboardId
       user {
         id
-        email
         name
         birthdate
         phonenumber
@@ -195,7 +191,6 @@ export const updateUserLeaderboard = /* GraphQL */ `
       leaderboardId
       user {
         id
-        email
         name
         birthdate
         phonenumber
@@ -237,7 +232,6 @@ export const deleteUserLeaderboard = /* GraphQL */ `
       leaderboardId
       user {
         id
-        email
         name
         birthdate
         phonenumber

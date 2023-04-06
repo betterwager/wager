@@ -65,11 +65,11 @@ function Leaderboard() {
 
 
   const getUser = async () => {
-    let email = await Auth.user.attributes.email
+    let phoneNumber = await Auth.user.attributes.phone_number
     const user = await API.graphql({ 
       query: queries.getUser,
       variables: {
-          id: uniqueHash(email)
+          id: uniqueHash(phoneNumber)
       }
       });
     return user;
@@ -77,11 +77,7 @@ function Leaderboard() {
 
 
 
-
-
-
   const getBoardUsers = async (boardid) => {
-    let email = await Auth.user.attributes.email
     console.log(boardid)
     const res = await API.graphql({ 
       query: queries.getLeaderboard,
@@ -115,8 +111,6 @@ function Leaderboard() {
     }
   })
 
-
-
   useEffect(() => {
     checkLogin()
     .then(() => {
@@ -131,10 +125,14 @@ function Leaderboard() {
         setBoardNames(boardnames);
         let boardids = userBoards.map(board => board.leaderboard.id);
         setBoardIDs(boardids);
-        getBoardUsers(boardids[0])
-        .then((res) => {
-          setIsLoading(false);
-        })
+        if (boardids && boardids.length > 0){
+          getBoardUsers(boardids[0])
+          .then((res) => {
+            setIsLoading(false);
+          })
+        }else{
+          setIsLoading(false)
+        }
       })
 
     },[])
@@ -166,6 +164,8 @@ function Leaderboard() {
         showSidebarButton={variants?.navigationButton}
         onShowSidebar={toggleSidebar}
         user={currentUser}
+        boardIDs={boardIDs}
+        setBoardIDs={setBoardIDs}
         page="Leaderboard"
       />
         <div
@@ -236,6 +236,7 @@ function Leaderboard() {
               <TableContainer
                 style={{
                   backgroundColor: "white",
+                  borderRadius: 10,
                 }}
                 maxWidth="90%"
               >
@@ -251,7 +252,7 @@ function Leaderboard() {
                   <Tbody>
                     {boardUsers.map((user, index) => (
                       <Tr key={index}>
-                        <Td>{user.email}</Td>
+                        <Td>{user.phonenumber}</Td>
                         <Td>{user.trustscore}</Td>
                         <Td>{user.name}</Td>
                         <Td>{user.bettingscore}</Td>

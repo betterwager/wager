@@ -33,10 +33,6 @@ function AccountEditModal(props) {
   const [firstName, setFirstName] = [props.firstName, props.setFirstName];
   const [lastName, setLastName] = [props.lastName, props.setLastName];
   const [birthdate, setBirthdate] = [props.birthdate, props.setBirthdate];
-  const [phoneNumber, setPhoneNumber] = [
-    props.phoneNumber,
-    props.setPhoneNumber,
-  ];
 
   const handleFirstNameChange = (e) => {
     setFirstName(e.target.value);
@@ -51,12 +47,11 @@ function AccountEditModal(props) {
   };
 
   const handleEditSubmit = async () => {
-    let email = Auth.user.attributes.email;
+    let phoneNumber = Auth.user.attributes.phone_number;
       const name = firstName + " " + lastName;
       if (
         firstName != "" &&
         lastName != "" &&
-        phoneNumber != "" &&
         birthdate != ""
       ) {
         let birthday = +new Date(birthdate);
@@ -65,10 +60,8 @@ function AccountEditModal(props) {
           if (user != null && JSON.stringify(user) !== '{}') {
             let newUser = {
               id: user.id,
-              email: email,
               name: name,
               birthdate: birthdate,
-              phonenumber: phoneNumber,
               _version: user._version,
             };
 
@@ -86,16 +79,14 @@ function AccountEditModal(props) {
             });
           } else {
             let newUser = {
-              id: uniqueHash(email),
-              email: email,
+              id: uniqueHash(phoneNumber),
               name: name,
-              birthdate: birthdate,
               phonenumber: phoneNumber,
+              birthdate: birthdate,
               trustscore: 100,
               bettingscore: 0,
               requests: [],
               friends: [],
-              
             };
 
             const promise = await API.graphql({
@@ -160,17 +151,6 @@ function AccountEditModal(props) {
                 />
               </FormControl>
             </Flex>
-            <br />
-            <FormControl isRequired>
-              <FormLabel>Phone Number</FormLabel>
-              <PhoneInput
-                country="us"
-                placeholder="Enter phone number"
-                onlyCountries={["us"]}
-                value={phoneNumber}
-                onChange={(phone) => setPhoneNumber(phone)}
-              />
-            </FormControl>
             <br />
             <FormControl isRequired>
               <FormLabel>Date of Birth</FormLabel>

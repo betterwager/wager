@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Auth, API } from "aws-amplify";
+import { Text } from "@chakra-ui/react";
 import { Spinner,
   Button } from '@chakra-ui/react'
+import PhoneInput from "react-phone-input-2";
+import 'react-phone-input-2/lib/style.css'
 import { Container, FloatingLabel,  Form } from "react-bootstrap";
 import { isPossiblePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input'
 
@@ -10,34 +13,32 @@ const SignIn = (props) => {
     const navigate = useNavigate();
     const [success, setSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(null);
-    const [email, setEmail] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
     const [error, setError] = useState(false);
     const [password, setPassword] = useState("");
   
-    const handleEmailChange = (e) => {
-      setEmail(e.target.value);
-    }
-  
+    useEffect(() => {
+      console.log(phoneNumber)
+    })
     const handleSubmit = async (e) => {
       e.preventDefault()
-        setIsLoading(true);
-  
-      try {
-        // const promise = await Auth.signIn(email)
+      setIsLoading(true);
 
+      let phone = "+" + phoneNumber
+      try {
         const promise = await Auth.signUp({
-            username: email,
+            username: phone,
             password: Date.now().toString()
           })
+        const trust = await Auth.signIn(phone)
         .then((res) =>{
             props.setAuth(true);
             props.setUser(res);
-            
         })
       } catch(e) {
         console.log(e);
         try{
-            const trust = await Auth.signIn(email)
+            const trust = await Auth.signIn(phone)
             .then((res) =>{
                 props.setAuth(true);
                 props.setUser(res);
@@ -53,18 +54,21 @@ const SignIn = (props) => {
       <Container style={{ maxWidth: "60%", width:"1000px", alignItems:"center" }} className="mt-5">
         <h2 className="text-center display-4 fw-bold pb-2">Sign In</h2>
         <Form onSubmit={handleSubmit}>
-          <FloatingLabel
-            controlId="floatingInput"
-            label="Enter Email Address"
-            className="text-secondary"
-            style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"20%", marginRight:"20%", width:"60%"}}
+          <div style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"20%", marginRight:"20%", width:"60%", textAlign: "center"}}>
+          <Text
+          style = {{marginBottom: 10, marginTop: 10}}
           >
-            <Form.Control
-              placeholder="Enter Email Address"
-              onChange={handleEmailChange}
-            />
-          </FloatingLabel>
-  
+            Enter your phone number to start betting
+          </Text>
+             <PhoneInput
+                country="us"
+                placeholder="Enter phone number"
+                onlyCountries={["us"]}
+                value={phoneNumber}
+                inputStyle = {{width:"100%"}}
+                onChange={(phone) => setPhoneNumber(phone)}
+              />
+          </div>
           <Button
             disabled={isLoading}
             size="lg"

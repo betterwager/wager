@@ -18,8 +18,6 @@ import CreateLeaderModal from './CreateLeaderModal';
 import JoinLeaderModal from './JoinLeaderModal';
 
 
-
-
 const Header = (props) => {
   
   const [addIsOpen, setAddIsOpen] = useState(false);
@@ -141,6 +139,8 @@ const Header = (props) => {
               isOpen={addLeaderIsOpen}
               setIsOpen={setAddLeaderIsOpen}
               user={user}
+              boardIDs={props.boardIDs}
+              setBoardIDs={props.setBoardIDs}
               userUpdate={userUpdate}
             />
 
@@ -154,6 +154,8 @@ const Header = (props) => {
               isOpen={joinLeaderIsOpen}
               setIsOpen={setJoinLeaderIsOpen}
               user={user}
+              boardIDs={props.boardIDs}
+              setBoardIDs={props.setBoardIDs}
               userUpdate={userUpdate}
             />
 

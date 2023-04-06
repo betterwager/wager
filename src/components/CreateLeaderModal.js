@@ -61,6 +61,9 @@ function CreateLeaderModal(props) {
         }
         userLeaderCreate(userLeaderboard)
           .then((res) => {
+            let allBoards = props.boardIDs;
+            allBoards.push(leaderID)
+            props.setBoardIDs(allBoards)
             console.log(res);
             setIsOpen(false);
             setAddLeaderSuccessIsOpen(true);

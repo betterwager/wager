@@ -339,7 +339,6 @@ function Dashboard() {
       if (isNaN(winnings) == false) {
         let newUser = {
           id: currentUser.id,
-          email: currentUser.email,
           name: currentUser.name,
           birthdate: currentUser.birthdate,
           phonenumber: currentUser.phonenumber,
@@ -415,21 +414,23 @@ function Dashboard() {
     setCurrentBetIndex(betIndex);
   };
 
+  const getUser = async () => {
+    let phoneNumber = await Auth.user.attributes.phone_number
+    const user = await API.graphql({ 
+      query: queries.getUser,
+      variables: {
+          id: uniqueHash(phoneNumber)
+      }
+      });
+    return user;
+  };
+
 
   useEffect(() => {
-    getUsers()
+    getUser()
       .catch(console.error)
-      .then((users) => {
-        users = users.data.listUsers.items;
-        let email = Auth.user.attributes.email;
-        let user;
-        for (var i = 0; i < users.length; i++) {
-          if (users[i].email === email) {
-            user = users[i];
-            break;
-          }
-        }
-        setCurrentUser(user);
+      .then((res) => {
+        setCurrentUser(res.data.getUser);
         getBets(publicKey).catch(console.error);
       });
   }, [getBets]); // eslint-disable-line react-hooks/exhaustive-deps

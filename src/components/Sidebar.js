@@ -117,7 +117,7 @@ export function SidebarContent(props) {
   const getUsers = async () => {
     const promise = await API.graphql({
       query: queries.getUser,
-      variables: { id: uniqueHash(Auth.user.attributes.email) },
+      variables: { id: uniqueHash(Auth.user.attributes.phone_number) },
     });
     return promise;
   };
@@ -201,7 +201,7 @@ export function SidebarContent(props) {
         <SubMenu
           selectable={false}
           key="sub1"
-          title={Auth.user.attributes.email.slice(0, 15) + "..."}
+          title={Auth.user.attributes.phone_number}
           icon={<UserOutlined />}
         >
           <Menu.Item onClick={() => {

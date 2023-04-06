@@ -38,8 +38,6 @@ function AccountInfoModal(props) {
           <strong>Name: </strong> {user.name}
           <br />
           <br />
-          <strong>Email: </strong> {user.email} <br />
-          <br />
           <strong>Phone Number: </strong> {user.phonenumber} <br />
           <br />
           <strong>Trust Score: </strong> {user.trustscore} <br />

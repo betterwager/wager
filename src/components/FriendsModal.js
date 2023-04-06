@@ -39,7 +39,8 @@ import {
   import { getUser, userUpdate } from "../utils/utils";
   import {Auth} from "aws-amplify"
   import { Container, Form, Row, Col} from "react-bootstrap";
-import InfiniteScroll from "react-infinite-scroll-component";
+  import InfiniteScroll from "react-infinite-scroll-component";
+  import PhoneInput from "react-phone-input-2"
   
   function FriendsModal(props) {
     const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
@@ -47,20 +48,17 @@ import InfiniteScroll from "react-infinite-scroll-component";
     const toast = props.toast
 
     const [user, setUser] = [props.user, props.setUser]
-    const [email, setEmail] = useState("")
-    const handleEmailChange = (e) => {
-        setEmail(e.target.value)
-    }
-
+    const [phoneNumber, setPhoneNumber] = useState("")
+    
 
     const requestFriend = async (e) => {
       e.preventDefault()
-      let userEmail = await Auth.user.attributes.email
-      getUser(uniqueHash(email))
+      let userPhone = await Auth.user.attributes.phone_number
+      getUser(uniqueHash(phoneNumber))
       .then((res) => {
         let updatedUser = res.data.getUser;
-        if (!updatedUser.requests.includes(userEmail)){
-          updatedUser.requests.push(userEmail);
+        if (!updatedUser.requests.includes(userPhone)){
+          updatedUser.requests.push(userPhone);
         }
         let newUser = {
           id: updatedUser.id,
@@ -88,13 +86,13 @@ import InfiniteScroll from "react-infinite-scroll-component";
       
     }
 
-    const rejectFriendRequest = async(e, email) => {
+    const rejectFriendRequest = async(e, phoneNumber) => {
       //remove from requests
       e.preventDefault();
       let requests = user.requests
-      requests = requests.filter(item => item !== email)
+      requests = requests.filter(item => item !== phoneNumber)
       let updatedUser = {
-        id: uniqueHash(user.email),
+        id: uniqueHash(user.phone_number),
         requests: requests,
         _version: user._version,
       }
@@ -105,19 +103,19 @@ import InfiniteScroll from "react-infinite-scroll-component";
       })
     }
 
-    const acceptFriendRequest = async (e, email) => {
+    const acceptFriendRequest = async (e, phoneNumber) => {
       //move from requests to friends
       e.preventDefault();
-      let userEmail = await Auth.user.attributes.email
+      let userPhone = await Auth.user.attributes.phone_number
       let requests = user.requests
-      requests = requests.filter(item => item !== email)
+      requests = requests.filter(item => item !== phoneNumber)
 
       let friends = user.friends
-      if (!friends.includes(email)){
-        friends.push(email)
+      if (!friends.includes(phoneNumber)){
+        friends.push(phoneNumber)
       }
       let updatedUser = {
-        id: uniqueHash(user.email),
+        id: uniqueHash(user.phone_number),
         requests: requests,
         friends: friends,
         _version: user._version,
@@ -127,11 +125,11 @@ import InfiniteScroll from "react-infinite-scroll-component";
         setUser(res.data.updateUser)
       })
 
-      getUser(uniqueHash(email))
+      getUser(uniqueHash(phoneNumber))
       .then((res) => {
         let updatedUser = res.data.getUser;
-        if (!updatedUser.friends.includes(userEmail)){
-          updatedUser.friends.push(userEmail);
+        if (!updatedUser.friends.includes(userPhone)){
+          updatedUser.friends.push(userPhone);
         }
         let newUser = {
           id: updatedUser.id,
@@ -150,13 +148,13 @@ import InfiniteScroll from "react-infinite-scroll-component";
       })
     }
   
-    const removeFriend = async (e, email) => {
+    const removeFriend = async (e, phoneNumber) => {
       e.preventDefault();
       let friends = user.friends
-      friends = friends.filter(item => item !== email)
+      friends = friends.filter(item => item !== phoneNumber)
       console.log(friends)
       let updatedUser = {
-        id: uniqueHash(user.email),
+        id: uniqueHash(user.phone_number),
         friends: friends,
         _version: user._version,
       }
@@ -181,15 +179,18 @@ import InfiniteScroll from "react-infinite-scroll-component";
         <ModalContent>
           <ModalHeader>Find Friends</ModalHeader>
           <ModalBody>
-                <FormLabel>Enter Email Address</FormLabel>
+                <FormLabel>Enter Phone Number</FormLabel>
                 
                 <Form onSubmit={requestFriend}>
                 <Flex>
-                <Input
-                  onChange={handleEmailChange}
-                  value={email}
-                  placeholder="Email"
-                />
+                <PhoneInput
+                  country="us"
+                  placeholder="Enter phone number"
+                  onlyCountries={["us"]}
+                  value={phoneNumber}
+                  inputStyle = {{width:"100%", height: "100%"}}
+                  onChange={(phone) => setPhoneNumber(phone)}
+              />
                 <IconButton
                         colorScheme="green"
                         type="submit"

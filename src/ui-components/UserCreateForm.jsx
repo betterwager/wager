@@ -192,7 +192,6 @@ export default function UserCreateForm(props) {
     ...rest
   } = props;
   const initialValues = {
-    email: "",
     name: "",
     birthdate: "",
     phonenumber: "",
@@ -201,7 +200,6 @@ export default function UserCreateForm(props) {
     friends: [],
     requests: [],
   };
-  const [email, setEmail] = React.useState(initialValues.email);
   const [name, setName] = React.useState(initialValues.name);
   const [birthdate, setBirthdate] = React.useState(initialValues.birthdate);
   const [phonenumber, setPhonenumber] = React.useState(
@@ -215,7 +213,6 @@ export default function UserCreateForm(props) {
   const [requests, setRequests] = React.useState(initialValues.requests);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setEmail(initialValues.email);
     setName(initialValues.name);
     setBirthdate(initialValues.birthdate);
     setPhonenumber(initialValues.phonenumber);
@@ -232,7 +229,6 @@ export default function UserCreateForm(props) {
   const [currentRequestsValue, setCurrentRequestsValue] = React.useState("");
   const requestsRef = React.createRef();
   const validations = {
-    email: [{ type: "Required" }],
     name: [{ type: "Required" }],
     birthdate: [{ type: "Required" }],
     phonenumber: [{ type: "Required" }],
@@ -267,7 +263,6 @@ export default function UserCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          email,
           name,
           birthdate,
           phonenumber,
@@ -321,37 +316,6 @@ export default function UserCreateForm(props) {
       {...rest}
     >
       <TextField
-        label="Email"
-        isRequired={true}
-        isReadOnly={false}
-        value={email}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              email: value,
-              name,
-              birthdate,
-              phonenumber,
-              trustscore,
-              bettingscore,
-              friends,
-              requests,
-            };
-            const result = onChange(modelFields);
-            value = result?.email ?? value;
-          }
-          if (errors.email?.hasError) {
-            runValidationTasks("email", value);
-          }
-          setEmail(value);
-        }}
-        onBlur={() => runValidationTasks("email", email)}
-        errorMessage={errors.email?.errorMessage}
-        hasError={errors.email?.hasError}
-        {...getOverrideProps(overrides, "email")}
-      ></TextField>
-      <TextField
         label="Name"
         isRequired={true}
         isReadOnly={false}
@@ -360,7 +324,6 @@ export default function UserCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              email,
               name: value,
               birthdate,
               phonenumber,
@@ -392,7 +355,6 @@ export default function UserCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              email,
               name,
               birthdate: value,
               phonenumber,
@@ -423,7 +385,6 @@ export default function UserCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              email,
               name,
               birthdate,
               phonenumber: value,
@@ -454,7 +415,6 @@ export default function UserCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              email,
               name,
               birthdate,
               phonenumber,
@@ -485,7 +445,6 @@ export default function UserCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              email,
               name,
               birthdate,
               phonenumber,
@@ -512,7 +471,6 @@ export default function UserCreateForm(props) {
           let values = items;
           if (onChange) {
             const modelFields = {
-              email,
               name,
               birthdate,
               phonenumber,
@@ -561,7 +519,6 @@ export default function UserCreateForm(props) {
           let values = items;
           if (onChange) {
             const modelFields = {
-              email,
               name,
               birthdate,
               phonenumber,

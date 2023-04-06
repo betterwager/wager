@@ -5,7 +5,6 @@ export const onCreateUser = /* GraphQL */ `
   subscription OnCreateUser($filter: ModelSubscriptionUserFilterInput) {
     onCreateUser(filter: $filter) {
       id
-      email
       name
       birthdate
       phonenumber
@@ -29,7 +28,6 @@ export const onUpdateUser = /* GraphQL */ `
   subscription OnUpdateUser($filter: ModelSubscriptionUserFilterInput) {
     onUpdateUser(filter: $filter) {
       id
-      email
       name
       birthdate
       phonenumber
@@ -53,7 +51,6 @@ export const onDeleteUser = /* GraphQL */ `
   subscription OnDeleteUser($filter: ModelSubscriptionUserFilterInput) {
     onDeleteUser(filter: $filter) {
       id
-      email
       name
       birthdate
       phonenumber
@@ -140,7 +137,6 @@ export const onCreateUserLeaderboard = /* GraphQL */ `
       leaderboardId
       user {
         id
-        email
         name
         birthdate
         phonenumber
@@ -181,7 +177,6 @@ export const onUpdateUserLeaderboard = /* GraphQL */ `
       leaderboardId
       user {
         id
-        email
         name
         birthdate
         phonenumber
@@ -222,7 +217,6 @@ export const onDeleteUserLeaderboard = /* GraphQL */ `
       leaderboardId
       user {
         id
-        email
         name
         birthdate
         phonenumber
