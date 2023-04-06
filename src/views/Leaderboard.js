@@ -76,30 +76,8 @@ function Leaderboard() {
   };
 
 
-  const acceptFriendRequest = async (email) => {
-    //move from requests to friends
-    let updatedUser = {
-      id: uniqueHash(currentUser.email),
 
-    }
-    userUpdate(updatedUser);
-  }
-  const rejectFriendRequest = async (email) => {
-    //remove from requests
-    let updatedUser = {
-      id: uniqueHash(currentUser.email),
 
-    }
-    userUpdate(updatedUser);
-  }
-  const removeFriend = async (email) => {
-    //remove from friends
-    let updatedUser = {
-      id: uniqueHash(currentUser.email),
-
-    }
-    userUpdate(updatedUser);
-  }
 
 
   const getBoardUsers = async (boardid) => {
