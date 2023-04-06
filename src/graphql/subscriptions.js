@@ -1,63 +1,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreateLeaderboard = /* GraphQL */ `
-  subscription OnCreateLeaderboard(
-    $filter: ModelSubscriptionLeaderboardFilterInput
-  ) {
-    onCreateLeaderboard(filter: $filter) {
-      id
-      users {
-        nextToken
-        startedAt
-      }
-      name
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const onUpdateLeaderboard = /* GraphQL */ `
-  subscription OnUpdateLeaderboard(
-    $filter: ModelSubscriptionLeaderboardFilterInput
-  ) {
-    onUpdateLeaderboard(filter: $filter) {
-      id
-      users {
-        nextToken
-        startedAt
-      }
-      name
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const onDeleteLeaderboard = /* GraphQL */ `
-  subscription OnDeleteLeaderboard(
-    $filter: ModelSubscriptionLeaderboardFilterInput
-  ) {
-    onDeleteLeaderboard(filter: $filter) {
-      id
-      users {
-        nextToken
-        startedAt
-      }
-      name
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
 export const onCreateUser = /* GraphQL */ `
   subscription OnCreateUser($filter: ModelSubscriptionUserFilterInput) {
     onCreateUser(filter: $filter) {
@@ -69,11 +12,11 @@ export const onCreateUser = /* GraphQL */ `
       trustscore
       bettingscore
       friends
-      Leaderboards {
+      requests
+      leaderboards {
         nextToken
         startedAt
       }
-      requests
       createdAt
       updatedAt
       _version
@@ -93,11 +36,11 @@ export const onUpdateUser = /* GraphQL */ `
       trustscore
       bettingscore
       friends
-      Leaderboards {
+      requests
+      leaderboards {
         nextToken
         startedAt
       }
-      requests
       createdAt
       updatedAt
       _version
@@ -117,11 +60,68 @@ export const onDeleteUser = /* GraphQL */ `
       trustscore
       bettingscore
       friends
-      Leaderboards {
+      requests
+      leaderboards {
         nextToken
         startedAt
       }
-      requests
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const onCreateLeaderboard = /* GraphQL */ `
+  subscription OnCreateLeaderboard(
+    $filter: ModelSubscriptionLeaderboardFilterInput
+  ) {
+    onCreateLeaderboard(filter: $filter) {
+      id
+      name
+      users {
+        nextToken
+        startedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const onUpdateLeaderboard = /* GraphQL */ `
+  subscription OnUpdateLeaderboard(
+    $filter: ModelSubscriptionLeaderboardFilterInput
+  ) {
+    onUpdateLeaderboard(filter: $filter) {
+      id
+      name
+      users {
+        nextToken
+        startedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const onDeleteLeaderboard = /* GraphQL */ `
+  subscription OnDeleteLeaderboard(
+    $filter: ModelSubscriptionLeaderboardFilterInput
+  ) {
+    onDeleteLeaderboard(filter: $filter) {
+      id
+      name
+      users {
+        nextToken
+        startedAt
+      }
       createdAt
       updatedAt
       _version
@@ -136,17 +136,8 @@ export const onCreateUserLeaderboard = /* GraphQL */ `
   ) {
     onCreateUserLeaderboard(filter: $filter) {
       id
-      leaderboardID
-      userID
-      leaderboard {
-        id
-        name
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      userId
+      leaderboardId
       user {
         id
         email
@@ -157,6 +148,15 @@ export const onCreateUserLeaderboard = /* GraphQL */ `
         bettingscore
         friends
         requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      leaderboard {
+        id
+        name
         createdAt
         updatedAt
         _version
@@ -177,17 +177,8 @@ export const onUpdateUserLeaderboard = /* GraphQL */ `
   ) {
     onUpdateUserLeaderboard(filter: $filter) {
       id
-      leaderboardID
-      userID
-      leaderboard {
-        id
-        name
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      userId
+      leaderboardId
       user {
         id
         email
@@ -198,6 +189,15 @@ export const onUpdateUserLeaderboard = /* GraphQL */ `
         bettingscore
         friends
         requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      leaderboard {
+        id
+        name
         createdAt
         updatedAt
         _version
@@ -218,17 +218,8 @@ export const onDeleteUserLeaderboard = /* GraphQL */ `
   ) {
     onDeleteUserLeaderboard(filter: $filter) {
       id
-      leaderboardID
-      userID
-      leaderboard {
-        id
-        name
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      userId
+      leaderboardId
       user {
         id
         email
@@ -239,6 +230,15 @@ export const onDeleteUserLeaderboard = /* GraphQL */ `
         bettingscore
         friends
         requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      leaderboard {
+        id
+        name
         createdAt
         updatedAt
         _version

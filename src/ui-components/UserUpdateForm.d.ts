@@ -5,9 +5,9 @@
  **************************************************************************/
 
 import * as React from "react";
-import { User } from "../models";
+import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
-import { GridProps, TextAreaFieldProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { User } from "../models";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
@@ -20,9 +20,8 @@ export declare type UserUpdateFormInputValues = {
     phonenumber?: string;
     trustscore?: string;
     bettingscore?: string;
-    bets?: string[];
-    wallet?: string;
-    leaderboards?: string;
+    friends?: string[];
+    requests?: string[];
 };
 export declare type UserUpdateFormValidationValues = {
     email?: ValidationFunction<string>;
@@ -31,22 +30,20 @@ export declare type UserUpdateFormValidationValues = {
     phonenumber?: ValidationFunction<string>;
     trustscore?: ValidationFunction<string>;
     bettingscore?: ValidationFunction<string>;
-    bets?: ValidationFunction<string>;
-    wallet?: ValidationFunction<string>;
-    leaderboards?: ValidationFunction<string>;
+    friends?: ValidationFunction<string>;
+    requests?: ValidationFunction<string>;
 };
-export declare type FormProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type UserUpdateFormOverridesProps = {
-    UserUpdateFormGrid?: FormProps<GridProps>;
-    email?: FormProps<TextFieldProps>;
-    name?: FormProps<TextFieldProps>;
-    birthdate?: FormProps<TextFieldProps>;
-    phonenumber?: FormProps<TextFieldProps>;
-    trustscore?: FormProps<TextFieldProps>;
-    bettingscore?: FormProps<TextFieldProps>;
-    bets?: FormProps<TextAreaFieldProps>;
-    wallet?: FormProps<TextFieldProps>;
-    leaderboards?: FormProps<TextFieldProps>;
+    UserUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
+    email?: PrimitiveOverrideProps<TextFieldProps>;
+    name?: PrimitiveOverrideProps<TextFieldProps>;
+    birthdate?: PrimitiveOverrideProps<TextFieldProps>;
+    phonenumber?: PrimitiveOverrideProps<TextFieldProps>;
+    trustscore?: PrimitiveOverrideProps<TextFieldProps>;
+    bettingscore?: PrimitiveOverrideProps<TextFieldProps>;
+    friends?: PrimitiveOverrideProps<TextFieldProps>;
+    requests?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type UserUpdateFormProps = React.PropsWithChildren<{
     overrides?: UserUpdateFormOverridesProps | undefined | null;
@@ -56,8 +53,7 @@ export declare type UserUpdateFormProps = React.PropsWithChildren<{
     onSubmit?: (fields: UserUpdateFormInputValues) => UserUpdateFormInputValues;
     onSuccess?: (fields: UserUpdateFormInputValues) => void;
     onError?: (fields: UserUpdateFormInputValues, errorMessage: string) => void;
-    onCancel?: () => void;
     onChange?: (fields: UserUpdateFormInputValues) => UserUpdateFormInputValues;
     onValidate?: UserUpdateFormValidationValues;
-}>;
+} & React.CSSProperties>;
 export default function UserUpdateForm(props: UserUpdateFormProps): React.ReactElement;

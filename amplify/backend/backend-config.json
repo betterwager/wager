@@ -32,38 +32,6 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_wager7b00da8e_nativeClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wager7b00da8e"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wager7b00da8e_userPoolId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wager7b00da8e"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wager7b00da8e_userPoolName": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wager7b00da8e"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wager7b00da8e_webClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wager7b00da8e"
-        }
-      ]
-    },
     "AMPLIFY_auth_wager_nativeClientId": {
       "usedBy": [
         {
@@ -93,70 +61,6 @@
         {
           "category": "auth",
           "resourceName": "wager"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerde4d4586_nativeClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerde4d4586"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerde4d4586_userPoolId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerde4d4586"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerde4d4586_userPoolName": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerde4d4586"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerde4d4586_webClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerde4d4586"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerf355ace8_nativeClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerf355ace8"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerf355ace8_userPoolId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerf355ace8"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerf355ace8_userPoolName": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerf355ace8"
-        }
-      ]
-    },
-    "AMPLIFY_auth_wagerf355ace8_webClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "wagerf355ace8"
         }
       ]
     }

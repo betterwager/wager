@@ -36,10 +36,12 @@ import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import * as subscriptions from "../graphql/subscriptions";
 import { Auth, API } from "aws-amplify";
+import uniqueHash from "unique-hash"
 import LeaderInfoModal from "../components/LeaderInfoModal.js";
 import Loading from "../components/Loading.js";
 import Login from "../components/Login.js";
 import Header from "../components/Header.js";
+import { userUpdate } from "../utils/utils.js";
 
 const smVariant = { navigation: 'drawer', navigationButton: true }
 const mdVariant = { navigation: 'sidebar', navigationButton: false }
@@ -51,7 +53,7 @@ function Leaderboard() {
   const [boardNames, setBoardNames] = useState([]);
   const [boardIDs, setBoardIDs] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
-  const [currentBoard, setCurrentBoard] = useState([]);
+  const [currentBoard, setCurrentBoard] = useState(0);
   const [boardUsers, setBoardUsers] = useState([]);
   const [code, setCode] = useState("");
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
@@ -61,61 +63,66 @@ function Leaderboard() {
    const variants = useBreakpointValue({ base: smVariant, md: mdVariant })
    const toggleSidebar = () => setSidebarOpen(!isSidebarOpen)
 
-  const getUsers = async () => {
-    const users = await API.graphql({ query: queries.listUsers });
-    return users;
-  };
-  const getBoards = useCallback(async () => {
-    let allBoards, email;
-    const boards = await API.graphql({ query: queries.listLeaderboards })
-      .catch(console.error)
-      .then((boards) => {
-        allBoards = boards.data.listLeaderboards.items;
-        allBoards = allBoards.filter((board) =>
-          board.users.includes(Auth.user.attributes.email)
-        );
-        setBoards(allBoards);
-        email = Auth.user.attributes.email;
-        if (allBoards.length > 0) {
-          let boardNames = [];
-          let boardID = [];
-          for (var i = 0; i < allBoards.length; i++) {
-            if (allBoards[i].users.includes(email)) {
-              boardNames.push(allBoards[i].name);
-              boardID.push(allBoards[i].id);
-            }
-          }
-          setBoardNames(boardNames);
-          setBoardIDs(boardID);
-          let list = allBoards[0].users;
-          list = list.sort(
-            (a, b) => parseFloat(a.bettingscore) - parseFloat(b.bettingscore)
-          );
-          setCurrentBoard(list);
-          setCode(allBoards[0].id);
-        }
-        getUsers()
-          .catch(console.error)
-          .then((users) => {
-            users = users.data.listUsers.items;
-            setAllUsers(users);
-            let currentUser = users.find((x) => x.email == email);
-            let boardUserList = [];
-            let board = allBoards[0].users;
-            for (var i = 0; i < board.length; i++) {
-              boardUserList.push(users.find((user) => user.email == board[i]));
-            }
-            setBoardUsers(boardUserList);
-            setCurrentUser(currentUser);
-          });
+
+  const getUser = async () => {
+    let email = await Auth.user.attributes.email
+    const user = await API.graphql({ 
+      query: queries.getUser,
+      variables: {
+          id: uniqueHash(email)
+      }
       });
-  });
+    return user;
+  };
+
+
+  const acceptFriendRequest = async (email) => {
+    //move from requests to friends
+    let updatedUser = {
+      id: uniqueHash(currentUser.email),
+
+    }
+    userUpdate(updatedUser);
+  }
+  const rejectFriendRequest = async (email) => {
+    //remove from requests
+    let updatedUser = {
+      id: uniqueHash(currentUser.email),
+
+    }
+    userUpdate(updatedUser);
+  }
+  const removeFriend = async (email) => {
+    //remove from friends
+    let updatedUser = {
+      id: uniqueHash(currentUser.email),
+
+    }
+    userUpdate(updatedUser);
+  }
+
+
+  const getBoardUsers = async (boardid) => {
+    let email = await Auth.user.attributes.email
+    console.log(boardid)
+    const res = await API.graphql({ 
+      query: queries.getLeaderboard,
+      variables: {
+          id: boardid
+      }
+      })
+    .then((res) => {
+      let boardusers = res.data.getLeaderboard.users.items.map(user => user.user)
+      boardusers = boardusers.sort((a, b) => a.bettingscore - b.bettingscore);
+      setBoardUsers(boardusers);
+    })
+  };
 
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  const checkLogin = async () => {
+  const checkLogin = useCallback(async () => {
     
     try {
       const data = await Auth.currentAuthenticatedUser()
@@ -128,38 +135,45 @@ function Leaderboard() {
       setIsAuthenticated(false)
       
     }
-  }
-  useEffect(()=>{
-    checkLogin();
   })
 
 
+
   useEffect(() => {
-    getBoards()
+    checkLogin()
     .then(() => {
-      setIsLoading(false);
-    })
+      getUser()
+      .then((res) => {
+        console.log(res);
+        setCurrentUser(res.data.getUser);
+        let userBoards = res.data.getUser.leaderboards.items
+        console.log(userBoards)
+        let boardnames = userBoards.map(board => board.leaderboard.name); 
+        console.log(boardnames)
+        setBoardNames(boardnames);
+        let boardids = userBoards.map(board => board.leaderboard.id);
+        setBoardIDs(boardids);
+        getBoardUsers(boardids[0])
+        .then((res) => {
+          setIsLoading(false);
+        })
+      })
+
+    },[])
     .catch(console.error);
-    
-  }, []);
+  }
+  ,[]);
+
+  
 
   const handleCurrentBoard = (e) => {
-    let ID = e.target.value;
-    setCode(ID);
-    for (var i = 0; i < boards.length; i++) {
-      if (boards[i].id == ID) {
-        let list = boards[i].users;
-        list = list.sort((a, b) => a.bettingscore - b.bettingscore);
-        setCurrentBoard(list);
-        break;
-      }
-    }
-    let board = boards[i].users;
-    let boardUserList = [];
-    for (var i = 0; i < board.length; i++) {
-      boardUserList.push(allUsers.find((user) => user.email == board[i]));
-    }
-    setBoardUsers(boardUserList);
+    let index = e.target.value;
+    setCode(boardIDs[index]);
+    setCurrentBoard(index)
+    getBoardUsers(boardIDs[index])
+    .then(() => {
+
+    })
   };
 
   return (
@@ -187,7 +201,7 @@ function Leaderboard() {
             >
               <Select onChange={handleCurrentBoard} variant="filled">
                 {boardNames.map((name, index) => (
-                  <option key={index} value={boardIDs[index]}>
+                  <option key={index} value={index}>
                     {name}
                   </option>
                 ))}
@@ -231,14 +245,14 @@ function Leaderboard() {
               variant="ghost"
               rightIcon={<RepeatIcon />}
               onClick={() => {
-                getBoards().catch(console.error);
+                getBoardUsers(boardIDs[currentBoard]).catch(console.error);
               }}
             >
               Refresh
             </Button>
     </Row>}
           >
-            {currentBoard == null ? (
+            {boardUsers == null ? (
               <></>
             ) : (
               <TableContainer
@@ -259,7 +273,7 @@ function Leaderboard() {
                   <Tbody>
                     {boardUsers.map((user, index) => (
                       <Tr key={index}>
-                        <Td>{currentBoard[index]}</Td>
+                        <Td>{user.email}</Td>
                         <Td>{user.trustscore}</Td>
                         <Td>{user.name}</Td>
                         <Td>{user.bettingscore}</Td>

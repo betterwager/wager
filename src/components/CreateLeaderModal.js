@@ -25,6 +25,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Container, Form } from "react-bootstrap";
 import { API, Auth } from "aws-amplify";
 import * as mutations from "../graphql/mutations";
+import { userLeaderCreate, leaderCreate } from "../utils/utils";
+import uniqueHash from "unique-hash"
 import LeaderInfoModal from "./LeaderInfoModal";
 
 function CreateLeaderModal(props) {
@@ -36,42 +38,40 @@ function CreateLeaderModal(props) {
   const [addLeaderSuccessIsOpen, setAddLeaderSuccessIsOpen] = useState(false);
 
   const handleLeaderNameChange = (e) => {
+    console.log(user);
     setLeaderName(e.target.value);
   };
 
   const handleLeaderSubmit = async (e) => {
+    let leaderID = uniqueHash(leaderName)
     if (leaderName != "") {
       let board = {
-        id: leaderName,
-        users: [Auth.user.attributes.email],
+        id: leaderID,
         name: leaderName,
       };
-      let id = leaderName;
-      const leaderboard = await API.graphql({
-        query: mutations.createLeaderboard,
-        variables: { input: board },
-      })
+      
+      leaderCreate(board)
         .then((res) => {
-          setLeaderCode(id);
-          let currentBoards = user.leaderboards;
-          currentBoards.push(id);
+          console.log(res);
+          setLeaderCode(leaderID);
 
-          let newUser = {
-            id: user.id,
-            leaderboards: currentBoards,
-            _version: user._version,
-          };
-
-          userUpdate(newUser);
+          let userLeaderboard = {
+            leaderboardId: leaderID,
+            userId: user.id
+        }
+        userLeaderCreate(userLeaderboard)
+          .then((res) => {
+            console.log(res);
+            setIsOpen(false);
+            setAddLeaderSuccessIsOpen(true);
+          })
+          .catch((e) => {
+            console.log(e)
+            alert("Choose another Leaderboard Name");
+            return;
+          });
         })
-        .then(() => {
-          setIsOpen(false);
-          setAddLeaderSuccessIsOpen(true);
-        })
-        .catch(() => {
-          alert("Choose another Leaderboard Name");
-          return;
-        });
+      
     } else {
       alert("Fill out all fields");
     }

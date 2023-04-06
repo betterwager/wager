@@ -5,23 +5,23 @@
  **************************************************************************/
 
 import * as React from "react";
-import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
 };
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type LeaderboardCreateFormInputValues = {
-    users?: string[];
+    name?: string;
 };
 export declare type LeaderboardCreateFormValidationValues = {
-    users?: ValidationFunction<string>;
+    name?: ValidationFunction<string>;
 };
-export declare type FormProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type LeaderboardCreateFormOverridesProps = {
-    LeaderboardCreateFormGrid?: FormProps<GridProps>;
-    users?: FormProps<TextFieldProps>;
+    LeaderboardCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
+    name?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type LeaderboardCreateFormProps = React.PropsWithChildren<{
     overrides?: LeaderboardCreateFormOverridesProps | undefined | null;
@@ -30,8 +30,7 @@ export declare type LeaderboardCreateFormProps = React.PropsWithChildren<{
     onSubmit?: (fields: LeaderboardCreateFormInputValues) => LeaderboardCreateFormInputValues;
     onSuccess?: (fields: LeaderboardCreateFormInputValues) => void;
     onError?: (fields: LeaderboardCreateFormInputValues, errorMessage: string) => void;
-    onCancel?: () => void;
     onChange?: (fields: LeaderboardCreateFormInputValues) => LeaderboardCreateFormInputValues;
     onValidate?: LeaderboardCreateFormValidationValues;
-}>;
+} & React.CSSProperties>;
 export default function LeaderboardCreateForm(props: LeaderboardCreateFormProps): React.ReactElement;

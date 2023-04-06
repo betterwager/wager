@@ -5,24 +5,24 @@
  **************************************************************************/
 
 import * as React from "react";
-import { Leaderboard } from "../models";
-import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
+import { Leaderboard } from "../models";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
 };
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type LeaderboardUpdateFormInputValues = {
-    users?: string[];
+    name?: string;
 };
 export declare type LeaderboardUpdateFormValidationValues = {
-    users?: ValidationFunction<string>;
+    name?: ValidationFunction<string>;
 };
-export declare type FormProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type LeaderboardUpdateFormOverridesProps = {
-    LeaderboardUpdateFormGrid?: FormProps<GridProps>;
-    users?: FormProps<TextFieldProps>;
+    LeaderboardUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
+    name?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type LeaderboardUpdateFormProps = React.PropsWithChildren<{
     overrides?: LeaderboardUpdateFormOverridesProps | undefined | null;
@@ -32,8 +32,7 @@ export declare type LeaderboardUpdateFormProps = React.PropsWithChildren<{
     onSubmit?: (fields: LeaderboardUpdateFormInputValues) => LeaderboardUpdateFormInputValues;
     onSuccess?: (fields: LeaderboardUpdateFormInputValues) => void;
     onError?: (fields: LeaderboardUpdateFormInputValues, errorMessage: string) => void;
-    onCancel?: () => void;
     onChange?: (fields: LeaderboardUpdateFormInputValues) => LeaderboardUpdateFormInputValues;
     onValidate?: LeaderboardUpdateFormValidationValues;
-}>;
+} & React.CSSProperties>;
 export default function LeaderboardUpdateForm(props: LeaderboardUpdateFormProps): React.ReactElement;

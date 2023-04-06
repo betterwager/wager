@@ -6,9 +6,6 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { fetchByPath, validateField } from "./utils";
-import { User } from "../models";
-import { getOverrideProps } from "@aws-amplify/ui-react/internal";
 import {
   Badge,
   Button,
@@ -18,10 +15,12 @@ import {
   Icon,
   ScrollView,
   Text,
-  TextAreaField,
   TextField,
   useTheme,
 } from "@aws-amplify/ui-react";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { User } from "../models";
+import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
 function ArrayField({
   items = [],
@@ -33,8 +32,18 @@ function ArrayField({
   setFieldValue,
   currentFieldValue,
   defaultFieldValue,
+  lengthLimit,
+  getBadgeText,
+  errorMessage,
 }) {
-  const { tokens } = useTheme();
+  const labelElement = <Text>{label}</Text>;
+  const {
+    tokens: {
+      components: {
+        fieldmessages: { error: errorStyles },
+      },
+    },
+  } = useTheme();
   const [selectedBadgeIndex, setSelectedBadgeIndex] = React.useState();
   const [isEditing, setIsEditing] = React.useState();
   React.useEffect(() => {
@@ -49,9 +58,9 @@ function ArrayField({
   };
   const addItem = async () => {
     if (
-      (currentFieldValue !== undefined ||
-        currentFieldValue !== null ||
-        currentFieldValue !== "") &&
+      currentFieldValue !== undefined &&
+      currentFieldValue !== null &&
+      currentFieldValue !== "" &&
       !hasError
     ) {
       const newItems = [...items];
@@ -65,45 +74,8 @@ function ArrayField({
       setIsEditing(false);
     }
   };
-  return (
+  const arraySection = (
     <React.Fragment>
-      {isEditing && children}
-      {!isEditing ? (
-        <>
-          <Text>{label}</Text>
-          <Button
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            Add item
-          </Button>
-        </>
-      ) : (
-        <Flex justifyContent="flex-end">
-          {(currentFieldValue || isEditing) && (
-            <Button
-              children="Cancel"
-              type="button"
-              size="small"
-              onClick={() => {
-                setFieldValue(defaultFieldValue);
-                setIsEditing(false);
-                setSelectedBadgeIndex(undefined);
-              }}
-            ></Button>
-          )}
-          <Button
-            size="small"
-            variation="link"
-            color={tokens.colors.brand.primary[80]}
-            isDisabled={hasError}
-            onClick={addItem}
-          >
-            {selectedBadgeIndex !== undefined ? "Save" : "Add"}
-          </Button>
-        </Flex>
-      )}
       {!!items?.length && (
         <ScrollView height="inherit" width="inherit" maxHeight={"7rem"}>
           {items.map((value, index) => {
@@ -124,7 +96,7 @@ function ArrayField({
                   setIsEditing(true);
                 }}
               >
-                {value.toString()}
+                {getBadgeText ? getBadgeText(value) : value.toString()}
                 <Icon
                   style={{
                     cursor: "pointer",
@@ -153,30 +125,82 @@ function ArrayField({
       <Divider orientation="horizontal" marginTop={5} />
     </React.Fragment>
   );
+  if (lengthLimit !== undefined && items.length >= lengthLimit && !isEditing) {
+    return (
+      <React.Fragment>
+        {labelElement}
+        {arraySection}
+      </React.Fragment>
+    );
+  }
+  return (
+    <React.Fragment>
+      {labelElement}
+      {isEditing && children}
+      {!isEditing ? (
+        <>
+          <Button
+            onClick={() => {
+              setIsEditing(true);
+            }}
+          >
+            Add item
+          </Button>
+          {errorMessage && hasError && (
+            <Text color={errorStyles.color} fontSize={errorStyles.fontSize}>
+              {errorMessage}
+            </Text>
+          )}
+        </>
+      ) : (
+        <Flex justifyContent="flex-end">
+          {(currentFieldValue || isEditing) && (
+            <Button
+              children="Cancel"
+              type="button"
+              size="small"
+              onClick={() => {
+                setFieldValue(defaultFieldValue);
+                setIsEditing(false);
+                setSelectedBadgeIndex(undefined);
+              }}
+            ></Button>
+          )}
+          <Button
+            size="small"
+            variation="link"
+            isDisabled={hasError}
+            onClick={addItem}
+          >
+            {selectedBadgeIndex !== undefined ? "Save" : "Add"}
+          </Button>
+        </Flex>
+      )}
+      {arraySection}
+    </React.Fragment>
+  );
 }
 export default function UserUpdateForm(props) {
   const {
-    id,
-    user,
+    id: idProp,
+    user: userModelProp,
     onSuccess,
     onError,
     onSubmit,
-    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
-    email: undefined,
-    name: undefined,
-    birthdate: undefined,
-    phonenumber: undefined,
-    trustscore: undefined,
-    bettingscore: undefined,
-    bets: [],
-    wallet: undefined,
-    leaderboards: undefined,
+    email: "",
+    name: "",
+    birthdate: "",
+    phonenumber: "",
+    trustscore: "",
+    bettingscore: "",
+    friends: [],
+    requests: [],
   };
   const [email, setEmail] = React.useState(initialValues.email);
   const [name, setName] = React.useState(initialValues.name);
@@ -188,51 +212,59 @@ export default function UserUpdateForm(props) {
   const [bettingscore, setBettingscore] = React.useState(
     initialValues.bettingscore
   );
-  const [bets, setBets] = React.useState(
-    initialValues.bets ? JSON.stringify(initialValues.bets) : undefined
-  );
-  const [wallet, setWallet] = React.useState(initialValues.wallet);
-  const [leaderboards, setLeaderboards] = React.useState(
-    initialValues.leaderboards
-  );
+  const [friends, setFriends] = React.useState(initialValues.friends);
+  const [requests, setRequests] = React.useState(initialValues.requests);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    const cleanValues = { ...initialValues, ...userRecord };
+    const cleanValues = userRecord
+      ? { ...initialValues, ...userRecord }
+      : initialValues;
     setEmail(cleanValues.email);
     setName(cleanValues.name);
     setBirthdate(cleanValues.birthdate);
     setPhonenumber(cleanValues.phonenumber);
     setTrustscore(cleanValues.trustscore);
     setBettingscore(cleanValues.bettingscore);
-    setBets(cleanValues.bets ?? []);
-    setCurrentBetsValue(undefined);
-    setWallet(cleanValues.wallet);
-    setLeaderboards(cleanValues.leaderboards);
+    setFriends(cleanValues.friends ?? []);
+    setCurrentFriendsValue("");
+    setRequests(cleanValues.requests ?? []);
+    setCurrentRequestsValue("");
     setErrors({});
   };
-  const [userRecord, setUserRecord] = React.useState(user);
+  const [userRecord, setUserRecord] = React.useState(userModelProp);
   React.useEffect(() => {
     const queryData = async () => {
-      const record = id ? await DataStore.query(User, id) : user;
+      const record = idProp
+        ? await DataStore.query(User, idProp)
+        : userModelProp;
       setUserRecord(record);
     };
     queryData();
-  }, [id, user]);
+  }, [idProp, userModelProp]);
   React.useEffect(resetStateValues, [userRecord]);
-  const [currentBetsValue, setCurrentBetsValue] = React.useState(undefined);
-  const betsRef = React.createRef();
+  const [currentFriendsValue, setCurrentFriendsValue] = React.useState("");
+  const friendsRef = React.createRef();
+  const [currentRequestsValue, setCurrentRequestsValue] = React.useState("");
+  const requestsRef = React.createRef();
   const validations = {
-    email: [{ type: "Required" }, { type: "Email" }],
+    email: [{ type: "Required" }],
     name: [{ type: "Required" }],
     birthdate: [{ type: "Required" }],
-    phonenumber: [{ type: "Required" }, { type: "Phone" }],
+    phonenumber: [{ type: "Required" }],
     trustscore: [{ type: "Required" }],
     bettingscore: [{ type: "Required" }],
-    bets: [{ type: "Required" }, { type: "JSON" }],
-    wallet: [{ type: "Required" }],
-    leaderboards: [{ type: "Required" }],
+    friends: [{ type: "Required" }],
+    requests: [{ type: "Required" }],
   };
-  const runValidationTasks = async (fieldName, value) => {
+  const runValidationTasks = async (
+    fieldName,
+    currentValue,
+    getDisplayValue
+  ) => {
+    const value =
+      currentValue && getDisplayValue
+        ? getDisplayValue(currentValue)
+        : currentValue;
     let validationResponse = validateField(value, validations[fieldName]);
     const customValidator = fetchByPath(onValidate, fieldName);
     if (customValidator) {
@@ -256,9 +288,8 @@ export default function UserUpdateForm(props) {
           phonenumber,
           trustscore,
           bettingscore,
-          bets,
-          wallet,
-          leaderboards,
+          friends,
+          requests,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -283,6 +314,11 @@ export default function UserUpdateForm(props) {
           modelFields = onSubmit(modelFields);
         }
         try {
+          Object.entries(modelFields).forEach(([key, value]) => {
+            if (typeof value === "string" && value.trim() === "") {
+              modelFields[key] = undefined;
+            }
+          });
           await DataStore.save(
             User.copyOf(userRecord, (updated) => {
               Object.assign(updated, modelFields);
@@ -297,14 +333,14 @@ export default function UserUpdateForm(props) {
           }
         }
       }}
-      {...rest}
       {...getOverrideProps(overrides, "UserUpdateForm")}
+      {...rest}
     >
       <TextField
         label="Email"
         isRequired={true}
         isReadOnly={false}
-        defaultValue={email}
+        value={email}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -315,9 +351,8 @@ export default function UserUpdateForm(props) {
               phonenumber,
               trustscore,
               bettingscore,
-              bets,
-              wallet,
-              leaderboards,
+              friends,
+              requests,
             };
             const result = onChange(modelFields);
             value = result?.email ?? value;
@@ -336,7 +371,7 @@ export default function UserUpdateForm(props) {
         label="Name"
         isRequired={true}
         isReadOnly={false}
-        defaultValue={name}
+        value={name}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -347,9 +382,8 @@ export default function UserUpdateForm(props) {
               phonenumber,
               trustscore,
               bettingscore,
-              bets,
-              wallet,
-              leaderboards,
+              friends,
+              requests,
             };
             const result = onChange(modelFields);
             value = result?.name ?? value;
@@ -369,7 +403,7 @@ export default function UserUpdateForm(props) {
         isRequired={true}
         isReadOnly={false}
         type="date"
-        defaultValue={birthdate}
+        value={birthdate}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -380,9 +414,8 @@ export default function UserUpdateForm(props) {
               phonenumber,
               trustscore,
               bettingscore,
-              bets,
-              wallet,
-              leaderboards,
+              friends,
+              requests,
             };
             const result = onChange(modelFields);
             value = result?.birthdate ?? value;
@@ -401,8 +434,7 @@ export default function UserUpdateForm(props) {
         label="Phonenumber"
         isRequired={true}
         isReadOnly={false}
-        type="tel"
-        defaultValue={phonenumber}
+        value={phonenumber}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -413,9 +445,8 @@ export default function UserUpdateForm(props) {
               phonenumber: value,
               trustscore,
               bettingscore,
-              bets,
-              wallet,
-              leaderboards,
+              friends,
+              requests,
             };
             const result = onChange(modelFields);
             value = result?.phonenumber ?? value;
@@ -434,7 +465,7 @@ export default function UserUpdateForm(props) {
         label="Trustscore"
         isRequired={true}
         isReadOnly={false}
-        defaultValue={trustscore}
+        value={trustscore}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -445,9 +476,8 @@ export default function UserUpdateForm(props) {
               phonenumber,
               trustscore: value,
               bettingscore,
-              bets,
-              wallet,
-              leaderboards,
+              friends,
+              requests,
             };
             const result = onChange(modelFields);
             value = result?.trustscore ?? value;
@@ -466,7 +496,7 @@ export default function UserUpdateForm(props) {
         label="Bettingscore"
         isRequired={true}
         isReadOnly={false}
-        defaultValue={bettingscore}
+        value={bettingscore}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -477,9 +507,8 @@ export default function UserUpdateForm(props) {
               phonenumber,
               trustscore,
               bettingscore: value,
-              bets,
-              wallet,
-              leaderboards,
+              friends,
+              requests,
             };
             const result = onChange(modelFields);
             value = result?.bettingscore ?? value;
@@ -505,50 +534,47 @@ export default function UserUpdateForm(props) {
               phonenumber,
               trustscore,
               bettingscore,
-              bets: values,
-              wallet,
-              leaderboards,
+              friends: values,
+              requests,
             };
             const result = onChange(modelFields);
-            values = result?.bets ?? values;
+            values = result?.friends ?? values;
           }
-          setBets(values);
-          setCurrentBetsValue(undefined);
+          setFriends(values);
+          setCurrentFriendsValue("");
         }}
-        currentFieldValue={currentBetsValue}
-        label={"Bets"}
-        items={bets}
-        hasError={errors.bets?.hasError}
-        setFieldValue={setCurrentBetsValue}
-        inputFieldRef={betsRef}
-        defaultFieldValue={undefined}
+        currentFieldValue={currentFriendsValue}
+        label={"Friends"}
+        items={friends}
+        hasError={errors?.friends?.hasError}
+        errorMessage={errors?.friends?.errorMessage}
+        setFieldValue={setCurrentFriendsValue}
+        inputFieldRef={friendsRef}
+        defaultFieldValue={""}
       >
-        <TextAreaField
-          label="Bets"
+        <TextField
+          label="Friends"
           isRequired={true}
           isReadOnly={false}
-          value={currentBetsValue}
+          value={currentFriendsValue}
           onChange={(e) => {
             let { value } = e.target;
-            if (errors.bets?.hasError) {
-              runValidationTasks("bets", value);
+            if (errors.friends?.hasError) {
+              runValidationTasks("friends", value);
             }
-            setCurrentBetsValue(value);
+            setCurrentFriendsValue(value);
           }}
-          onBlur={() => runValidationTasks("bets", currentBetsValue)}
-          errorMessage={errors.bets?.errorMessage}
-          hasError={errors.bets?.hasError}
-          ref={betsRef}
-          {...getOverrideProps(overrides, "bets")}
-        ></TextAreaField>
+          onBlur={() => runValidationTasks("friends", currentFriendsValue)}
+          errorMessage={errors.friends?.errorMessage}
+          hasError={errors.friends?.hasError}
+          ref={friendsRef}
+          labelHidden={true}
+          {...getOverrideProps(overrides, "friends")}
+        ></TextField>
       </ArrayField>
-      <TextField
-        label="Wallet"
-        isRequired={true}
-        isReadOnly={false}
-        defaultValue={wallet}
-        onChange={(e) => {
-          let { value } = e.target;
+      <ArrayField
+        onChange={async (items) => {
+          let values = items;
           if (onChange) {
             const modelFields = {
               email,
@@ -557,55 +583,44 @@ export default function UserUpdateForm(props) {
               phonenumber,
               trustscore,
               bettingscore,
-              bets,
-              wallet: value,
-              leaderboards,
+              friends,
+              requests: values,
             };
             const result = onChange(modelFields);
-            value = result?.wallet ?? value;
+            values = result?.requests ?? values;
           }
-          if (errors.wallet?.hasError) {
-            runValidationTasks("wallet", value);
-          }
-          setWallet(value);
+          setRequests(values);
+          setCurrentRequestsValue("");
         }}
-        onBlur={() => runValidationTasks("wallet", wallet)}
-        errorMessage={errors.wallet?.errorMessage}
-        hasError={errors.wallet?.hasError}
-        {...getOverrideProps(overrides, "wallet")}
-      ></TextField>
-      <TextField
-        label="Leaderboards"
-        isRequired={true}
-        isReadOnly={false}
-        defaultValue={leaderboards}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              email,
-              name,
-              birthdate,
-              phonenumber,
-              trustscore,
-              bettingscore,
-              bets,
-              wallet,
-              leaderboards: value,
-            };
-            const result = onChange(modelFields);
-            value = result?.leaderboards ?? value;
-          }
-          if (errors.leaderboards?.hasError) {
-            runValidationTasks("leaderboards", value);
-          }
-          setLeaderboards(value);
-        }}
-        onBlur={() => runValidationTasks("leaderboards", leaderboards)}
-        errorMessage={errors.leaderboards?.errorMessage}
-        hasError={errors.leaderboards?.hasError}
-        {...getOverrideProps(overrides, "leaderboards")}
-      ></TextField>
+        currentFieldValue={currentRequestsValue}
+        label={"Requests"}
+        items={requests}
+        hasError={errors?.requests?.hasError}
+        errorMessage={errors?.requests?.errorMessage}
+        setFieldValue={setCurrentRequestsValue}
+        inputFieldRef={requestsRef}
+        defaultFieldValue={""}
+      >
+        <TextField
+          label="Requests"
+          isRequired={true}
+          isReadOnly={false}
+          value={currentRequestsValue}
+          onChange={(e) => {
+            let { value } = e.target;
+            if (errors.requests?.hasError) {
+              runValidationTasks("requests", value);
+            }
+            setCurrentRequestsValue(value);
+          }}
+          onBlur={() => runValidationTasks("requests", currentRequestsValue)}
+          errorMessage={errors.requests?.errorMessage}
+          hasError={errors.requests?.hasError}
+          ref={requestsRef}
+          labelHidden={true}
+          {...getOverrideProps(overrides, "requests")}
+        ></TextField>
+      </ArrayField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}
@@ -613,23 +628,25 @@ export default function UserUpdateForm(props) {
         <Button
           children="Reset"
           type="reset"
-          onClick={resetStateValues}
+          onClick={(event) => {
+            event.preventDefault();
+            resetStateValues();
+          }}
+          isDisabled={!(idProp || userModelProp)}
           {...getOverrideProps(overrides, "ResetButton")}
         ></Button>
-        <Flex {...getOverrideProps(overrides, "RightAlignCTASubFlex")}>
-          <Button
-            children="Cancel"
-            type="button"
-            onClick={() => {
-              onCancel && onCancel();
-            }}
-            {...getOverrideProps(overrides, "CancelButton")}
-          ></Button>
+        <Flex
+          gap="15px"
+          {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
+        >
           <Button
             children="Submit"
             type="submit"
             variation="primary"
-            isDisabled={Object.values(errors).some((e) => e?.hasError)}
+            isDisabled={
+              !(idProp || userModelProp) ||
+              Object.values(errors).some((e) => e?.hasError)
+            }
             {...getOverrideProps(overrides, "SubmitButton")}
           ></Button>
         </Flex>

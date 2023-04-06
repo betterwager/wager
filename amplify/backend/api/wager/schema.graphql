@@ -1,18 +1,19 @@
-type Leaderboard @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  users: [String!]
-}
-
 type User @model @auth(rules: [{allow: public}]) {
   id: ID!
-  email: AWSEmail!
+  email: String!
   name: String!
   birthdate: AWSDate!
-  phonenumber: AWSPhone!
+  phonenumber: String!
   trustscore: String!
   bettingscore: String!
-  bets: [AWSJSON!]
-  wallet: String!
-  leaderboards: String!
+  friends: [String!]
+  requests: [String!]
+  leaderboards: [Leaderboard] @manyToMany(relationName: "UserLeaderboard")
+}
+
+type Leaderboard @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  users: [User] @manyToMany(relationName: "UserLeaderboard")
 }
  

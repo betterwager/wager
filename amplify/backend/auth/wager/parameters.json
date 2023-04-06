@@ -4,14 +4,17 @@
   "serviceType": "imported",
   "region": "us-east-1",
   "usernameAttributes": [
-    "email"
+    "email",
+    "phone_number"
   ],
   "requiredAttributes": [],
   "passwordPolicyMinLength": 8,
-  "passwordPolicyCharacters": [],
-  "mfaConfiguration": "OFF",
-  "autoVerifiedAttributes": [
-    "email"
+  "passwordPolicyCharacters": [
+    "Requires Lowercase",
+    "Requires Uppercase",
+    "Requires Numbers",
+    "Requires Symbols"
   ],
+  "mfaConfiguration": "OFF",
   "mfaTypes": []
 }

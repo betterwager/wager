@@ -1,66 +1,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createLeaderboard = /* GraphQL */ `
-  mutation CreateLeaderboard(
-    $input: CreateLeaderboardInput!
-    $condition: ModelLeaderboardConditionInput
-  ) {
-    createLeaderboard(input: $input, condition: $condition) {
-      id
-      users {
-        nextToken
-        startedAt
-      }
-      name
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const updateLeaderboard = /* GraphQL */ `
-  mutation UpdateLeaderboard(
-    $input: UpdateLeaderboardInput!
-    $condition: ModelLeaderboardConditionInput
-  ) {
-    updateLeaderboard(input: $input, condition: $condition) {
-      id
-      users {
-        nextToken
-        startedAt
-      }
-      name
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const deleteLeaderboard = /* GraphQL */ `
-  mutation DeleteLeaderboard(
-    $input: DeleteLeaderboardInput!
-    $condition: ModelLeaderboardConditionInput
-  ) {
-    deleteLeaderboard(input: $input, condition: $condition) {
-      id
-      users {
-        nextToken
-        startedAt
-      }
-      name
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
 export const createUser = /* GraphQL */ `
   mutation CreateUser(
     $input: CreateUserInput!
@@ -75,11 +15,11 @@ export const createUser = /* GraphQL */ `
       trustscore
       bettingscore
       friends
-      Leaderboards {
+      requests
+      leaderboards {
         nextToken
         startedAt
       }
-      requests
       createdAt
       updatedAt
       _version
@@ -102,11 +42,11 @@ export const updateUser = /* GraphQL */ `
       trustscore
       bettingscore
       friends
-      Leaderboards {
+      requests
+      leaderboards {
         nextToken
         startedAt
       }
-      requests
       createdAt
       updatedAt
       _version
@@ -129,11 +69,71 @@ export const deleteUser = /* GraphQL */ `
       trustscore
       bettingscore
       friends
-      Leaderboards {
+      requests
+      leaderboards {
         nextToken
         startedAt
       }
-      requests
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const createLeaderboard = /* GraphQL */ `
+  mutation CreateLeaderboard(
+    $input: CreateLeaderboardInput!
+    $condition: ModelLeaderboardConditionInput
+  ) {
+    createLeaderboard(input: $input, condition: $condition) {
+      id
+      name
+      users {
+        nextToken
+        startedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const updateLeaderboard = /* GraphQL */ `
+  mutation UpdateLeaderboard(
+    $input: UpdateLeaderboardInput!
+    $condition: ModelLeaderboardConditionInput
+  ) {
+    updateLeaderboard(input: $input, condition: $condition) {
+      id
+      name
+      users {
+        nextToken
+        startedAt
+      }
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+    }
+  }
+`;
+export const deleteLeaderboard = /* GraphQL */ `
+  mutation DeleteLeaderboard(
+    $input: DeleteLeaderboardInput!
+    $condition: ModelLeaderboardConditionInput
+  ) {
+    deleteLeaderboard(input: $input, condition: $condition) {
+      id
+      name
+      users {
+        nextToken
+        startedAt
+      }
       createdAt
       updatedAt
       _version
@@ -149,17 +149,8 @@ export const createUserLeaderboard = /* GraphQL */ `
   ) {
     createUserLeaderboard(input: $input, condition: $condition) {
       id
-      leaderboardID
-      userID
-      leaderboard {
-        id
-        name
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      userId
+      leaderboardId
       user {
         id
         email
@@ -170,6 +161,15 @@ export const createUserLeaderboard = /* GraphQL */ `
         bettingscore
         friends
         requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      leaderboard {
+        id
+        name
         createdAt
         updatedAt
         _version
@@ -191,17 +191,8 @@ export const updateUserLeaderboard = /* GraphQL */ `
   ) {
     updateUserLeaderboard(input: $input, condition: $condition) {
       id
-      leaderboardID
-      userID
-      leaderboard {
-        id
-        name
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      userId
+      leaderboardId
       user {
         id
         email
@@ -212,6 +203,15 @@ export const updateUserLeaderboard = /* GraphQL */ `
         bettingscore
         friends
         requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      leaderboard {
+        id
+        name
         createdAt
         updatedAt
         _version
@@ -233,17 +233,8 @@ export const deleteUserLeaderboard = /* GraphQL */ `
   ) {
     deleteUserLeaderboard(input: $input, condition: $condition) {
       id
-      leaderboardID
-      userID
-      leaderboard {
-        id
-        name
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      userId
+      leaderboardId
       user {
         id
         email
@@ -254,6 +245,15 @@ export const deleteUserLeaderboard = /* GraphQL */ `
         bettingscore
         friends
         requests
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      leaderboard {
+        id
+        name
         createdAt
         updatedAt
         _version

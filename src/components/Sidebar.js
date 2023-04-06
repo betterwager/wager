@@ -41,6 +41,7 @@ import * as queries from "../graphql/queries";
 import {
   CheckOutlined,
   CrownOutlined,
+  UsergroupAddOutlined,
   DashboardOutlined,
   DollarCircleOutlined,
   ExclamationCircleOutlined,
@@ -68,6 +69,7 @@ import AccountInfoModal from "./AccountInfoModal";
 import AccountEditModal from "./AccountEditModal";
 import NewUserModals from "./NewUserModals";
 import WalletEntryModal from "./WalletEntryModal";
+import FriendsModal from "./FriendsModal";
 
 require("@solana/wallet-adapter-react-ui/styles.css");
 const { Sider } = Layout;
@@ -95,6 +97,7 @@ export function SidebarContent(props) {
 
   const [editIsOpen, setEditIsOpen] = useState(false);
 
+  const [friendsIsOpen, setFriendsIsOpen] = useState(false);
   const [walletIsOpen, setWalletIsOpen] = useState(false)
 
   const [newUser, setNewUser] = useState(false);
@@ -266,6 +269,11 @@ export function SidebarContent(props) {
       <br />
       <br />
       <Menu selectable={false} style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
+      <Menu.Item onClick={() => setFriendsIsOpen(true)} icon={<UsergroupAddOutlined />}>
+            Find Friends
+        </Menu.Item>
+        <FriendsModal user={user} setUser={setUser} toast={toast} isOpen = {friendsIsOpen} setIsOpen={setFriendsIsOpen}/>
+
       <Menu.Item onClick={() => {
         setWalletIsOpen(true)
         }} icon={<DollarCircleOutlined />}>

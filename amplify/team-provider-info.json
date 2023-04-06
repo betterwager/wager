@@ -1,44 +1,23 @@
 {
-  "dev": {
+  "staging": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-wager-dev-213218-authRole",
-      "UnauthRoleArn": "arn:aws:iam::934321160741:role/amplify-wager-dev-213218-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::934321160741:role/amplify-wager-dev-213218-authRole",
+      "AuthRoleName": "amplify-wager-staging-195802-authRole",
+      "UnauthRoleArn": "arn:aws:iam::934321160741:role/amplify-wager-staging-195802-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::934321160741:role/amplify-wager-staging-195802-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-wager-dev-213218-deployment",
-      "UnauthRoleName": "amplify-wager-dev-213218-unauthRole",
-      "StackName": "amplify-wager-dev-213218",
-      "StackId": "arn:aws:cloudformation:us-east-1:934321160741:stack/amplify-wager-dev-213218/3e3d4330-58c4-11ed-b1a7-0e60f5dce699",
-      "AmplifyAppId": "d3obrjq5wlrw6x"
+      "DeploymentBucketName": "amplify-wager-staging-195802-deployment",
+      "UnauthRoleName": "amplify-wager-staging-195802-unauthRole",
+      "StackName": "amplify-wager-staging-195802",
+      "StackId": "arn:aws:cloudformation:us-east-1:934321160741:stack/amplify-wager-staging-195802/d9071730-cda2-11ed-a331-12067438a09d",
+      "AmplifyAppId": "d3py02dnuh8sl3"
     },
     "categories": {
-      "api": {
-        "wager": {}
-      },
       "auth": {
-        "wagerf355ace8": {
-          "userPoolId": "us-east-1_0TUiYdZqY",
-          "userPoolName": "WagerPasswordless",
-          "webClientId": "5oeiokpfpea8j9g1qo3olfbbih",
-          "nativeClientId": "5oeiokpfpea8j9g1qo3olfbbih"
-        },
-        "wagerde4d4586": {
-          "userPoolId": "us-east-1_0TUiYdZqY",
-          "userPoolName": "WagerPasswordless",
-          "webClientId": "5oeiokpfpea8j9g1qo3olfbbih",
-          "nativeClientId": "5oeiokpfpea8j9g1qo3olfbbih"
-        },
-        "wager7b00da8e": {
-          "userPoolId": "us-east-1_0TUiYdZqY",
-          "userPoolName": "WagerPasswordless",
-          "webClientId": "5oeiokpfpea8j9g1qo3olfbbih",
-          "nativeClientId": "5oeiokpfpea8j9g1qo3olfbbih"
-        },
         "wager": {
-          "userPoolId": "us-east-1_TR3YTLjuT",
-          "userPoolName": "Wager",
-          "webClientId": "5mk3om2opg1r70qvt2uj3u2s3c",
-          "nativeClientId": "5mk3om2opg1r70qvt2uj3u2s3c"
+          "userPoolId": "us-east-1_xVkTsRdQu",
+          "userPoolName": "wager-users",
+          "webClientId": "25e529hnh5j2b5bk44t32d4qnp",
+          "nativeClientId": "25e529hnh5j2b5bk44t32d4qnp"
         }
       }
     }

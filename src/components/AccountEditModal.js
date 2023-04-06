@@ -93,8 +93,9 @@ function AccountEditModal(props) {
               phonenumber: phoneNumber,
               trustscore: 100,
               bettingscore: 0,
-              leaderboards: [],
-              bets: []
+              requests: [],
+              friends: [],
+              
             };
 
             const promise = await API.graphql({
