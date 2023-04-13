@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
-import {  Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import {
   PublicKey,
   Transaction,
@@ -50,7 +50,7 @@ function JoinBetModal(props) {
       betAPICall(queryParameters.get("bet"));
       setJoinCode(queryParameters.get("bet"));
       setIsOpen(true);
-    }else{
+    } else {
       setWalletIsOpen(true);
     }
   }, []);
@@ -225,7 +225,12 @@ function JoinBetModal(props) {
             <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
               Close
             </Button>
-            <Button type="submit" colorScheme="green">
+            <Button
+              type="submit" 
+              // colorScheme="green"
+              backgroundColor="primaryColor"
+              color="buttonTextColor"
+            >
               Wager!
             </Button>
           </ModalFooter>

@@ -52,7 +52,9 @@ function BoardDisplay(props) {
           <Button
             variant="primary"
             disabled={code == ""}
-            style={{ backgroundColor: "green", color: "white" }}
+            // style={{ backgroundColor: "primaryColor", color: "white" }}
+            backgroundColor="primaryColor"
+            color="buttonTextColor"
             onClick={() => {
               if (code != "") {
                 setCodeDisplayIsOpen(true);

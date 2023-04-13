@@ -24,7 +24,7 @@ import {
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
 import { Container, Form } from "react-bootstrap";
-import {AddIcon} from '@chakra-ui/icons'
+import { AddIcon } from '@chakra-ui/icons'
 import {
   PublicKey,
   Transaction,
@@ -250,132 +250,138 @@ function CreateBetModal(props) {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Create New Bet</ModalHeader>
-            <ModalBody>
-              <>
+          <ModalBody>
+            <>
+              <FormControl isRequired>
+                <FormLabel>Bet Name</FormLabel>
+                <Input
+                  onChange={handleBetNameChange}
+                  placeholder="Bet name"
+                />
+              </FormControl>
+
+              <br />
+              <Flex>
                 <FormControl isRequired>
-                  <FormLabel>Bet Name</FormLabel>
-                  <Input
-                    onChange={handleBetNameChange}
-                    placeholder="Bet name"
-                  />
+                  <FormLabel>Minimum Players</FormLabel>
+                  <NumberInput onChange={handleminPlayersChange} min={2}>
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
                 </FormControl>
 
-                <br />
-                <Flex>
-                  <FormControl isRequired>
-                    <FormLabel>Minimum Players</FormLabel>
-                    <NumberInput onChange={handleminPlayersChange} min={2}>
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Maximum Players</FormLabel>
+                  <NumberInput
+                    onChange={handlemaxPlayersChange}
+                    min={minPlayers}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                </FormControl>
+              </Flex>
 
-                  <FormControl isRequired>
-                    <FormLabel>Maximum Players</FormLabel>
-                    <NumberInput
-                      onChange={handlemaxPlayersChange}
-                      min={minPlayers}
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </FormControl>
-                </Flex>
+              <br />
+              <Flex>
+                <FormControl isRequired>
+                  <FormLabel>Minimum Bet ($)</FormLabel>
+                  <NumberInput
+                    onChange={handleminBetChange}
+                    min={0.0}
+                    precision={2}
+                    step={0.5}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                </FormControl>
 
-                <br />
-                <Flex>
-                  <FormControl isRequired>
-                    <FormLabel>Minimum Bet ($)</FormLabel>
-                    <NumberInput
-                      onChange={handleminBetChange}
-                      min={0.0}
-                      precision={2}
-                      step={0.5}
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Maximum Bet ($)</FormLabel>
+                  <NumberInput
+                    onChange={handlemaxBetChange}
+                    min={minBet}
+                    precision={2}
+                    step={0.5}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                </FormControl>
+              </Flex>
 
-                  <FormControl isRequired>
-                    <FormLabel>Maximum Bet ($)</FormLabel>
-                    <NumberInput
-                      onChange={handlemaxBetChange}
-                      min={minBet}
-                      precision={2}
-                      step={0.5}
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </FormControl>
-                </Flex>
+              <br />
+              <FormControl>
+                <FormLabel>Options (All possible results)</FormLabel>
 
-                <br />
-                <FormControl>
-                    <FormLabel>Options (All possible results)</FormLabel>
-                    
-                      <Form onSubmit={handleOptionEnter}>
-                      <Flex>
-                      <Input
-                        onChange={handleOptionNewChange}
-                        value={option}
-                        placeholder="Enter Option"
-                      />
-                      <IconButton
-                        colorScheme="green"
-                        aria-label='Add Option'
-                        type="submit"
-                        icon={<AddIcon />}
-                      />
-                      
+                <Form onSubmit={handleOptionEnter}>
+                  <Flex>
+                    <Input
+                      onChange={handleOptionNewChange}
+                      value={option}
+                      placeholder="Enter Option"
+                    />
+                    <IconButton
+                      // colorScheme="green"
+                      backgroundColor="primaryColor"
+                      color="buttonTextColor"
+                      aria-label='Add Option'
+                      type="submit"
+                      icon={<AddIcon />}
+                    />
+
                   </Flex>
-                    </Form>
-                </FormControl>
-                <br />
-                {OptionsList.map((option) => {
-                  return <p key={option}>{option}</p>;
-                })}
+                </Form>
+              </FormControl>
+              <br />
+              {OptionsList.map((option) => {
+                return <p key={option}>{option}</p>;
+              })}
 
-                <br />
+              <br />
 
-                <FormControl isRequired>
-                  <FormLabel>When does Betting End?</FormLabel>
-                  <DateTimePicker
-                    minDate={new Date()}
-                    onChange={handleTimeChange}
-                    value={time}
-                  />
-                </FormControl>
-              </>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                variant="ghost"
-                mr={3}
-                onClick={() => {
-                  setIsOpen(false);
-                  clearBetState();
-                }}
-              >
-                Close
-              </Button>
-              <Button onClick={handleBetSubmit} colorScheme="green" >
-                Wager!
-              </Button>
-            </ModalFooter>
+              <FormControl isRequired>
+                <FormLabel>When does Betting End?</FormLabel>
+                <DateTimePicker
+                  minDate={new Date()}
+                  onChange={handleTimeChange}
+                  value={time}
+                />
+              </FormControl>
+            </>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="ghost"
+              mr={3}
+              onClick={() => {
+                setIsOpen(false);
+                clearBetState();
+              }}
+            >
+              Close
+            </Button>
+            <Button onClick={handleBetSubmit}
+              // colorScheme="green"
+              backgroundColor="primaryColor"
+              color="buttonTextColor"
+            >
+              Wager!
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
       <BetInfoModal

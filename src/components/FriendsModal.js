@@ -192,7 +192,9 @@ import {
                   onChange={(phone) => setPhoneNumber(phone)}
               />
                 <IconButton
-                        colorScheme="green"
+                        // colorScheme="green"
+                        backgroundColor="primaryColor"
+                        color="buttonTextColor"
                         type="submit"
                         icon={<AddIcon />}
                   />
@@ -258,7 +260,9 @@ import {
                   <Text >{request}</Text>
                   <div>
                   <IconButton
-                          colorScheme="green"
+                          // colorScheme="green"
+                          backgroundColor="primaryColor"
+                          color="buttonTextColor"
                           onClick={(e) => acceptFriendRequest(e,request)}
                           variant="link"
                           icon={<CheckIcon />}

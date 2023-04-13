@@ -49,7 +49,7 @@ function CreateLeaderModal(props) {
         id: leaderID,
         name: leaderName,
       };
-      
+
       leaderCreate(board)
         .then((res) => {
           console.log(res);
@@ -58,23 +58,23 @@ function CreateLeaderModal(props) {
           let userLeaderboard = {
             leaderboardId: leaderID,
             userId: user.id
-        }
-        userLeaderCreate(userLeaderboard)
-          .then((res) => {
-            let allBoards = props.boardIDs;
-            allBoards.push(leaderID)
-            props.setBoardIDs(allBoards)
-            console.log(res);
-            setIsOpen(false);
-            setAddLeaderSuccessIsOpen(true);
-          })
-          .catch((e) => {
-            console.log(e)
-            alert("Choose another Leaderboard Name");
-            return;
-          });
+          }
+          userLeaderCreate(userLeaderboard)
+            .then((res) => {
+              let allBoards = props.boardIDs;
+              allBoards.push(leaderID)
+              props.setBoardIDs(allBoards)
+              console.log(res);
+              setIsOpen(false);
+              setAddLeaderSuccessIsOpen(true);
+            })
+            .catch((e) => {
+              console.log(e)
+              alert("Choose another Leaderboard Name");
+              return;
+            });
         })
-      
+
     } else {
       alert("Fill out all fields");
     }
@@ -102,7 +102,11 @@ function CreateLeaderModal(props) {
               <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
                 Close
               </Button>
-              <Button onClick={handleLeaderSubmit} colorScheme="green">
+              <Button onClick={handleLeaderSubmit}
+                // colorScheme="green"
+                backgroundColor="primaryColor"
+                color="buttonTextColor"
+              >
                 Create
               </Button>
             </ModalFooter>

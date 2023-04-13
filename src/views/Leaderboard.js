@@ -187,9 +187,11 @@ function Leaderboard() {
             </FormControl>
             <div style={{margin:"10px"}}></div>
             <Button
-              colorScheme="green"
+              // colorScheme="green"
               disabled={code == ""}
-              style={{ backgroundColor: "green", color: "white" }}
+              backgroundColor="primaryColor"
+              color="buttonTextColor"
+              // style={{ backgroundColor: "#702963", color: "white" }}
               onClick={() => {
                 if (code != "") {
                   setCodeDisplayIsOpen(true);

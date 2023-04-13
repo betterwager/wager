@@ -72,7 +72,9 @@ const SignIn = (props) => {
           <Button
             disabled={isLoading}
             size="lg"
-            colorScheme="green"
+            // colorScheme="green"
+            backgroundColor = "primaryColor"
+            color = "color"
             style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"20%", marginRight:"20%", width:"60%"}}
             className="mt-2 btn-success"
             type="submit"

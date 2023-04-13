@@ -77,7 +77,7 @@ const Home = (props) => {
       <Navbar
         style={{
           borderBottom: "solid",
-          borderColor: "#195F50",
+          borderColor: "primaryColor",
           backgroundColor: "#F7F8FC",
         }}
         expand="lg"
@@ -87,8 +87,8 @@ const Home = (props) => {
         <Container>
           <Navbar.Brand href="#hero">
             <Flex align={"center"} w={"100%"}>
-              <Icon h={"40%"} w={"40%"} as={FaDice} color="#195F50" />
-              <Text fontSize="3xl" fontWeight={"bold"} color="#195F50">
+              <Icon h={"40%"} w={"40%"} as={FaDice} color="primaryColor" />
+              <Text fontSize="3xl" fontWeight={"bold"} color="primaryColor">
                 Wager
               </Text>
             </Flex>
@@ -110,8 +110,8 @@ const Home = (props) => {
           </NavbarCollapse>
 
           <Button
-            borderColor="#195F50"
-            color="#195F50"
+            borderColor="primaryColor"
+            color="primaryColor"
             variant="outline"
             onClick={() => navigate(DASHBOARD)}
           >
@@ -127,6 +127,7 @@ const Home = (props) => {
           paddingBottom: 50,
         }}
       >
+
         <Container className="container-lg">
           <Row
             className="justify-content-around align-items-center"
@@ -143,7 +144,7 @@ const Home = (props) => {
             <Col md={5} className="text-center tx-md-start mx-3">
               <Heading as="h1" size="lg">
                 Anytime, Anywhere,
-                <span style={{ color: "#195F50" }}> Any Event</span>
+                <span style={{ color: "primaryColor" }}> Any Event</span>
               </Heading>
               <Text as="p" fontSize="lg" className="lead" paddingTop="3">
                 Step up your betting game with Wager, the social betting app
@@ -153,8 +154,8 @@ const Home = (props) => {
               </Text>
               <Box paddingTop={3}>
                 <Button
-                  backgroundColor="#195F50"
-                  color={"#fff"}
+                  // backgroundColor="primaryColor"
+                  // color="buttonTextColor"
                   size="lg"
                   onClick={() => navigate(DASHBOARD)}
                 >
@@ -193,7 +194,7 @@ const Home = (props) => {
                   as={"i"}
                   className="d-flex align-items-center justify-content-center"
                 >
-                  <Icon h={"60%"} w={"60%"} as={FaDiceD20} color="#195F50" />
+                  <Icon h={"60%"} w={"60%"} as={FaDiceD20} color="primaryColor" />
                 </Card.Img>
                 <Card.Body className="text-center">
                   <Card.Title className="h5">Any Event</Card.Title>
@@ -218,7 +219,7 @@ const Home = (props) => {
                     h={"60%"}
                     w={"60%"}
                     as={FaMoneyCheckAlt}
-                    color="#195F50"
+                    color="primaryColor"
                   />
                 </Card.Img>
                 <Card.Body className="text-center">
@@ -240,7 +241,7 @@ const Home = (props) => {
                   as={"i"}
                   className="d-flex align-items-center justify-content-center"
                 >
-                  <Icon h={"60%"} w={"60%"} as={FaUsers} color="#195F50" />
+                  <Icon h={"60%"} w={"60%"} as={FaUsers} color="primaryColor" />
                 </Card.Img>
                 <Card.Body className="text-center">
                   <Card.Title className="h5">Fully social</Card.Title>
@@ -364,8 +365,8 @@ const Home = (props) => {
           w="100%"
         >
           <Box display={"inline-flex"}>
-            <Icon h={"40%"} w={"40%"} as={FaDice} color="#195F50" />
-            <Text fontSize="3xl" fontWeight={"bold"} color="#195F50">
+            <Icon h={"40%"} w={"40%"} as={FaDice} color="primaryColor" />
+            <Text fontSize="3xl" fontWeight={"bold"} color="primaryColor">
               Wager
             </Text>
           </Box>

@@ -207,7 +207,8 @@ function BetDisplayCards(props) {
                           <Button
                           
                           style = {{margin:"5px"}}
-                            colorScheme="green"
+                            backgroundColor="primaryColor"
+                            color="buttonTextColor"
                             variant="outline"
                             mr={3}
                             onClick={() => {
@@ -376,7 +377,8 @@ function BetDisplayCards(props) {
                           {true ? (
                             <Button
                               style={{ margin: "1%" }}
-                              colorScheme="green"
+                              colorScheme="primaryColor"
+                              color="buttonTextColor"
                               onClick={() => handlePayout()}
                             >
                               Settle Funds
@@ -384,7 +386,9 @@ function BetDisplayCards(props) {
                           ) : (
                             <Button
                               style={{ margin: "1%" }}
-                              colorScheme="green"
+                              // colorScheme="green"
+                              backgroundColor="primaryColor"
+                              color="buttonTextColor"
                             >
                               You Won:
                             </Button>

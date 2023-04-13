@@ -127,9 +127,6 @@ function ContactForm(props) {
           </Row>
           <Button
             width={"100%"}
-            backgroundColor="#195F50"
-            color="#fff"
-            variant="outline"
             type="submit"
             size="lg"
           >

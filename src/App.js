@@ -7,6 +7,7 @@ import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@aws-amplify/ui-react/styles.css";
 import { ChakraProvider } from "@chakra-ui/react";
+import { standardStyling } from "./theme";
 
 //Web3 Imports
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
@@ -71,7 +72,7 @@ function App() {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <ChakraProvider>
+          <ChakraProvider theme={standardStyling}>
             <Router>
               <Routes>
                 <Route exact path={HOME} element={<Home />} />

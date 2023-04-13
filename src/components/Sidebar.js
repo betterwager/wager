@@ -28,7 +28,10 @@ import {
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
+import { allColors } from "../theme"
+
 import React, { useEffect, useState, useCallback } from "react";
+
 
 import { QRCodeCanvas } from "qrcode.react";
 import { BsFillDice5Fill } from "react-icons/bs";
@@ -57,7 +60,7 @@ import {
 import { Layout, Menu } from "antd";
 import { API, Auth } from "aws-amplify";
 import { Buffer } from "buffer";
-import {Container, Form, Navbar} from "react-bootstrap";
+import { Container, Form, Navbar } from "react-bootstrap";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -106,10 +109,10 @@ export function SidebarContent(props) {
 
   const [start1IsOpen, setStart1IsOpen] = useState(false);
 
-  
+
 
   const navigate = useNavigate();
-  
+
   let { publicKey, sendTransaction } = useWallet();
 
   //API Calls
@@ -166,7 +169,7 @@ export function SidebarContent(props) {
   };
 
   return (
-    <div style= {{overflow:"hidden"}}>
+    <div style={{ overflow: "hidden" }}>
       <Container
         style={{
           marginLeft: "1vh",
@@ -176,111 +179,115 @@ export function SidebarContent(props) {
           alignContent: "center",
         }}
       >
-        <div style = {{marginLeft: "10px"}}>
+        <div style={{ marginLeft: "10px" }}>
           <Navbar.Brand href={HOME}>
             <Flex align={"center"} w={"100%"}>
-                    <Icon h={"20%"} w={"20%"} as={FaDice} color="#ffffff" />
-                    <Text fontSize="3xl" fontWeight={"bold"} color="#ffffff">
-                      Wager
-                    </Text>
+              <Icon h={"20%"} w={"20%"} as={FaDice} color="#ffffff" />
+              <Text fontSize="3xl" fontWeight={"bold"} color="#ffffff">
+                Wager
+              </Text>
             </Flex>
           </Navbar.Brand>
-        </div>  
+        </div>
       </Container>
-      <Menu
-        style={{ backgroundColor: "#195F50" }}
-        theme="dark"
-        defaultSelectedKeys={
-          window.location.pathname == DASHBOARD ||
-          window.location.pathname == DASHBOARD.toLowerCase()
-            ? ["1"]
-            : ["2"]
-        }
-        mode="inline"
+      <Box
       >
-        <SubMenu
-          selectable={false}
-          key="sub1"
-          title={Auth.user.attributes.phone_number}
-          icon={<UserOutlined />}
+        <Menu
+          style={{ backgroundColor: allColors.primaryColor, color: allColors.buttonTextColor }}
+          theme="dark"
+          defaultSelectedKeys={
+            window.location.pathname == DASHBOARD ||
+              window.location.pathname == DASHBOARD.toLowerCase()
+              ? ["1"]
+              : ["2"]
+          }
+          mode="inline"
         >
-          <Menu.Item onClick={() => {
-            setAccIsOpen(true)
+          <SubMenu
+            selectable={false}
+            key="sub1"
+            title={Auth.user.attributes.phone_number}
+            icon={<UserOutlined />}
+          >
+            <Menu.Item onClick={() => {
+              setAccIsOpen(true)
             }} key="8">
-            Account Details
+              Account Details
+            </Menu.Item>
+
+            <NewUserModals
+              start1IsOpen={start1IsOpen}
+              setStart1IsOpen={setStart1IsOpen}
+              editIsOpen={editIsOpen}
+              setEditIsOpen={setEditIsOpen}
+            />
+
+            <AccountInfoModal
+              user={user}
+              userUpdate={userUpdate}
+              isOpen={accIsOpen}
+              setIsOpen={setAccIsOpen}
+              editIsOpen={editIsOpen}
+              setEditIsOpen={setEditIsOpen}
+              publicKey={publicKey}
+              newUser={newUser}
+              setNewUser={setNewUser}
+            />
+            <AccountEditModal
+              user={user}
+              userUpdate={userUpdate}
+              isOpen={editIsOpen}
+              setIsOpen={setEditIsOpen}
+              publicKey={publicKey}
+              newUser={newUser}
+              setNewUser={setNewUser}
+              firstName={firstName}
+              setFirstName={setFirstName}
+              lastName={lastName}
+              setLastName={setLastName}
+              birthdate={birthdate}
+              setBirthdate={setBirthdate}
+              phoneNumber={phoneNumber}
+              setPhoneNumber={setPhoneNumber}
+              toast={toast}
+              setUser={setUser}
+            />
+
+            <Menu.Item onClick={handleSignOut} key="9">
+              Sign Out
+            </Menu.Item>
+          </SubMenu>
+          <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}>
+            <a href={DASHBOARD}>Dashboard</a>
           </Menu.Item>
-
-          <NewUserModals
-            start1IsOpen={start1IsOpen}
-            setStart1IsOpen={setStart1IsOpen}
-            editIsOpen={editIsOpen}
-            setEditIsOpen={setEditIsOpen}
-          />
-
-          <AccountInfoModal
-            user={user}
-            userUpdate={userUpdate}
-            isOpen={accIsOpen}
-            setIsOpen={setAccIsOpen}
-            editIsOpen={editIsOpen}
-            setEditIsOpen={setEditIsOpen}
-            publicKey={publicKey}
-            newUser={newUser}
-            setNewUser={setNewUser}
-          />
-          <AccountEditModal
-            user={user}
-            userUpdate={userUpdate}
-            isOpen={editIsOpen}
-            setIsOpen={setEditIsOpen}
-            publicKey={publicKey}
-            newUser={newUser}
-            setNewUser={setNewUser}
-            firstName={firstName}
-            setFirstName={setFirstName}
-            lastName={lastName}
-            setLastName={setLastName}
-            birthdate={birthdate}
-            setBirthdate={setBirthdate}
-            phoneNumber={phoneNumber}
-            setPhoneNumber={setPhoneNumber}
-            toast={toast}
-            setUser={setUser}
-          />
-
-          <Menu.Item onClick={handleSignOut} key="9">
-            Sign Out
+          <Menu.Item key="2" icon={<CrownOutlined />}>
+            <a href={LEADERBOARD}>Leaderboard</a>
           </Menu.Item>
-        </SubMenu>
-        <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}>
-          <a href={DASHBOARD}>Dashboard</a>
+        </Menu>
+      </Box>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <Menu selectable={false} style={{ backgroundColor: allColors.primaryColor, color: allColors.buttonTextColor }}
+        theme="dark" mode="inline">
+        <Menu.Item onClick={() => setFriendsIsOpen(true)} icon={<UsergroupAddOutlined />}>
+          Find Friends
         </Menu.Item>
-        <Menu.Item key="2" icon={<CrownOutlined />}>
-          <a href={LEADERBOARD}>Leaderboard</a>
-        </Menu.Item>
-      </Menu>
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <Menu selectable={false} style={{ backgroundColor: "#195F50" }} theme="dark" mode="inline">
-      <Menu.Item onClick={() => setFriendsIsOpen(true)} icon={<UsergroupAddOutlined />}>
-            Find Friends
-        </Menu.Item>
-        <FriendsModal user={user} setUser={setUser} toast={toast} isOpen = {friendsIsOpen} setIsOpen={setFriendsIsOpen}/>
+        <FriendsModal user={user} setUser={setUser} toast={toast} isOpen={friendsIsOpen} setIsOpen={setFriendsIsOpen} />
 
-      <Menu.Item onClick={() => {
-        setWalletIsOpen(true)
+        <Menu.Item onClick={() => {
+          setWalletIsOpen(true)
         }} icon={<DollarCircleOutlined />}>
-            Connect Wallet
+          Connect Wallet
         </Menu.Item>
 
-        <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen}/>
+        <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen} />
 
         <Menu.Item icon={<ExclamationCircleOutlined />}>
           <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank">
@@ -302,18 +309,18 @@ const Sidebar = (props) => {
       w="250px"
       top={0}
       h="100%"
-      bg="#195F50"
+      bg="primaryColor"
     >
-      <SidebarContent refresh={props.refresh} user={props.user}  isOpen={props.isOpen} setIsOpen={props.setIsOpen}/>
+      <SidebarContent refresh={props.refresh} user={props.user} isOpen={props.isOpen} setIsOpen={props.setIsOpen} />
     </Box>
   ) : (
     <Drawer isOpen={props.isOpen} placement="left" onClose={props.onClose}>
       <DrawerOverlay>
-        <DrawerContent style={{backgroundColor:"#195F50"}}>
-          <DrawerCloseButton style = {{color:"#ffffff"}}/>
+        <DrawerContent style={{ backgroundColor: "primaryColor" }}>
+          <DrawerCloseButton style={{ color: "#ffffff" }} />
           <DrawerBody>
 
-            <SidebarContent refresh={props.refresh} user={props.user}  isOpen={props.isOpen} setIsOpen={props.onClose}/>
+            <SidebarContent refresh={props.refresh} user={props.user} isOpen={props.isOpen} setIsOpen={props.onClose} />
 
           </DrawerBody>
         </DrawerContent>

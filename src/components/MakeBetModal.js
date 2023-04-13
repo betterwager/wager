@@ -200,7 +200,11 @@ function MakeBetModal(props) {
           <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
             Close
           </Button>
-          <Button colorScheme="green" onClick={handleBetting}>
+          <Button
+            // colorScheme="green" onClick={handleBetting}
+            backgroundColor="primaryColor"
+            color="buttonTextColor"
+          >
             Wager!
           </Button>
         </ModalFooter>

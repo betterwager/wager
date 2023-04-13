@@ -61,7 +61,9 @@ const Validate = (props) => {
   
           <Button
             disabled={isLoading}
-            colorScheme="green"
+            // colorScheme="green"
+            backgroundColor="primaryColor"
+            color="buttonTextColor"
             type="submit"
             size="lg"
             style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"20%", marginRight:"20%", width:"60%"}}

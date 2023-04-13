@@ -107,7 +107,12 @@ function JoinLeaderModal(props) {
             <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
               Close
             </Button>
-            <Button onClick={handleJoinLeaderSubmit} colorScheme="green">
+            <Button 
+              onClick={handleJoinLeaderSubmit} 
+              // colorScheme="green"
+              backgroundColor="primaryColor"
+              color="buttonTextColor"
+              >
               Join
             </Button>
           </ModalFooter>

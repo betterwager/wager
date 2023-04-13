@@ -46,8 +46,8 @@ function NewUserModals(props) {
         <ModalOverlay backdropFilter="blur(10px) brightness(0%)" />
         <ModalContent>
           <ModalHeader>
-            <Icon h={"10%"} w={"10%"} as={FaDice} color="#195F50" />
-            <Text fontSize="3xl" as="b" color="#195F50">
+            <Icon h={"10%"} w={"10%"} as={FaDice} color="primaryColor" />
+            <Text fontSize="3xl" as="b" color="primaryColor">
               Welcome to Wager
             </Text>
           </ModalHeader>
@@ -59,7 +59,7 @@ function NewUserModals(props) {
           </ModalBody>
           <ModalFooter>
             <Button
-              colorScheme="green"
+              backgroundColor="primaryColor"
               onClick={() => {
                 setStart1IsOpen(false);
                 setStart2IsOpen(true);
@@ -75,13 +75,13 @@ function NewUserModals(props) {
         <ModalOverlay backdropFilter="blur(10px) brightness(0%)" />
         <ModalContent>
           <ModalHeader>
-            <Text fontSize="3xl" as="b" color="#195F50">
+            <Text fontSize="3xl" as="b" color="primaryColor">
               Wager Features
             </Text>
           </ModalHeader>
           <ModalBody>
             <Flex>
-              <Icon as={BsFillDice5Fill} h={"7%"} w={"7%"} color="#195F50" />
+              <Icon as={BsFillDice5Fill} h={"7%"} w={"7%"} color="primaryColor" />
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Set up and share bets with your friends with access through your{" "}
                 <u>
@@ -101,7 +101,7 @@ function NewUserModals(props) {
             </Flex>{" "}
             <br />
             <Flex>
-              <Icon as={MdLeaderboard} h={"7%"} w={"7%"} color="#195F50" />
+              <Icon as={MdLeaderboard} h={"7%"} w={"7%"} color="primaryColor" />
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Compete using your bet records across the platforms through a
                 leaderboard system
@@ -110,7 +110,9 @@ function NewUserModals(props) {
           </ModalBody>
           <ModalFooter>
             <Button
-              colorScheme="green"
+              // colorScheme="green"
+              backgroundColor="primaryColor"
+              color="ButtonText"
               onClick={() => {
                 setStart2IsOpen(false);
                 setStart3IsOpen(true);
@@ -126,13 +128,13 @@ function NewUserModals(props) {
         <ModalOverlay backdropFilter="blur(10px) brightness(0%)" />
         <ModalContent>
           <ModalHeader>
-            <Text fontSize="3xl" as="b" color="#195F50">
+            <Text fontSize="3xl" as="b" color="primaryColor">
               Next Steps
             </Text>
           </ModalHeader>
           <ModalBody>
             <Flex>
-              <Icon as={RiNumber1} h={"7%"} w={"7%"} color="#195F50" />
+              <Icon as={RiNumber1} h={"7%"} w={"7%"} color="primaryColor" />
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Fill out the Account Information form to register as a user in
                 Wager
@@ -141,7 +143,7 @@ function NewUserModals(props) {
             </Flex>{" "}
             <br />
             <Flex>
-              <Icon as={RiNumber2} h={"7%"} w={"7%"} color="#195F50" />
+              <Icon as={RiNumber2} h={"7%"} w={"7%"} color="primaryColor" />
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Connect your Phantom or Glow wallet to the account to link your bets to
                 the account
@@ -150,7 +152,7 @@ function NewUserModals(props) {
             </Flex>{" "}
             <br />
             <Flex>
-              <Icon as={RiNumber3} h={"7%"} w={"7%"} color="#195F50" />
+              <Icon as={RiNumber3} h={"7%"} w={"7%"} color="primaryColor" />
               <Text style={{ marginLeft: "15px" }} fontSize="xl">
                 Start Wagering!
               </Text>
@@ -158,7 +160,9 @@ function NewUserModals(props) {
           </ModalBody>
           <ModalFooter>
             <Button
-              colorScheme="green"
+              // colorScheme="green"
+              backgroundColor="primaryColor"
+              color="buttonTextColor"
               onClick={() => {
                 setStart3IsOpen(false);
                 setEditIsOpen(true);
