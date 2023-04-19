@@ -204,6 +204,7 @@ export function SidebarContent(props) {
           mode="inline"
         >
           <SubMenu
+            style={{ backgroundColor: allColors.primaryColor, color: allColors.buttonTextColor }}
             selectable={false}
             key="sub1"
             title={Auth.user.attributes.phone_number}
@@ -211,7 +212,9 @@ export function SidebarContent(props) {
           >
             <Menu.Item onClick={() => {
               setAccIsOpen(true)
-            }} key="8">
+            }} key="8"
+
+            >
               Account Details
             </Menu.Item>
 
@@ -253,15 +256,16 @@ export function SidebarContent(props) {
               setUser={setUser}
             />
 
-            <Menu.Item onClick={handleSignOut} key="9">
+            <Menu.Item onClick={handleSignOut} key="9"
+            >
               Sign Out
             </Menu.Item>
           </SubMenu>
-          <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}>
+          <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}  >
             <a href={DASHBOARD}>Dashboard</a>
           </Menu.Item>
           <Menu.Item key="2" icon={<CrownOutlined />}>
-            <a href={LEADERBOARD}>Leaderboard</a>
+            <a href={LEADERBOARD}  >Leaderboard</a>
           </Menu.Item>
         </Menu>
       </Box>

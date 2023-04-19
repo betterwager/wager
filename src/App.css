@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css?family=Mulish");
 
+
+
 .App {
   text-align: center;
 }
@@ -77,4 +79,37 @@ html body {
   line-height: 48px;
   padding: 0 24px;
   border-radius: 4px;
+}
+
+element {
+  --bg-color: #6E260E;
+  --hover-bg: rgba(0,0,0,0.5);
+  --selected-bg: #7DC3B4;
+
+}
+ 
+.ant-menu-light .ant-menu-item-selected{
+  
+  background-color:#7DC3B4;
+}
+
+.ant-menu-dark .ant-menu-item-selected{
+  
+  background-color:#7DC3B4;
+}
+
+.ant-menu-item .ant-menu-item-active{
+  background-color: #7DC3B4;
+}
+
+.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):hover{
+  background-color: rgba(0,0,0,0.5);
+}
+
+.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-submenu-title:hover{
+  background-color: rgba(0,0,0,0.5);
+}
+
+.ant-menu-dark.ant-menu-inline .ant-menu-sub.ant-menu-inline {
+  background-color: #195F50
 }

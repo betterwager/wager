@@ -74,7 +74,7 @@ const SignIn = (props) => {
             size="lg"
             // colorScheme="green"
             backgroundColor = "primaryColor"
-            color = "color"
+            color = "buttonTextColor"
             style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"20%", marginRight:"20%", width:"60%"}}
             className="mt-2 btn-success"
             type="submit"
