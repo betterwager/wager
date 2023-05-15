@@ -15,20 +15,19 @@ import "bootstrap/dist/css/bootstrap.css";
 import React from "react";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
-import {  Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import { API, Auth } from "aws-amplify";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
-
 
 function AccountEditModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
 
   const [user, setUser] = [props.user, props.setUser];
-  const userUpdate = props.userUpdate
+  const userUpdate = props.userUpdate;
   const [newUser, setNewUser] = [props.newUser, props.setNewUser];
   const publicKey = props.publicKey;
-  const toast = props.toast
+  const toast = props.toast;
 
   const [firstName, setFirstName] = [props.firstName, props.setFirstName];
   const [lastName, setLastName] = [props.lastName, props.setLastName];
@@ -48,82 +47,78 @@ function AccountEditModal(props) {
 
   const handleEditSubmit = async () => {
     let phoneNumber = Auth.user.attributes.phone_number;
-      const name = firstName + " " + lastName;
-      if (
-        firstName != "" &&
-        lastName != "" &&
-        birthdate != ""
-      ) {
-        let birthday = +new Date(birthdate);
-        let age = ~~((Date.now() - birthday) / 31557600000);
-        if (age >= 18) {
-          if (user != null && JSON.stringify(user) !== '{}') {
-            let newUser = {
-              id: user.id,
-              name: name,
-              birthdate: birthdate,
-              _version: user._version,
-            };
+    const name = firstName + " " + lastName;
+    if (firstName != "" && lastName != "" && birthdate != "") {
+      let birthday = +new Date(birthdate);
+      let age = ~~((Date.now() - birthday) / 31557600000);
+      if (age >= 18) {
+        if (user != null && JSON.stringify(user) !== "{}") {
+          let newUser = {
+            id: user.id,
+            name: name,
+            birthdate: birthdate,
+            _version: user._version,
+          };
 
-            userUpdate(newUser)
-            .then((res) => {
-              setUser(res.data.updateUser)
-              setIsOpen(false);
-              toast({
-                title: "User Information Updated",
-                description: "Now let's get betting!",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-              });
+          userUpdate(newUser).then((res) => {
+            setUser(res.data.updateUser);
+            setIsOpen(false);
+            toast({
+              title: "User Information Updated",
+              description: "Now let's get betting!",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
             });
-          } else {
-            let newUser = {
-              id: uniqueHash(phoneNumber),
-              name: name,
-              phonenumber: phoneNumber,
-              birthdate: birthdate,
-              trustscore: 100,
-              bettingscore: 0,
-              requests: [],
-              friends: [],
-            };
-
-            const promise = await API.graphql({
-              query: mutations.createUser,
-              variables: { input: newUser },
-            }).then((res) => {
-              setUser(newUser)
-              setNewUser(false);
-              setIsOpen(false);
-              toast({
-                title: "User Information Updated",
-                description: "Now let's get betting!",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-              });
-            });
-          }
+          });
         } else {
-          toast({
-            title: "Invalid Date of Birth",
-            description: "Must be 18 years of age or older",
-            status: "warning",
-            duration: 3000,
-            isClosable: true,
+          let newUser = {
+            id: uniqueHash(phoneNumber),
+            name: name,
+            phonenumber: phoneNumber,
+            birthdate: birthdate,
+            trustscore: 100,
+            bettingscore: 0,
+            requests: [],
+            friends: [],
+            publickey: " ",
+            privatekey: " ",
+          };
+
+          const promise = await API.graphql({
+            query: mutations.createUser,
+            variables: { input: newUser },
+          }).then((res) => {
+            setUser(newUser);
+            setNewUser(false);
+            setIsOpen(false);
+            toast({
+              title: "User Information Updated",
+              description: "Now let's get betting!",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
+            });
           });
         }
       } else {
         toast({
-          title: "Invalid Entry",
-          description: "Please fill out all fields",
+          title: "Invalid Date of Birth",
+          description: "Must be 18 years of age or older",
           status: "warning",
           duration: 3000,
           isClosable: true,
         });
       }
-
+    } else {
+      toast({
+        title: "Invalid Entry",
+        description: "Please fill out all fields",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
