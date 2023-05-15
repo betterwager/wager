@@ -51,7 +51,7 @@ const SignIn = (props) => {
     };
   
     return (
-      <Container style={{ maxWidth: "60%", width:"1000px", alignItems:"center" }} className="mt-5">
+      <Container style={{alignItems:"center", justifyContent: "center" }} className="mt-5">
         <h2 className="text-center display-4 fw-bold pb-2">Sign In</h2>
         <Form onSubmit={handleSubmit}>
           <div style = {{marginTop:"10px", marginBottom:"10px", marginLeft:"20%", marginRight:"20%", width:"60%", textAlign: "center"}}>

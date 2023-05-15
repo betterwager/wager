@@ -43,7 +43,7 @@ const Validate = (props) => {
   };
 
   return (
-    <Container style={{ maxWidth: "60%", width:"1000px", alignItems:"center", textAlign:"center" }} className="mt-5">
+    <Container style={{  alignItems:"center", textAlign:"center" }} className="mt-5">
         <h2 className="text-center display-4 fw-bold pb-2">Sign In</h2>
         <h5 className="text-center">Enter the OTP Code sent to your phone number</h5>
         <Form onSubmit={handleSubmit}>

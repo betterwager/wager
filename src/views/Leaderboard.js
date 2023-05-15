@@ -42,6 +42,7 @@ import Loading from "../components/Loading.js";
 import Login from "../components/Login.js";
 import Header from "../components/Header.js";
 import { userUpdate } from "../utils/utils.js";
+import Temp from "../components/Temp.js";
 
 const smVariant = { navigation: 'drawer', navigationButton: true }
 const mdVariant = { navigation: 'sidebar', navigationButton: false }
@@ -276,7 +277,8 @@ function Leaderboard() {
         code={code}
         setCode={setCode}
       />
-    </div>) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
+    </div>
+    ) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
 }
 
 export default Leaderboard;

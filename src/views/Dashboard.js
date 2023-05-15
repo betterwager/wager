@@ -72,6 +72,7 @@ import BetInfoModal from "../components/BetInfoModal";
 import BetDisplayCards from "../components/BetDisplayCards";
 import WalletEntryModal from "../components/WalletEntryModal";
 import Loading from "../components/Loading";
+import Temp from "../components/Temp";
 
 const smVariant = { navigation: 'drawer', navigationButton: true }
 const mdVariant = { navigation: 'sidebar', navigationButton: false }
@@ -637,7 +638,8 @@ function Dashboard() {
         />
     
     <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen}/>
-    </div>) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
+    </div>
+    ) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
     )
     )
     )
