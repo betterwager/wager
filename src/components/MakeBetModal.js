@@ -201,7 +201,8 @@ function MakeBetModal(props) {
             Close
           </Button>
           <Button
-            // colorScheme="green" onClick={handleBetting}
+            colorScheme="green"
+            onClick={handleBetting}
             backgroundColor="primaryColor"
             color="buttonTextColor"
           >
