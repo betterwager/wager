@@ -447,7 +447,7 @@ function Dashboard() {
       <Sidebar variant={variants?.navigation}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar} refresh={getBets} user={currentUser} />
-      <Box ml={!variants?.navigationButton && 250} bg="#F7F8FC" style={{height: "100vh"}}>
+      <Box ml={!variants?.navigationButton && 250} bg="#ffffff" style={{height: "100vh"}}>
         <Header
           showSidebarButton={variants?.navigationButton}
           onShowSidebar={toggleSidebar}
@@ -467,12 +467,12 @@ function Dashboard() {
             <Col>
               <Card
                 style={{
-                  borderColor: "#1D5F50",
+                  borderColor: "accentColor",
                   textAlign: "center",
                 }}
               >
                 <Card.Body>
-                  <Card.Text style={{ color: "#888888" }}>Earnings</Card.Text>
+                  <Card.Text style={{ color: "accentColor" }}>Earnings</Card.Text>
                   <Card.Title>
                     {currentUser == null ? (
                       <strong>$0</strong>
@@ -486,12 +486,12 @@ function Dashboard() {
             <Col>
               <Card
                 style={{
-                  borderColor: "#1D5F50",
+                  borderColor: "accentColor",
                   textAlign: "center",
                 }}
               >
                 <Card.Body>
-                  <Card.Text style={{ color: "#888888" }}>
+                  <Card.Text style={{ color: "accentColor" }}>
                     Active Bets
                   </Card.Text>
                   <Card.Title>
@@ -503,12 +503,12 @@ function Dashboard() {
             <Col>
               <Card
                 style={{
-                  borderColor: "#1D5F50",
+                  borderColor: "accentColor",
                   textAlign: "center",
                 }}
               >
                 <Card.Body>
-                  <Card.Text style={{ color: "#888888" }}>Voting</Card.Text>
+                  <Card.Text style={{ color: "accentColor" }}>Voting</Card.Text>
                   <Card.Title>
                     <strong>
                       {allUserBets.filter((obj) => obj.state === 2).length}
@@ -520,12 +520,12 @@ function Dashboard() {
             <Col>
               <Card
                 style={{
-                  borderColor: "#1D5F50",
+                  borderColor: "accentColor",
                   textAlign: "center",
                 }}
               >
                 <Card.Body>
-                  <Card.Text style={{ color: "#888888" }}>
+                  <Card.Text style={{ color: "accentColor" }}>
                     Closed Bets
                   </Card.Text>
                   <Card.Title>

@@ -62,7 +62,7 @@ const Header = (props) => {
           style={{
             borderBottom: "solid",
             borderColor: "primaryColor",
-            backgroundColor: "#F7F8FC",
+            backgroundColor: "#ffffff",
           }}
 
         >
@@ -190,7 +190,7 @@ const Header = (props) => {
         </Navbar>
       )}
 
-      <Flex bg="#F7F8FC" p={4} color="white" justifyContent="center">
+      <Flex bg="#ffffff" p={4} color="white" justifyContent="center">
 
         <Text as='b' style={{ color: "#000000" }} fontSize="xl">{props.page}</Text>
 

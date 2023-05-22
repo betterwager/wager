@@ -25,7 +25,8 @@ import {
   Button,
   NumberInputStepper,
   Text,
-  IconButton
+  IconButton,
+  Divider,
 } from "@chakra-ui/react";
 import { Container, Card, Row, Col, Form } from "react-bootstrap";
 import {AiFillInfoCircle} from "react-icons/ai"
@@ -193,7 +194,6 @@ function BetDisplayCards(props) {
                         </Col>
                         <Col style={{ textAlign: "left" }}>
                           <Card.Title>
-                            <strong>Bet Name:</strong>{" "}
                             {String.fromCharCode.apply(
                               String,
                               bet.bet_identifier
@@ -207,8 +207,9 @@ function BetDisplayCards(props) {
                           <Button
                           
                           style = {{margin:"5px"}}
-                            backgroundColor="primaryColor"
-                            color="buttonTextColor"
+                            borderColor="accentColor"
+                            borderRadius="20px"
+                            color="accentColor"
                             variant="outline"
                             mr={3}
                             onClick={() => {
@@ -224,7 +225,9 @@ function BetDisplayCards(props) {
                           <Button
                           
                           style = {{margin:"5px"}}
-                            colorScheme="blue"
+                          borderColor="accentColor"
+                          borderRadius="20px"
+                          color="accentColor"
                             variant="outline"
                             mr={3}
                             onClick={() => {
@@ -237,7 +240,6 @@ function BetDisplayCards(props) {
                             Ping
                           </Button>
                           <Button
-                            colorScheme="purple"
                             mr={3}
                             
                             style = {{margin:"5px"}}
@@ -256,6 +258,37 @@ function BetDisplayCards(props) {
                           </Button>
                         </Col>
                       </Row>
+                      <br/>
+                      <Row>
+                        <Col>
+                        <strong>Stake:</strong>
+                        </Col>
+                        <Col>
+                        <Divider orientation='vertical' />
+                        </Col>
+                        <Col>
+                        <strong>Stake:</strong>
+                        </Col>
+                        <Col>
+                        <Divider orientation='vertical' />
+                        </Col>
+                        <Col>
+                        <strong>Stake:</strong>
+                        </Col>
+                        <Col>
+                        <Divider orientation='vertical' />
+                        </Col>
+                        <Col>
+                        <strong>Stake:</strong>
+                        </Col>
+                        <Col>
+                        <Divider orientation='vertical' />
+                        </Col>
+                        <Col>
+                        <strong>Stake:</strong>
+                        </Col>
+
+                      </Row>
                     </Card.Body>
                   ),
 
@@ -268,7 +301,6 @@ function BetDisplayCards(props) {
                         <Col style={{ textAlign: "left" }}>
                         <Flex>
                           <Card.Title>
-                            <strong>Bet Name:</strong>{" "}
                             {String.fromCharCode.apply(
                               String,
                               bet.bet_identifier
@@ -340,7 +372,6 @@ function BetDisplayCards(props) {
                         </Col>
                         <Col style={{ textAlign: "left" }}>
                           <Card.Title>
-                            <strong>Bet Name:</strong>{" "}
                             {String.fromCharCode.apply(
                               String,
                               bet.bet_identifier

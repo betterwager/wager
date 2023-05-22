@@ -11,6 +11,7 @@ const { definePartsStyle, defineMultiStyleConfig } =
 export const allColors = {
   //another color 6E260E
   primaryColor: "#195F50",
+  accentColor: "#3E36D9",
   buttonTextColor: "#fff",
   hoverColor: "#7DC3B4",
 }
@@ -44,6 +45,7 @@ const Button = {
 export const standardStyling = extendTheme({
   colors: {
     primaryColor: allColors.primaryColor,
+    accentColor: allColors.accentColor,
     buttonTextColor: allColors.buttonTextColor,
     hoverColor: allColors.hoverColor,
   },
