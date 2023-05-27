@@ -400,16 +400,15 @@ function Dashboard() {
     setCurrentBetIndex(betIndex);
   };
 
-  const getUser = async () => {
-    if (magicUser != null){
+  const getUser = async (phoneNumber) => {
       const user = await API.graphql({ 
         query: queries.getUser,
         variables: {
-            id: uniqueHash(magicUser.phoneNumber.substring(1))
+            id: uniqueHash(phoneNumber.substring(1))
         }
         })
       return user;
-    };
+  
     }
     
 
@@ -433,8 +432,14 @@ function Dashboard() {
                 .then((userData) =>
                 {
                   setMagicUser({ ...userData, identityId: user.id });
-                  setIsLoading(false);
                   console.log({ ...userData, identityId: user.id })
+                  getUser(userData.phoneNumber)
+                  .catch(console.error)
+                  .then((res) => {
+                    setCurrentUser(res.data.getUser);
+                    getBets(publicKey).catch(console.error);
+                    setIsLoading(false)
+                  });
                 })
             : setMagicUser({ user: null }) && navigate("/login");
         })
@@ -446,20 +451,15 @@ function Dashboard() {
       setMagicUser({ user: null });
       navigate("/login")
     });
-    getUser()
-    .catch(console.error)
-    .then((res) => {
-      setCurrentUser(res.data.getUser);
-      getBets(publicKey).catch(console.error);
-    });
+    
   },[])
 
-  useEffect(() => {
+  // useEffect(() => {
    
-  }, [getBets]); // eslint-disable-line react-hooks/exhaustive-deps
-  /* useEffect(() => {
-  }, [getBets,publicKey]); */
-  //getBets(publicKey).catch(console.error);
+  // }, [getBets]); // eslint-disable-line react-hooks/exhaustive-deps
+  // /* useEffect(() => {
+  // }, [getBets,publicKey]); */
+  // //getBets(publicKey).catch(console.error);
 
   return (
 

@@ -56,9 +56,11 @@ function CreateLeaderModal(props) {
           setLeaderCode(leaderID);
 
           let userLeaderboard = {
+            id: uniqueHash(user.id + leaderID),
             leaderboardId: leaderID,
             userId: user.id
           }
+          console.log(userLeaderboard)
           userLeaderCreate(userLeaderboard)
             .then((res) => {
               let allBoards = props.boardIDs;
@@ -71,7 +73,6 @@ function CreateLeaderModal(props) {
             .catch((e) => {
               console.log(e)
               alert("Choose another Leaderboard Name");
-              return;
             });
         })
 

@@ -88,16 +88,15 @@ function Leaderboard() {
   
 
 
-  const getUser = async () => {
-    if (magicUser != null){
+  const getUser = async (phoneNumber) => {
       const user = await API.graphql({ 
         query: queries.getUser,
         variables: {
-            id: uniqueHash(magicUser.phoneNumber.substring(1))
+            id: uniqueHash(phoneNumber.substring(1))
         }
         })
       return user;
-    }
+    
 
   };
 
@@ -121,41 +120,43 @@ function Leaderboard() {
                 .then((userData) =>
                 {
                   setMagicUser({ ...userData, identityId: user.id });
-                  setIsLoading(false);
                   console.log({ ...userData, identityId: user.id })
+                  getUser(userData.phoneNumber)
+                  .catch(console.error)
+                  .then((res) => {
+                    console.log(res);
+                    setCurrentUser(res.data.getUser);
+                    let userBoards = res.data.getUser.leaderboards.items
+                    console.log(userBoards)
+                    let boardnames = userBoards.map(board => board.leaderboard.name); 
+                    console.log(boardnames)
+                    setBoardNames(boardnames);
+                    let boardids = userBoards.map(board => board.leaderboard.id);
+                    setBoardIDs(boardids);
+                    if (boardids && boardids.length > 0){
+                      getBoardUsers(boardids[0])
+                      .then((res) => {
+                        setIsLoading(false);
+                      })
+                    }else{
+                      setIsLoading(false)
+                    }
+                  });
                 })
             : setMagicUser({ user: null }) && navigate("/login");
         })
         .catch((e) => {
           console.log("currentUser", { e });
         });
+
+        
     })
     .catch((e) => {
       setMagicUser({ user: null });
       navigate("/login")
-    });
+    })
 
-    getUser()
-      .catch(console.error)
-      .then((res) => {
-        console.log(res);
-        setCurrentUser(res.data.getUser);
-        let userBoards = res.data.getUser.leaderboards.items
-        console.log(userBoards)
-        let boardnames = userBoards.map(board => board.leaderboard.name); 
-        console.log(boardnames)
-        setBoardNames(boardnames);
-        let boardids = userBoards.map(board => board.leaderboard.id);
-        setBoardIDs(boardids);
-        if (boardids && boardids.length > 0){
-          getBoardUsers(boardids[0])
-          .then((res) => {
-            setIsLoading(false);
-          })
-        }else{
-          setIsLoading(false)
-        }
-      });
+    
   },[])
 
   
