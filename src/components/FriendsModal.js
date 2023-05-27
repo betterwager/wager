@@ -53,7 +53,7 @@ import {
 
     const requestFriend = async (e) => {
       e.preventDefault()
-      let userPhone = await Auth.user.attributes.phone_number
+      let userPhone = user.phonenumber
       getUser(uniqueHash(phoneNumber))
       .then((res) => {
         let updatedUser = res.data.getUser;
@@ -106,7 +106,7 @@ import {
     const acceptFriendRequest = async (e, phoneNumber) => {
       //move from requests to friends
       e.preventDefault();
-      let userPhone = await Auth.user.attributes.phone_number
+      let userPhone = user.phonenumber
       let requests = user.requests
       requests = requests.filter(item => item !== phoneNumber)
 

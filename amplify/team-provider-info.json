@@ -13,11 +13,18 @@
     },
     "categories": {
       "auth": {
-        "wager": {
-          "userPoolId": "us-east-1_xVkTsRdQu",
-          "userPoolName": "wager-users",
-          "webClientId": "25e529hnh5j2b5bk44t32d4qnp",
-          "nativeClientId": "25e529hnh5j2b5bk44t32d4qnp"
+        "WagerAuth": {}
+      },
+      "api": {
+        "wager": {},
+        "magicRestAPI": {}
+      },
+      "function": {
+        "wagerMagicAuthentication": {
+          "identityPoolId": "us-east-1:8147e93f-a402-478e-bebb-2ca11cf82ab1",
+          "secretsPathAmplifyAppId": "d3py02dnuh8sl3",
+          "deploymentBucketName": "amplify-wager-staging-195802-deployment",
+          "s3Key": "amplify-builds/wagerMagicAuthentication-5536383638524d663548-build.zip"
         }
       }
     }

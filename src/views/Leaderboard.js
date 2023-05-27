@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import {useNavigate} from "react-router-dom";
 import {
   Grid,
   SimpleGrid,
@@ -41,7 +42,7 @@ import LeaderInfoModal from "../components/LeaderInfoModal.js";
 import Loading from "../components/Loading.js";
 import Login from "../components/Login.js";
 import Header from "../components/Header.js";
-import { userUpdate } from "../utils/utils.js";
+import { magic } from "../utils/globals.js";
 import Temp from "../components/Temp.js";
 
 const smVariant = { navigation: 'drawer', navigationButton: true }
@@ -65,17 +66,6 @@ function Leaderboard() {
    const toggleSidebar = () => setSidebarOpen(!isSidebarOpen)
 
 
-  const getUser = async () => {
-    let phoneNumber = await Auth.user.attributes.phone_number
-    const user = await API.graphql({ 
-      query: queries.getUser,
-      variables: {
-          id: uniqueHash(phoneNumber)
-      }
-      });
-    return user;
-  };
-
 
 
   const getBoardUsers = async (boardid) => {
@@ -94,28 +84,59 @@ function Leaderboard() {
   };
 
   
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  const checkLogin = useCallback(async () => {
-    
-    try {
-      const data = await Auth.currentAuthenticatedUser()
-      .then((res) => {
-        console.log(res)
-        setIsAuthenticated(true);
-      })
-    } catch {
-      // User not logged in
-      setIsAuthenticated(false)
-      
-    }
-  })
 
+
+  const getUser = async () => {
+    if (magicUser != null){
+      const user = await API.graphql({ 
+        query: queries.getUser,
+        variables: {
+            id: uniqueHash(magicUser.phoneNumber.substring(1))
+        }
+        })
+      return user;
+    }
+
+  };
+
+  const [magicUser, setMagicUser] = useState({})
+
+
+  const navigate = useNavigate()
   useEffect(() => {
-    checkLogin()
-    .then(() => {
-      getUser()
+    Auth.currentUserCredentials()
+    .catch((e) => {
+      console.log("=== currentcredentials", { e });
+    });
+  Auth.currentAuthenticatedUser()
+    .then((user) => {
+      magic.user
+        .isLoggedIn()
+        .then((isLoggedIn) => {
+          return isLoggedIn
+            ? magic.user
+                .getMetadata()
+                .then((userData) =>
+                {
+                  setMagicUser({ ...userData, identityId: user.id });
+                  setIsLoading(false);
+                  console.log({ ...userData, identityId: user.id })
+                })
+            : setMagicUser({ user: null }) && navigate("/login");
+        })
+        .catch((e) => {
+          console.log("currentUser", { e });
+        });
+    })
+    .catch((e) => {
+      setMagicUser({ user: null });
+      navigate("/login")
+    });
+
+    getUser()
+      .catch(console.error)
       .then((res) => {
         console.log(res);
         setCurrentUser(res.data.getUser);
@@ -134,12 +155,8 @@ function Leaderboard() {
         }else{
           setIsLoading(false)
         }
-      })
-
-    },[])
-    .catch(console.error);
-  }
-  ,[]);
+      });
+  },[])
 
   
 
@@ -155,12 +172,11 @@ function Leaderboard() {
 
   return (
     (isLoading ? (<Loading/>) : 
-    (isAuthenticated ? (
     <div style= {{overflow:"hidden"}}>
     <Sidebar variant={variants?.navigation}
       isOpen={isSidebarOpen}
-      onClose={toggleSidebar} user={currentUser} />
-    <Box ml={!variants?.navigationButton && 250}  bg="#F7F8FC" style = {{display: "flex", flexFlow: "column", height: "100vh"}}>
+      onClose={toggleSidebar} user={currentUser} magicUser = {magicUser}/>
+    <Box ml={!variants?.navigationButton && 250}  bg="#FFFFFF" style = {{display: "flex", flexFlow: "column", height: "100vh"}}>
       <Header
         showSidebarButton={variants?.navigationButton}
         onShowSidebar={toggleSidebar}
@@ -278,7 +294,7 @@ function Leaderboard() {
         setCode={setCode}
       />
     </div>
-    ) : (<Login setIsAuthenticated={setIsAuthenticated}/>))))
+    ) )
 }
 
 export default Leaderboard;

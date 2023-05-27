@@ -66,6 +66,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { NavLink as Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { magic } from "../utils/globals";
 import { DASHBOARD, HOME, LEADERBOARD } from "../App.js";
 import logo from "../assets/Wager.svg";
 import AccountInfoModal from "./AccountInfoModal";
@@ -117,18 +118,6 @@ export function SidebarContent(props) {
 
   //API Calls
 
-  const getUsers = async () => {
-    const promise = await API.graphql({
-      query: queries.getUser,
-      variables: { id: uniqueHash(Auth.user.attributes.phone_number) },
-    });
-    return promise;
-  };
-  const getBoards = async () => {
-    const boards = await API.graphql({ query: queries.listLeaderboards });
-    return boards;
-  };
-
   const userUpdate = useCallback(async (newUser) => {
     const promise = await API.graphql({
       query: mutations.updateUser,
@@ -138,7 +127,7 @@ export function SidebarContent(props) {
   });
 
   useEffect(() => {
-    getUsers()
+    getUser()
       .catch(console.error)
       .then((users) => {
         let currentUser = users.data.getUser;
@@ -157,6 +146,19 @@ export function SidebarContent(props) {
         }
       });
   }, []);
+
+
+  const getUser = async () => {
+    const user = await API.graphql({ 
+      query: queries.getUser,
+      variables: {
+          id: uniqueHash(magicUser.phoneNumber.substring(1))
+      }
+      })
+    return user;
+  };
+
+  const magicUser = props.magicUser
 
 
 
@@ -207,7 +209,7 @@ export function SidebarContent(props) {
             style={{ backgroundColor: allColors.primaryColor, color: allColors.buttonTextColor }}
             selectable={false}
             key="sub1"
-            title={Auth.user.attributes.phone_number}
+            title={magicUser.phoneNumber.substring(1)}
             icon={<UserOutlined />}
           >
             <Menu.Item onClick={() => {
@@ -315,7 +317,7 @@ const Sidebar = (props) => {
       h="100%"
       bg="primaryColor"
     >
-      <SidebarContent refresh={props.refresh} user={props.user} isOpen={props.isOpen} setIsOpen={props.setIsOpen} />
+      <SidebarContent refresh={props.refresh}  magicUser = {props.magicUser} user={props.user} isOpen={props.isOpen} setIsOpen={props.setIsOpen} />
     </Box>
   ) : (
     <Drawer isOpen={props.isOpen} placement="left" onClose={props.onClose}>
@@ -324,7 +326,7 @@ const Sidebar = (props) => {
           <DrawerCloseButton style={{ color: "#ffffff" }} />
           <DrawerBody>
 
-            <SidebarContent refresh={props.refresh} user={props.user} isOpen={props.isOpen} setIsOpen={props.onClose} />
+            <SidebarContent refresh={props.refresh} user={props.user}  magicUser = {props.magicUser} isOpen={props.isOpen} setIsOpen={props.onClose} />
 
           </DrawerBody>
         </DrawerContent>

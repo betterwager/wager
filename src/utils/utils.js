@@ -7,6 +7,8 @@ import * as mutations from "../graphql/mutations";
 import * as queries from "../graphql/queries";
 
 
+
+
 export const isPhantomInstalled = window.phantom?.solana?.isPhantom;
 
 export const getProvider = () => {
@@ -197,6 +199,9 @@ export const getUser = async (userid) => {
     });
   return user;
 };
+
+
+
 export const userUpdate = async (newUser) => {
   const promise = await API.graphql({
     query: mutations.updateUser,

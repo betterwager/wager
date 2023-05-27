@@ -46,7 +46,7 @@ function AccountEditModal(props) {
   };
 
   const handleEditSubmit = async () => {
-    let phoneNumber = Auth.user.attributes.phone_number;
+    let phoneNumber = user.phonenumber;
     const name = firstName + " " + lastName;
     if (firstName != "" && lastName != "" && birthdate != "") {
       let birthday = +new Date(birthdate);

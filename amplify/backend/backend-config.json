@@ -1,5 +1,19 @@
 {
   "api": {
+    "magicRestAPI": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "wagerMagicAuthentication"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
     "wager": {
       "dependsOn": [],
       "output": {
@@ -23,44 +37,71 @@
     }
   },
   "auth": {
-    "wager": {
-      "customAuth": true,
+    "WagerAuth": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyCharacters": [],
+          "passwordPolicyMinLength": 8
+        },
+        "signupAttributes": [
+          "PHONE_NUMBER"
+        ],
+        "socialProviders": [],
+        "usernameAttributes": [
+          "PHONE_NUMBER"
+        ],
+        "verificationMechanisms": [
+          "PHONE_NUMBER"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
+    }
+  },
+  "function": {
+    "wagerMagicAuthentication": {
+      "build": true,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
-      "service": "Cognito",
-      "serviceType": "imported"
+      "service": "Lambda"
     }
   },
   "parameters": {
-    "AMPLIFY_auth_wager_nativeClientId": {
+    "AMPLIFY_function_wagerMagicAuthentication_deploymentBucketName": {
       "usedBy": [
         {
-          "category": "auth",
-          "resourceName": "wager"
+          "category": "function",
+          "resourceName": "wagerMagicAuthentication"
         }
       ]
     },
-    "AMPLIFY_auth_wager_userPoolId": {
+    "AMPLIFY_function_wagerMagicAuthentication_identityPoolId": {
       "usedBy": [
         {
-          "category": "auth",
-          "resourceName": "wager"
+          "category": "function",
+          "resourceName": "wagerMagicAuthentication"
         }
       ]
     },
-    "AMPLIFY_auth_wager_userPoolName": {
+    "AMPLIFY_function_wagerMagicAuthentication_s3Key": {
       "usedBy": [
         {
-          "category": "auth",
-          "resourceName": "wager"
+          "category": "function",
+          "resourceName": "wagerMagicAuthentication"
         }
       ]
     },
-    "AMPLIFY_auth_wager_webClientId": {
+    "AMPLIFY_function_wagerMagicAuthentication_secretsPathAmplifyAppId": {
       "usedBy": [
         {
-          "category": "auth",
-          "resourceName": "wager"
+          "category": "function",
+          "resourceName": "wagerMagicAuthentication"
         }
       ]
     }

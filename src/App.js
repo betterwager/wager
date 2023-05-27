@@ -31,6 +31,8 @@ import { Amplify, Auth } from "aws-amplify";
 import Dashboard from "./views/Dashboard.js";
 import Home from "./views/Home.js";
 import Leaderboard from "./views/Leaderboard.js";
+import Callback from "./components/Callback.js";
+import SignInMagic from "./components/SignInMagic";
 
 Amplify.configure(awsExports);
 
@@ -39,6 +41,7 @@ export var DASHBOARD = "/Dashboard";
 export var LOGIN = "/login";
 export var SIGNUP = "/signup";
 export var LEADERBOARD = "/Leaderboard";
+export var CALLBACK = "/callback";
 
 function App() {
   const network = WalletAdapterNetwork.Devnet;
@@ -78,6 +81,7 @@ function App() {
                 <Route exact path={HOME} element={<Home />} />
                 <Route exact path={DASHBOARD} element= {<Dashboard  />} />
                 <Route exact path={LEADERBOARD} element={<Leaderboard/>} />
+                <Route exact path={LOGIN} element={<SignInMagic />} />
               </Routes>
             </Router>
           </ChakraProvider>

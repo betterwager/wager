@@ -52,7 +52,7 @@ import { Buffer } from "buffer";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import * as subscriptions from "../graphql/subscriptions";
-import { Auth, API, a } from "aws-amplify";
+import { Auth, API} from "aws-amplify";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import uniqueHash from "unique-hash";
 import { ConsoleLogger } from "@aws-amplify/core";
@@ -65,7 +65,6 @@ import {
   MakeBetInstruction,
   VoteInstruction,
   PayoutInstruction,
-  checkLogin,
 } from "../utils/utils.js";
 import MakeBetModal from "../components/MakeBetModal";
 import BetInfoModal from "../components/BetInfoModal";
@@ -74,8 +73,21 @@ import WalletEntryModal from "../components/WalletEntryModal";
 import Loading from "../components/Loading";
 import Temp from "../components/Temp";
 
+import { Magic } from "magic-sdk";
+import { SolanaExtension } from "@magic-ext/solana";
+
 const smVariant = { navigation: 'drawer', navigationButton: true }
 const mdVariant = { navigation: 'sidebar', navigationButton: false }
+
+const rpcUrl = "https://api.devnet.solana.com";
+
+const magic = new Magic("pk_live_7B73AD963AFECCE0", {
+  extensions: {
+    solana: new SolanaExtension({
+      rpcUrl
+    })
+  }
+});
 
 function Dashboard() {
   //AWS Object of User
@@ -164,36 +176,9 @@ function Dashboard() {
     BufferLayout.u8("bump_seed"),
   ]);
 
-  useEffect(() => {
-    setIsLoading(false);
-  },[]);
 
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const checkLogin = async () => {
-    
-    try {
-      const data = await Auth.currentAuthenticatedUser()
-      .then((res) => {
-        console.log(res)
-        setIsAuthenticated(true);
-      })
-    } catch {
-      // User not logged in
-      setIsAuthenticated(false)
-      
-    }
-  }
-  useEffect(()=>{
-    checkLogin();
-  })
 
-  const getUsers = async () => {
-    const users = await API.graphql({ query: queries.listUsers });
-    return users;
-  };
 
   const userUpdate = async (newUser) => {
     const promise = await API.graphql({
@@ -416,24 +401,61 @@ function Dashboard() {
   };
 
   const getUser = async () => {
-    let phoneNumber = await Auth.user.attributes.phone_number
-    const user = await API.graphql({ 
-      query: queries.getUser,
-      variables: {
-          id: uniqueHash(phoneNumber)
-      }
-      });
-    return user;
-  };
+    if (magicUser != null){
+      const user = await API.graphql({ 
+        query: queries.getUser,
+        variables: {
+            id: uniqueHash(magicUser.phoneNumber.substring(1))
+        }
+        })
+      return user;
+    };
+    }
+    
 
+  const [magicUser, setMagicUser] = useState({})
+
+
+  const navigate = useNavigate()
+  useEffect(() => {
+    Auth.currentUserCredentials()
+    .catch((e) => {
+      console.log("=== currentcredentials", { e });
+    });
+  Auth.currentAuthenticatedUser()
+    .then((user) => {
+      magic.user
+        .isLoggedIn()
+        .then((isLoggedIn) => {
+          return isLoggedIn
+            ? magic.user
+                .getMetadata()
+                .then((userData) =>
+                {
+                  setMagicUser({ ...userData, identityId: user.id });
+                  setIsLoading(false);
+                  console.log({ ...userData, identityId: user.id })
+                })
+            : setMagicUser({ user: null }) && navigate("/login");
+        })
+        .catch((e) => {
+          console.log("currentUser", { e });
+        });
+    })
+    .catch((e) => {
+      setMagicUser({ user: null });
+      navigate("/login")
+    });
+    getUser()
+    .catch(console.error)
+    .then((res) => {
+      setCurrentUser(res.data.getUser);
+      getBets(publicKey).catch(console.error);
+    });
+  },[])
 
   useEffect(() => {
-    getUser()
-      .catch(console.error)
-      .then((res) => {
-        setCurrentUser(res.data.getUser);
-        getBets(publicKey).catch(console.error);
-      });
+   
   }, [getBets]); // eslint-disable-line react-hooks/exhaustive-deps
   /* useEffect(() => {
   }, [getBets,publicKey]); */
@@ -442,9 +464,8 @@ function Dashboard() {
   return (
 
     (isLoading ? (<Loading/>) : 
-    (isAuthenticated ? (
       <div style= {{overflow:"hidden"}}>
-      <Sidebar variant={variants?.navigation}
+      <Sidebar magicUser = {magicUser} variant={variants?.navigation}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar} refresh={getBets} user={currentUser} />
       <Box ml={!variants?.navigationButton && 250} bg="#ffffff" style={{height: "100vh"}}>
@@ -639,8 +660,6 @@ function Dashboard() {
     
     <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen}/>
     </div>
-    ) : (<Login setIsAuthenticated={setIsAuthenticated}/>)
-    )
     )
     )
     
