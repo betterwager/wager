@@ -1,6 +1,6 @@
 import {
   useToast,
-  Flex,
+  Box,
   FormControl,
   FormLabel,
   Icon,
@@ -19,6 +19,7 @@ import {
   Button,
   NumberInputStepper,
   Text,
+  CloseButton,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState, useCallback } from "react";
@@ -31,11 +32,15 @@ import {
 import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
 import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
+import { FaDice } from "react-icons/fa";
 
 function JoinBetModal(props) {
   const [joinCode, setJoinCode] = useState("");
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
-  const [walletIsOpen, setWalletIsOpen] = [props.walletIsOpen, props.setWalletIsOpen]
+  const [walletIsOpen, setWalletIsOpen] = [
+    props.walletIsOpen,
+    props.setWalletIsOpen,
+  ];
   const toast = props.toast;
 
   const programId = props.programId;
@@ -206,14 +211,49 @@ function JoinBetModal(props) {
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Join Bet</ModalHeader>
+        <ModalHeader mb={-5}>
+          <Box
+            width={"100%"}
+            display={"inline-flex"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+          >
+            <Icon
+              border={"1px"}
+              borderRadius={"10px"}
+              borderColor="borderLightColor"
+              boxShadow={"sm"}
+              p={2}
+              my={3}
+              h={"48px"}
+              w={"48px"}
+              as={FaDice}
+              color="formLabelColor"
+            />
+            <CloseButton
+              color={"formLabelColor"}
+              size="lg"
+              onClick={() => setIsOpen(false)}
+            />
+          </Box>
+        </ModalHeader>
         <Form onSubmit={(e) => handleJoinBet(e)}>
           <ModalBody>
             <>
               <FormControl isRequired>
-                <FormLabel>Bet Code</FormLabel>
+                <Box mb={4}>
+                  <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
+                    Join Bet
+                  </Text>
+                  <Text color="formDescriptionColor" fontWeight={400}>
+                    Enter the unique code to join a friendly Wager!
+                  </Text>
+                </Box>
+                {/*                 <Text color="formLabelColor" fontWeight={500} mb={1}>
+                  Bet Code*
+                </Text> */}
                 <Input
-                  placeholder="Bet Code"
+                  placeholder="Enter unique code"
                   value={joinCode}
                   onChange={handlejoinCodeChange}
                 />
@@ -222,17 +262,19 @@ function JoinBetModal(props) {
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
-              Close
-            </Button>
-            <Button
-              type="submit" 
-              // colorScheme="green"
-              backgroundColor="primaryColor"
-              color="buttonTextColor"
-            >
-              Wager!
-            </Button>
+            <Box width="100%" display={"flex"} flexDirection={"column"}>
+              <Button
+                type="submit"
+                // colorScheme="green"
+                backgroundColor="primaryColor"
+                color="buttonTextColor"
+              >
+                Wager!
+              </Button>
+              <Button variant="outline" mt={2} onClick={() => setIsOpen(false)}>
+                Close
+              </Button>
+            </Box>
           </ModalFooter>
         </Form>
       </ModalContent>
