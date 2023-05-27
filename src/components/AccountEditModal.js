@@ -1,4 +1,8 @@
 import {
+  Box,
+  Icon,
+  CloseButton,
+  Text,
   Flex,
   FormControl,
   FormLabel,
@@ -19,7 +23,7 @@ import { Container, Form } from "react-bootstrap";
 import { API, Auth } from "aws-amplify";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
-
+import { FaDice } from "react-icons/fa";
 function AccountEditModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
 
@@ -125,54 +129,106 @@ function AccountEditModal(props) {
     <Modal isOpen={isOpen}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Account Information</ModalHeader>
+        <ModalHeader mb={-5}>
+          <Box
+            width={"100%"}
+            display={"inline-flex"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+          >
+            <Icon
+              border={"1px"}
+              borderRadius={"10px"}
+              borderColor="borderLightColor"
+              boxShadow={"sm"}
+              p={2}
+              my={3}
+              h={"48px"}
+              w={"48px"}
+              as={FaDice}
+              color="formLabelColor"
+            />
+            <CloseButton
+              color={"formLabelColor"}
+              size="lg"
+              onClick={() => setIsOpen(false)}
+            />
+          </Box>
+        </ModalHeader>
         <Form>
           <ModalBody>
-            <Flex>
+            <Box mb={4}>
+              <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
+                Account Information
+              </Text>
+              <Text color="formDescriptionColor" fontWeight={400}>
+                Edit your account information below
+              </Text>
+            </Box>
+            <Box display="flex" flexDirection="column" gap={3}>
               <FormControl isRequired>
-                <FormLabel>First Name</FormLabel>
-                <Input
-                  onChange={handleFirstNameChange}
-                  value={firstName}
-                  placeholder="First name"
-                />
+                <Box>
+                  <Text color="formLabelColor" fontWeight={500} mb={1}>
+                    First Name*
+                  </Text>
+                  <Input
+                    onChange={handleFirstNameChange}
+                    value={firstName}
+                    placeholder="Enter First Name"
+                  />
+                </Box>
               </FormControl>
               <FormControl isRequired>
-                <FormLabel>Last Name</FormLabel>
-                <Input
-                  onChange={handleLastNameChange}
-                  value={lastName}
-                  placeholder="Last name"
-                />
+                <Box>
+                  <Text color="formLabelColor" fontWeight={500} mb={1}>
+                    Last Name*
+                  </Text>
+                  <Input
+                    onChange={handleLastNameChange}
+                    value={lastName}
+                    placeholder="Enter Last Name"
+                  />
+                </Box>
               </FormControl>
-            </Flex>
-            <br />
-            <FormControl isRequired>
-              <FormLabel>Date of Birth</FormLabel>
-              <Form.Control
-                type="date"
-                name="dob"
-                max={new Date().toISOString().slice(0, 10)}
-                value={birthdate}
-                onChange={handleBirthdateChange}
-              />
-            </FormControl>
+              <FormControl isRequired>
+                <Box>
+                  <Text color="formLabelColor" fontWeight={500} mb={1}>
+                    Date of Birth*
+                  </Text>
+
+                  <Form.Control
+                    type="date"
+                    name="dob"
+                    max={new Date().toISOString().slice(0, 10)}
+                    value={birthdate}
+                    onChange={handleBirthdateChange}
+                  />
+                </Box>
+              </FormControl>
+            </Box>
           </ModalBody>
           <ModalFooter>
-            <Button
-              variant="ghost"
-              mr={3}
-              onClick={() => {
-                if (!newUser) {
-                  setIsOpen(false);
-                }
-              }}
-            >
-              Close
-            </Button>
-            <Button colorScheme="blue" onClick={handleEditSubmit}>
-              Submit
-            </Button>
+            <Box width="100%" display={"flex"} flexDirection={"column"}>
+              <Button
+                onClick={handleEditSubmit}
+                // colorScheme="green"
+                backgroundColor="primaryColor"
+                color="buttonTextColor"
+              >
+                Submit
+              </Button>
+              <Button
+                variant="outline"
+                mt={2}
+                onClick={() => {
+                  if (!newUser) {
+                    setIsOpen(false);
+                  }
+                }}
+              >
+                Close
+              </Button>
+            </Box>
           </ModalFooter>
         </Form>
       </ModalContent>
