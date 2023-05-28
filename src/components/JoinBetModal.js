@@ -268,10 +268,16 @@ function JoinBetModal(props) {
                 // colorScheme="green"
                 backgroundColor="primaryColor"
                 color="buttonTextColor"
+                boxShadow={"sm"}
               >
                 Wager!
               </Button>
-              <Button variant="outline" mt={2} onClick={() => setIsOpen(false)}>
+              <Button
+                variant="outline"
+                mt={2}
+                onClick={() => setIsOpen(false)}
+                boxShadow={"sm"}
+              >
                 Close
               </Button>
             </Box>

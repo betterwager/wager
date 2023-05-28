@@ -214,6 +214,7 @@ function AccountEditModal(props) {
                 // colorScheme="green"
                 backgroundColor="primaryColor"
                 color="buttonTextColor"
+                boxShadow={"sm"}
               >
                 Submit
               </Button>
@@ -225,6 +226,7 @@ function AccountEditModal(props) {
                     setIsOpen(false);
                   }
                 }}
+                boxShadow={"sm"}
               >
                 Close
               </Button>

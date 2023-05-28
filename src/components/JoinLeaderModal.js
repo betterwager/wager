@@ -144,10 +144,16 @@ function JoinLeaderModal(props) {
                 // colorScheme="green"
                 backgroundColor="primaryColor"
                 color="buttonTextColor"
+                boxShadow={"sm"}
               >
                 Join!
               </Button>
-              <Button variant="outline" mt={2} onClick={() => setIsOpen(false)}>
+              <Button
+                variant="outline"
+                mt={2}
+                onClick={() => setIsOpen(false)}
+                boxShadow={"sm"}
+              >
                 Close
               </Button>
             </Box>
