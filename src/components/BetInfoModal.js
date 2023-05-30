@@ -1,4 +1,5 @@
 import {
+  Box,
   useToast,
   Flex,
   FormControl,
@@ -16,14 +17,15 @@ import {
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
-  
   Button,
   NumberInputStepper,
   Text,
+  CloseButton,
 } from "@chakra-ui/react";
 
 import { Container, Form } from "react-bootstrap";
 import { QRCodeCanvas } from "qrcode.react";
+import { FaDice } from "react-icons/fa";
 
 function BetInfoModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
@@ -50,60 +52,123 @@ function BetInfoModal(props) {
         setIsOpen(false);
         setCode("");
       }}
+      size={"lg"}
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Bet Information</ModalHeader>
-        <ModalBody>
-          <h1 style={{ fontSize: "15px" }}>
-            <strong>Bet Code: </strong>
-            <u>
-              <a
-                onClick={() => {
-                  navigator.clipboard.writeText(code);
-                  alert("Copied to Clipboard");
-                }}
-              >
-                {code}
-              </a>
-            </u>
-          </h1>
-          <br />
-          <h3 style={{ fontSize: "15px" }}>
-            <strong>Join Link:</strong>{" "}
-            <u>
-              <a
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    window.location.href + "?bet=" + code.replace(" ", "%20")
-                  );
-                  alert("Copied to Clipboard");
-                }}
-              >
-                {window.location.href + "?bet=" + code}
-              </a>
-            </u>
-          </h3>
-          <br />
-          <QRCodeCanvas
-            id="qr-gen1"
-            includeMargin={true}
-            value={window.location.href + "?bet=" + code}
-          />
-
-          <Button colorScheme="blue" onClick={downloadQRCode}>Download QR Code</Button>
+        <ModalHeader mb={-5}>
+          <Box
+            width={"100%"}
+            display={"inline-flex"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+          >
+            <Icon
+              border={"1px"}
+              borderRadius={"10px"}
+              borderColor="borderLightColor"
+              boxShadow={"sm"}
+              p={2}
+              my={3}
+              h={"48px"}
+              w={"48px"}
+              as={FaDice}
+              color="formLabelColor"
+            />
+            <Text
+              color="formTitleColor"
+              fontWeight={700}
+              fontSize={"xl"}
+              onClick={() => {
+                navigator.clipboard.writeText(code);
+                alert("Copied to Clipboard");
+              }}
+            >
+              {code}
+            </Text>
+            <CloseButton
+              color={"formLabelColor"}
+              size="lg"
+              onClick={() => setIsOpen(false)}
+            />
+          </Box>
+        </ModalHeader>{" "}
+        <ModalBody mt={1}>
+          <Box mb={4}>
+            <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
+              Wager Info
+            </Text>
+            <Text color="formDescriptionColor" fontWeight={400}>
+              Screenshot this QR code or copy the link below and send it to your
+              friends to get betting!
+            </Text>
+          </Box>
+          <Box
+            width={"100%"}
+            height={150}
+            backgroundColor="#F7F8FC"
+            display={"flex"}
+            alignItems={"center"}
+            justifyContent={"center"}
+            borderRadius={10}
+          >
+            <QRCodeCanvas
+              id="qr-gen1"
+              includeMargin={true}
+              value={window.location.href + "?bet=" + code}
+            />
+          </Box>
+          {/*           <Box display={"flex"} gap={2}>
+            <Text color="formTitleColor" fontWeight={600} fontSize={"md"}>
+              Join Link:
+            </Text>
+            <Text
+              color="formDescriptionColor"
+              fontWeight={400}
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  window.location.href + "?bet=" + code.replace(" ", "%20")
+                );
+                alert("Copied to Clipboard");
+              }}
+            >
+              {window.location.href + "?bet=" + code}
+            </Text>
+          </Box> */}
         </ModalBody>
         <ModalFooter>
-          <Button
-            variant="ghost"
-            mr={3}
-            onClick={() => {
-              setIsOpen(false);
-              setCode("");
-            }}
+          <Box
+            width={"100%"}
+            display={"flex"}
+            flexDirection={"column"}
+            gap={2}
+            mb={1}
           >
-            Close
-          </Button>
+            <Button
+              width={"100%"}
+              borderColor="primaryColor"
+              variant="outline"
+              boxShadow={"sm"}
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  window.location.href + "?bet=" + code.replace(" ", "%20")
+                );
+                alert("Copied to Clipboard");
+              }}
+            >
+              Copy Join Link
+            </Button>
+            <Button
+              variant="outline"
+              width={"100%"}
+              backgroundColor="primaryColor"
+              color="buttonTextColor"
+              boxShadow={"sm"}
+              onClick={downloadQRCode}
+            >
+              Download QR Code
+            </Button>
+          </Box>
         </ModalFooter>
       </ModalContent>
     </Modal>
