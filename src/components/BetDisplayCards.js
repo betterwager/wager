@@ -185,287 +185,380 @@ function BetDisplayCards(props) {
               setIsOpen={setBetInfoIsOpen}
             />
           }
-          <Card
-            style={{
-              marginTop: "1rem",
-              marginBottom: "1rem",
-              border: "solid",
-              borderWidth: 1,
-              borderColor: "#DFE0EB",
-              borderRadius: 8,
+          <Box
+            marginTop="1rem"
+            marginBottom="1rem"
+            border="solid"
+            borderWidth="1px"
+            borderColor="#DFE0EB"
+            borderRadius={8}
+            backgroundColor="#fff"
+            boxShadow={"sm"}
+            _hover={{
+              border: "1px",
+              borderColor: "primaryColor",
+              boxShadow: "xl",
             }}
           >
             {
               {
                 1: (
-                  <Box
-                    _hover={{ border: "1px", borderColor: "primaryColor" }}
-                    borderRadius={8}
-                  >
-                    <Card.Body style={{ marginTop: 5 }}>
-                      <Row>
-                        <Col
-                          onClick={() => {
-                            let name = bet.bet_identifier;
-                            name = String.fromCharCode.apply(String, name);
-                            if (name.indexOf(" ") >= 0) name = name.trim();
-                            setCode(name);
-                            setCodeDisplayIsOpen(true);
-                          }}
-                          style={{ textAlign: "left", marginLeft: 10 }}
-                        >
-                          <Box display="flex" gap={2}>
-                            <Card.Title style={{ fontWeight: "bold" }}>
-                              {String.fromCharCode.apply(
-                                String,
-                                bet.bet_identifier
-                              )}
-                            </Card.Title>
-                            {/*                           <IconButton
-                            icon={<AiOutlineInfo />}
-                            variant="outline"
-                            borderColor={"#aaaaaa"}
-                            borderRadius={100}
-                            color={"#aaaaaa"}
-                            height={25}
-                            width={25}
-                            onClick={() => {
-                              let name = bet.bet_identifier;
-                              name = String.fromCharCode.apply(String, name);
-                              if (name.indexOf(" ") >= 0) name = name.trim();
-                              setCode(name);
-                              setCodeDisplayIsOpen(true);
-                            }}
-                          /> */}
-                          </Box>
-                          <Card.Text style={{ color: "#aaaaaa" }}>
-                            Status: Created
-                          </Card.Text>
-                        </Col>
-                        <Box
-                          width="25%"
-                          display="flex"
-                          justifyContent="flex-end"
-                        >
-                          <Button
-                            style={{ margin: "5px" }}
-                            borderColor="accentColor"
-                            borderRadius="20px"
-                            color="accentColor"
-                            variant="outline"
-                            mr={3}
-                            onClick={() => {
-                              let name = bet.bet_identifier;
-                              name = String.fromCharCode.apply(String, name);
-                              if (name.indexOf(" ") >= 0) name = name.trim();
-                              handlePing(name, index);
-                            }}
-                          >
-                            Ping
-                          </Button>
-                          <Button
-                            variant={"outline"}
-                            borderColor={"accentColor"}
-                            borderRadius={20}
-                            color="accentColor"
-                            width="50%"
-                            mr={3}
-                            style={{ margin: "5px" }}
-                            boxShadow={"sm"}
-                            onClick={() => {
-                              setBetIsOpen(true);
-                              setCurrentBet(bet);
-                              let name = bet.bet_identifier;
-                              name = String.fromCharCode.apply(String, name);
-                              if (name.indexOf(" ") >= 0) name = name.trim();
-                              setJoinCode(name);
-                              setCurrentOptions(bet.options);
-                            }}
-                            disabled={playerAccountInfo[index].bet_amount != 0}
-                          >
-                            Make Bet
-                          </Button>
-                        </Box>
-                      </Row>
-                      <br />
-                      <Row>
-                        <Col
-                          style={{
-                            display: "inline-flex",
-                            justifyContent: "space-around",
-                            borderRight: "solid",
-                            borderRightWidth: "thin",
-                            borderColor: "#252733",
-                          }}
-                        >
-                          <Text fontWeight={600}>Position </Text>
-                          <Text fontWeight={600} color={"#9FA2B4"}>
-                            {playerAccountInfo[index].bet_amount == 0
-                              ? "N/A"
-                              : String.fromCharCode
-                                  .apply(
-                                    String,
-                                    bet.options[
-                                      props.playerAccountInfo[index]
-                                        .option_index
-                                    ].name
-                                  )
-                                  .substr(
-                                    0,
-                                    String.fromCharCode
-                                      .apply(
-                                        String,
-                                        bet.options[
-                                          props.playerAccountInfo[index]
-                                            .option_index
-                                        ].name
-                                      )
-                                      .indexOf("\0")
-                                  )}
-                          </Text>
-                        </Col>
-
-                        <Col
-                          style={{
-                            display: "inline-flex",
-                            justifyContent: "space-around",
-                            borderRight: "solid",
-                            borderRightWidth: "thin",
-                            borderColor: "#252733",
-                          }}
-                        >
-                          <Text fontWeight={600}>Stake </Text>
-                          <Text fontWeight={600} color={"#9FA2B4"}>
-                            ${playerAccountInfo[index].bet_amount / 100000000}
-                          </Text>
-                        </Col>
-
-                        <Col
-                          style={{
-                            display: "inline-flex",
-                            justifyContent: "space-around",
-                            borderRight: "solid",
-                            borderRightWidth: "thin",
-                            borderColor: "#252733",
-                          }}
-                        >
-                          <Text fontWeight={600}>Total Pot </Text>
-                          <Text fontWeight={600} color={"#9FA2B4"}>
-                            ${bet.balance / 100000000}
-                          </Text>
-                        </Col>
-
-                        <Col
-                          style={{
-                            display: "inline-flex",
-                            justifyContent: "space-around",
-                            borderRight: "solid",
-                            borderRightWidth: "thin",
-                            borderColor: "#252733",
-                          }}
-                        >
-                          <Text fontWeight={600}>Time </Text>
-                          <Text fontWeight={600} color={"#9FA2B4"}>
-                            {new Date(bet.time * 1000).toLocaleTimeString(
-                              "en-US",
-                              {
-                                timeStyle: "short",
-                              }
-                            )}
-                          </Text>
-                        </Col>
-
-                        <Col
-                          style={{
-                            display: "inline-flex",
-                            justifyContent: "space-around",
-                          }}
-                        >
-                          <Text fontWeight={600}>Players </Text>
-                          <Text fontWeight={600} color={"#9FA2B4"}>
-                            {bet.player_count}
-                          </Text>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Box>
-                ),
-
-                2: (
-                  <Card.Body>
-                    <Row>
-                      <Col md="auto">
-                        <IconButton
-                          colorScheme="blue"
-                          variant="ghost"
-                          onClick={() => setBetInfoIsOpen(true)}
-                          aria-label="Bet Info"
-                          icon={<AiOutlineInfo />}
-                        />
-                      </Col>
-                      <Col style={{ textAlign: "left" }}>
-                        <Flex>
-                          <Card.Title>
+                  <Box p={5}>
+                    <Box
+                      display="flex"
+                      flexDirection={"row"}
+                      justifyContent={"space-between"}
+                      alignItems={"center"}
+                    >
+                      <Box
+                        width="75%"
+                        display="flex"
+                        flexDirection={"column"}
+                        alignItems={"flex-start"}
+                        onClick={() => {
+                          let name = bet.bet_identifier;
+                          name = String.fromCharCode.apply(String, name);
+                          if (name.indexOf(" ") >= 0) name = name.trim();
+                          setCode(name);
+                          setCodeDisplayIsOpen(true);
+                        }}
+                        ml={3}
+                      >
+                        <Box display="flex" gap={2}>
+                          <Text fontSize="xl" fontWeight={700}>
                             {String.fromCharCode.apply(
                               String,
                               bet.bet_identifier
                             )}
-                          </Card.Title>
-                        </Flex>
-                        <Card.Text style={{ color: "#aaaaaa" }}>
-                          Status: Voting
-                        </Card.Text>
-                      </Col>
-                      <Col style={{ textAlign: "right" }}>
-                        <Flex>
-                          {playerAccountInfo[index].voted == 0 ? (
-                            <Select
-                              style={{ margin: "1%" }}
-                              onChange={(e) => {
-                                selectOption(e, index);
-                              }}
-                              variant="outline"
-                              placeholder="Select option"
-                            >
-                              {bet.options.map((option, index) => {
-                                let name = String.fromCharCode.apply(
-                                  String,
-                                  option.name
-                                );
-                                if (name.indexOf("\0") >= 0)
-                                  name = name.substr(0, name.indexOf("\0"));
-                                if (name !== "zero" && name !== "") {
-                                  return (
-                                    <option
-                                      key={index}
-                                      value={name + "@&@" + index}
-                                    >
-                                      {name}
-                                    </option>
-                                  );
-                                }
-                              })}
-                            </Select>
-                          ) : (
-                            <Select
-                              style={{ margin: "1%" }}
-                              variant="outline"
-                              disabled
-                            />
-                          )}
+                          </Text>
+                        </Box>
+                        <Text color="#aaaaaa">Status: Created</Text>
+                      </Box>
 
-                          <div style={{ margin: "10px" }}></div>
-                          <Button
-                            disabled={playerAccountInfo[index].voted == 1}
-                            colorScheme="purple"
-                            onClick={submitOption}
+                      <Box width="25%" display="flex" justifyContent="flex-end">
+                        <Button
+                          style={{ margin: "5px" }}
+                          borderColor="accentColor"
+                          borderRadius="20px"
+                          color="accentColor"
+                          variant="outline"
+                          mr={3}
+                          onClick={() => {
+                            let name = bet.bet_identifier;
+                            name = String.fromCharCode.apply(String, name);
+                            if (name.indexOf(" ") >= 0) name = name.trim();
+                            handlePing(name, index);
+                          }}
+                        >
+                          Ping
+                        </Button>
+                        <Button
+                          variant={"outline"}
+                          borderColor={"accentColor"}
+                          borderRadius={20}
+                          color="accentColor"
+                          width="50%"
+                          mr={3}
+                          style={{ margin: "5px" }}
+                          boxShadow={"sm"}
+                          onClick={() => {
+                            setBetIsOpen(true);
+                            setCurrentBet(bet);
+                            let name = bet.bet_identifier;
+                            name = String.fromCharCode.apply(String, name);
+                            if (name.indexOf(" ") >= 0) name = name.trim();
+                            setJoinCode(name);
+                            setCurrentOptions(bet.options);
+                          }}
+                          disabled={playerAccountInfo[index].bet_amount != 0}
+                        >
+                          Make Bet
+                        </Button>
+                      </Box>
+                    </Box>
+                    <Box
+                      display="flex"
+                      justifyContent="space-evenly"
+                      alignItems="center"
+                      mt={5}
+                    >
+                      <Box
+                        width="20%"
+                        display="flex"
+                        justifyContent="space-around"
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Position</Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          {playerAccountInfo[index].bet_amount == 0
+                            ? "N/A"
+                            : String.fromCharCode
+                                .apply(
+                                  String,
+                                  bet.options[
+                                    props.playerAccountInfo[index].option_index
+                                  ].name
+                                )
+                                .substr(
+                                  0,
+                                  String.fromCharCode
+                                    .apply(
+                                      String,
+                                      bet.options[
+                                        props.playerAccountInfo[index]
+                                          .option_index
+                                      ].name
+                                    )
+                                    .indexOf("\0")
+                                )}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="inline-flex"
+                        justifyContent="space-around"
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Stake </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          ${playerAccountInfo[index].bet_amount / 100000000}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="inline-flex"
+                        justifyContent="space-around"
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Total Pot </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          ${bet.balance / 100000000}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="flex"
+                        justifyContent="space-around"
+                        alignItems={"center"}
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Time </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          {new Date(bet.time * 1000).toLocaleTimeString(
+                            "en-US",
+                            {
+                              timeStyle: "short",
+                            }
+                          )}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="inline-flex"
+                        justifyContent="space-around"
+                      >
+                        <Text fontWeight={600}>Players </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          {bet.player_count}
+                        </Text>
+                      </Box>
+                    </Box>
+                  </Box>
+                ),
+
+                2: (
+                  <Box p={5}>
+                    <Box
+                      display="flex"
+                      flexDirection={"row"}
+                      justifyContent={"space-between"}
+                      alignItems={"center"}
+                    >
+                      <Box
+                        display="flex"
+                        flexDirection={"column"}
+                        alignItems={"flex-start"}
+                        ml={3}
+                      >
+                        <Box display="flex" gap={2}>
+                          <Text fontSize="xl" fontWeight={700}>
+                            {String.fromCharCode.apply(
+                              String,
+                              bet.bet_identifier
+                            )}
+                          </Text>
+                        </Box>
+                        <Text color="#aaaaaa">Status: Voting</Text>
+                      </Box>
+                      <Box
+                        width="40%"
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignItems={"center"}
+                        gap={2}
+                      >
+                        {playerAccountInfo[index].voted == 0 ? (
+                          <Select
+                            onChange={(e) => {
+                              selectOption(e, index);
+                            }}
+                            borderColor="accentColor"
+                            variant="outline"
+                            placeholder="Select option"
                           >
-                            Vote
-                          </Button>
-                        </Flex>
-                      </Col>
-                    </Row>
-                  </Card.Body>
+                            {bet.options.map((option, index) => {
+                              let name = String.fromCharCode.apply(
+                                String,
+                                option.name
+                              );
+                              if (name.indexOf("\0") >= 0)
+                                name = name.substr(0, name.indexOf("\0"));
+                              if (name !== "zero" && name !== "") {
+                                return (
+                                  <option
+                                    key={index}
+                                    value={name + "@&@" + index}
+                                  >
+                                    {name}
+                                  </option>
+                                );
+                              }
+                            })}
+                          </Select>
+                        ) : (
+                          <Select variant="outline" disabled />
+                        )}
+
+                        <Button
+                          disabled={playerAccountInfo[index].voted == 1}
+                          variant={"outline"}
+                          borderColor={"accentColor"}
+                          borderRadius={20}
+                          color="accentColor"
+                          width="50%"
+                          mr={3}
+                          style={{ margin: "5px" }}
+                          boxShadow={"sm"}
+                          onClick={submitOption}
+                        >
+                          Vote
+                        </Button>
+                      </Box>
+                    </Box>
+                    <Box
+                      display="flex"
+                      justifyContent="space-evenly"
+                      alignItems="center"
+                      mt={5}
+                    >
+                      <Box
+                        width="20%"
+                        display="flex"
+                        justifyContent="space-around"
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Position</Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          {playerAccountInfo[index].bet_amount == 0
+                            ? "N/A"
+                            : String.fromCharCode
+                                .apply(
+                                  String,
+                                  bet.options[
+                                    props.playerAccountInfo[index].option_index
+                                  ].name
+                                )
+                                .substr(
+                                  0,
+                                  String.fromCharCode
+                                    .apply(
+                                      String,
+                                      bet.options[
+                                        props.playerAccountInfo[index]
+                                          .option_index
+                                      ].name
+                                    )
+                                    .indexOf("\0")
+                                )}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="inline-flex"
+                        justifyContent="space-around"
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Stake </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          ${playerAccountInfo[index].bet_amount / 100000000}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="inline-flex"
+                        justifyContent="space-around"
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Total Pot </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          ${bet.balance / 100000000}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="flex"
+                        justifyContent="space-around"
+                        alignItems={"center"}
+                        borderRight="solid"
+                        borderRightWidth="thin"
+                        borderColor="#252733"
+                      >
+                        <Text fontWeight={600}>Time </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          {new Date(bet.time * 1000).toLocaleTimeString(
+                            "en-US",
+                            {
+                              timeStyle: "short",
+                            }
+                          )}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        width="20%"
+                        display="inline-flex"
+                        justifyContent="space-around"
+                      >
+                        <Text fontWeight={600} mr={3}>
+                          Players{" "}
+                        </Text>
+                        <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          {bet.player_count}
+                        </Text>
+                      </Box>
+                    </Box>
+                  </Box>
                 ),
 
                 3: (
@@ -539,7 +632,7 @@ function BetDisplayCards(props) {
                 ),
               }[state]
             }
-          </Card>
+          </Box>
         </Container>
       ) : (
         <Container key={index}></Container>

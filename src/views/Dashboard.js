@@ -490,7 +490,11 @@ function Dashboard() {
               height={140}
               width={240}
               border={"1px"}
-              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              _hover={{
+                borderColor: "accentColor",
+                color: "accentColor",
+                boxShadow: "xl",
+              }}
               borderColor="#DFE0EB"
               boxShadow={"sm"}
               backgroundColor={"#fff"}
@@ -517,7 +521,11 @@ function Dashboard() {
               height={140}
               width={240}
               border={"1px"}
-              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              _hover={{
+                borderColor: "accentColor",
+                color: "accentColor",
+                boxShadow: "xl",
+              }}
               borderColor="#DFE0EB"
               boxShadow={"sm"}
               backgroundColor={"#fff"}
@@ -539,7 +547,11 @@ function Dashboard() {
               height={140}
               width={240}
               border={"1px"}
-              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              _hover={{
+                borderColor: "accentColor",
+                color: "accentColor",
+                boxShadow: "xl",
+              }}
               borderColor="#DFE0EB"
               boxShadow={"sm"}
               backgroundColor={"#fff"}
@@ -561,7 +573,11 @@ function Dashboard() {
               height={140}
               width={240}
               border={"1px"}
-              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              _hover={{
+                borderColor: "accentColor",
+                color: "accentColor",
+                boxShadow: "xl",
+              }}
               borderColor="#DFE0EB"
               boxShadow={"sm"}
               backgroundColor={"#fff"}
