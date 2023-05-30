@@ -27,9 +27,10 @@ import {
   Text,
   IconButton,
   Divider,
+  Box,
 } from "@chakra-ui/react";
 import { Container, Card, Row, Col, Form } from "react-bootstrap";
-import { AiFillInfoCircle } from "react-icons/ai";
+import { AiOutlineInfo } from "react-icons/ai";
 
 import BetDataModal from "./BetDataModal.js";
 
@@ -197,36 +198,13 @@ function BetDisplayCards(props) {
             {
               {
                 1: (
-                  <Card.Body style={{ marginTop: 5 }}>
-                    <Row>
-                      {/*                      <Col md="auto">
-                        <IconButton
-                          colorScheme="blue"
-                          variant="ghost"
-                          onClick={() => setBetInfoIsOpen(true)}
-                          aria-label="Bet Info"
-                          icon={<AiFillInfoCircle />}
-                        />
-                      </Col> */}
-                      <Col style={{ textAlign: "left", marginLeft: 10 }}>
-                        <Card.Title style={{ fontWeight: "bold" }}>
-                          {String.fromCharCode.apply(
-                            String,
-                            bet.bet_identifier
-                          )}
-                        </Card.Title>
-                        <Card.Text style={{ color: "#aaaaaa" }}>
-                          Status: Created
-                        </Card.Text>
-                      </Col>
-                      <Col style={{ textAlign: "right" }}>
-                        <Button
-                          style={{ margin: "5px" }}
-                          borderColor="accentColor"
-                          borderRadius="20px"
-                          color="accentColor"
-                          variant="outline"
-                          mr={3}
+                  <Box
+                    _hover={{ border: "1px", borderColor: "primaryColor" }}
+                    borderRadius={8}
+                  >
+                    <Card.Body style={{ marginTop: 5 }}>
+                      <Row>
+                        <Col
                           onClick={() => {
                             let name = bet.bet_identifier;
                             name = String.fromCharCode.apply(String, name);
@@ -234,143 +212,183 @@ function BetDisplayCards(props) {
                             setCode(name);
                             setCodeDisplayIsOpen(true);
                           }}
+                          style={{ textAlign: "left", marginLeft: 10 }}
                         >
-                          Bet Info
-                        </Button>
-                        <Button
-                          style={{ margin: "5px" }}
-                          borderColor="accentColor"
-                          borderRadius="20px"
-                          color="accentColor"
-                          variant="outline"
-                          mr={3}
-                          onClick={() => {
-                            let name = bet.bet_identifier;
-                            name = String.fromCharCode.apply(String, name);
-                            if (name.indexOf(" ") >= 0) name = name.trim();
-                            handlePing(name, index);
+                          <Box display="flex" gap={2}>
+                            <Card.Title style={{ fontWeight: "bold" }}>
+                              {String.fromCharCode.apply(
+                                String,
+                                bet.bet_identifier
+                              )}
+                            </Card.Title>
+                            {/*                           <IconButton
+                            icon={<AiOutlineInfo />}
+                            variant="outline"
+                            borderColor={"#aaaaaa"}
+                            borderRadius={100}
+                            color={"#aaaaaa"}
+                            height={25}
+                            width={25}
+                            onClick={() => {
+                              let name = bet.bet_identifier;
+                              name = String.fromCharCode.apply(String, name);
+                              if (name.indexOf(" ") >= 0) name = name.trim();
+                              setCode(name);
+                              setCodeDisplayIsOpen(true);
+                            }}
+                          /> */}
+                          </Box>
+                          <Card.Text style={{ color: "#aaaaaa" }}>
+                            Status: Created
+                          </Card.Text>
+                        </Col>
+                        <Box
+                          width="25%"
+                          display="flex"
+                          justifyContent="flex-end"
+                        >
+                          <Button
+                            style={{ margin: "5px" }}
+                            borderColor="accentColor"
+                            borderRadius="20px"
+                            color="accentColor"
+                            variant="outline"
+                            mr={3}
+                            onClick={() => {
+                              let name = bet.bet_identifier;
+                              name = String.fromCharCode.apply(String, name);
+                              if (name.indexOf(" ") >= 0) name = name.trim();
+                              handlePing(name, index);
+                            }}
+                          >
+                            Ping
+                          </Button>
+                          <Button
+                            variant={"outline"}
+                            borderColor={"accentColor"}
+                            borderRadius={20}
+                            color="accentColor"
+                            width="50%"
+                            mr={3}
+                            style={{ margin: "5px" }}
+                            boxShadow={"sm"}
+                            onClick={() => {
+                              setBetIsOpen(true);
+                              setCurrentBet(bet);
+                              let name = bet.bet_identifier;
+                              name = String.fromCharCode.apply(String, name);
+                              if (name.indexOf(" ") >= 0) name = name.trim();
+                              setJoinCode(name);
+                              setCurrentOptions(bet.options);
+                            }}
+                            disabled={playerAccountInfo[index].bet_amount != 0}
+                          >
+                            Make Bet
+                          </Button>
+                        </Box>
+                      </Row>
+                      <br />
+                      <Row>
+                        <Col
+                          style={{
+                            display: "inline-flex",
+                            justifyContent: "space-around",
+                            borderRight: "solid",
+                            borderRightWidth: "thin",
+                            borderColor: "#252733",
                           }}
                         >
-                          Ping
-                        </Button>
-                        <Button
-                          mr={3}
-                          style={{ margin: "5px" }}
-                          onClick={() => {
-                            setBetIsOpen(true);
-                            setCurrentBet(bet);
-                            let name = bet.bet_identifier;
-                            name = String.fromCharCode.apply(String, name);
-                            if (name.indexOf(" ") >= 0) name = name.trim();
-                            setJoinCode(name);
-                            setCurrentOptions(bet.options);
+                          <Text fontWeight={600}>Position </Text>
+                          <Text fontWeight={600} color={"#9FA2B4"}>
+                            {playerAccountInfo[index].bet_amount == 0
+                              ? "N/A"
+                              : String.fromCharCode
+                                  .apply(
+                                    String,
+                                    bet.options[
+                                      props.playerAccountInfo[index]
+                                        .option_index
+                                    ].name
+                                  )
+                                  .substr(
+                                    0,
+                                    String.fromCharCode
+                                      .apply(
+                                        String,
+                                        bet.options[
+                                          props.playerAccountInfo[index]
+                                            .option_index
+                                        ].name
+                                      )
+                                      .indexOf("\0")
+                                  )}
+                          </Text>
+                        </Col>
+
+                        <Col
+                          style={{
+                            display: "inline-flex",
+                            justifyContent: "space-around",
+                            borderRight: "solid",
+                            borderRightWidth: "thin",
+                            borderColor: "#252733",
                           }}
-                          disabled={playerAccountInfo[index].bet_amount != 0}
                         >
-                          Make Bet
-                        </Button>
-                      </Col>
-                    </Row>
-                    <br />
-                    <Row>
-                      <Col
-                        style={{
-                          display: "inline-flex",
-                          justifyContent: "space-around",
-                          borderRight: "solid",
-                          borderRightWidth: "thin",
-                          borderColor: "#252733",
-                        }}
-                      >
-                        <Text fontWeight={600}>Position </Text>
-                        <Text fontWeight={600} color={"#9FA2B4"}>
-                          {playerAccountInfo[index].bet_amount == 0
-                            ? "N/A"
-                            : String.fromCharCode
-                                .apply(
-                                  String,
-                                  bet.options[
-                                    props.playerAccountInfo[index].option_index
-                                  ].name
-                                )
-                                .substr(
-                                  0,
-                                  String.fromCharCode
-                                    .apply(
-                                      String,
-                                      bet.options[
-                                        props.playerAccountInfo[index]
-                                          .option_index
-                                      ].name
-                                    )
-                                    .indexOf("\0")
-                                )}
-                        </Text>
-                      </Col>
+                          <Text fontWeight={600}>Stake </Text>
+                          <Text fontWeight={600} color={"#9FA2B4"}>
+                            ${playerAccountInfo[index].bet_amount / 100000000}
+                          </Text>
+                        </Col>
 
-                      <Col
-                        style={{
-                          display: "inline-flex",
-                          justifyContent: "space-around",
-                          borderRight: "solid",
-                          borderRightWidth: "thin",
-                          borderColor: "#252733",
-                        }}
-                      >
-                        <Text fontWeight={600}>Stake </Text>
-                        <Text fontWeight={600} color={"#9FA2B4"}>
-                          ${playerAccountInfo[index].bet_amount / 100000000}
-                        </Text>
-                      </Col>
+                        <Col
+                          style={{
+                            display: "inline-flex",
+                            justifyContent: "space-around",
+                            borderRight: "solid",
+                            borderRightWidth: "thin",
+                            borderColor: "#252733",
+                          }}
+                        >
+                          <Text fontWeight={600}>Total Pot </Text>
+                          <Text fontWeight={600} color={"#9FA2B4"}>
+                            ${bet.balance / 100000000}
+                          </Text>
+                        </Col>
 
-                      <Col
-                        style={{
-                          display: "inline-flex",
-                          justifyContent: "space-around",
-                          borderRight: "solid",
-                          borderRightWidth: "thin",
-                          borderColor: "#252733",
-                        }}
-                      >
-                        <Text fontWeight={600}>Total Pot </Text>
-                        <Text fontWeight={600} color={"#9FA2B4"}>
-                          ${bet.balance / 100000000}
-                        </Text>
-                      </Col>
+                        <Col
+                          style={{
+                            display: "inline-flex",
+                            justifyContent: "space-around",
+                            borderRight: "solid",
+                            borderRightWidth: "thin",
+                            borderColor: "#252733",
+                          }}
+                        >
+                          <Text fontWeight={600}>Time </Text>
+                          <Text fontWeight={600} color={"#9FA2B4"}>
+                            {new Date(bet.time * 1000).toLocaleTimeString(
+                              "en-US",
+                              {
+                                timeStyle: "short",
+                              }
+                            )}
+                          </Text>
+                        </Col>
 
-                      <Col
-                        style={{
-                          display: "inline-flex",
-                          justifyContent: "space-around",
-                          borderRight: "solid",
-                          borderRightWidth: "thin",
-                          borderColor: "#252733",
-                        }}
-                      >
-                        <Text fontWeight={600}>Time </Text>
-                        <Text fontWeight={600} color={"#9FA2B4"}>
-                          {new Date(bet.time * 1000).toLocaleTimeString(
-                            "en-US",
-                            {
-                              timeStyle: "short",
-                            }
-                          )}
-                        </Text>
-                      </Col>
-
-                      <Col
-                        style={{
-                          display: "inline-flex",
-                          justifyContent: "space-around",
-                        }}
-                      >
-                        <Text fontWeight={600}>Players </Text>
-                        <Text fontWeight={600} color={"#9FA2B4"}>
-                          {bet.player_count}
-                        </Text>
-                      </Col>
-                    </Row>
-                  </Card.Body>
+                        <Col
+                          style={{
+                            display: "inline-flex",
+                            justifyContent: "space-around",
+                          }}
+                        >
+                          <Text fontWeight={600}>Players </Text>
+                          <Text fontWeight={600} color={"#9FA2B4"}>
+                            {bet.player_count}
+                          </Text>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Box>
                 ),
 
                 2: (
@@ -382,7 +400,7 @@ function BetDisplayCards(props) {
                           variant="ghost"
                           onClick={() => setBetInfoIsOpen(true)}
                           aria-label="Bet Info"
-                          icon={<AiFillInfoCircle />}
+                          icon={<AiOutlineInfo />}
                         />
                       </Col>
                       <Col style={{ textAlign: "left" }}>
@@ -459,7 +477,7 @@ function BetDisplayCards(props) {
                           variant="ghost"
                           onClick={() => setBetInfoIsOpen(true)}
                           aria-label="Bet Info"
-                          icon={<AiFillInfoCircle />}
+                          icon={<AiOutlineInfo />}
                         />
                       </Col>
                       <Col style={{ textAlign: "left" }}>
