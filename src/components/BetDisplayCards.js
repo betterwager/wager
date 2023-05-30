@@ -282,8 +282,8 @@ function BetDisplayCards(props) {
                           borderColor: "#252733",
                         }}
                       >
-                        <Text>Position </Text>
-                        <Text color={"#9FA2B4"}>
+                        <Text fontWeight={600}>Position </Text>
+                        <Text fontWeight={600} color={"#9FA2B4"}>
                           {playerAccountInfo[index].bet_amount == 0
                             ? "N/A"
                             : String.fromCharCode
@@ -317,8 +317,8 @@ function BetDisplayCards(props) {
                           borderColor: "#252733",
                         }}
                       >
-                        <Text>Stake </Text>
-                        <Text color={"#9FA2B4"}>
+                        <Text fontWeight={600}>Stake </Text>
+                        <Text fontWeight={600} color={"#9FA2B4"}>
                           ${playerAccountInfo[index].bet_amount / 100000000}
                         </Text>
                       </Col>
@@ -332,8 +332,8 @@ function BetDisplayCards(props) {
                           borderColor: "#252733",
                         }}
                       >
-                        <Text>Total Pot </Text>
-                        <Text color={"#9FA2B4"}>
+                        <Text fontWeight={600}>Total Pot </Text>
+                        <Text fontWeight={600} color={"#9FA2B4"}>
                           ${bet.balance / 100000000}
                         </Text>
                       </Col>
@@ -347,8 +347,8 @@ function BetDisplayCards(props) {
                           borderColor: "#252733",
                         }}
                       >
-                        <Text>Time </Text>
-                        <Text color={"#9FA2B4"}>
+                        <Text fontWeight={600}>Time </Text>
+                        <Text fontWeight={600} color={"#9FA2B4"}>
                           {new Date(bet.time * 1000).toLocaleTimeString(
                             "en-US",
                             {
@@ -364,8 +364,10 @@ function BetDisplayCards(props) {
                           justifyContent: "space-around",
                         }}
                       >
-                        <Text>Players </Text>
-                        <Text color={"#9FA2B4"}>{bet.player_count}</Text>
+                        <Text fontWeight={600}>Players </Text>
+                        <Text fontWeight={600} color={"#9FA2B4"}>
+                          {bet.player_count}
+                        </Text>
                       </Col>
                     </Row>
                   </Card.Body>

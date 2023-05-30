@@ -1,10 +1,21 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 import { API, Auth } from "aws-amplify";
 import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
 import * as mutations from "../graphql/mutations";
-import { Box, Center, Icon, IconButton, Text, Flex, Menu, MenuItem, MenuButton, MenuList } from '@chakra-ui/react'
-import { Navbar } from 'react-bootstrap';
-import { AddIcon, HamburgerIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Center,
+  Icon,
+  IconButton,
+  Text,
+  Flex,
+  Menu,
+  MenuItem,
+  MenuButton,
+  MenuList,
+} from "@chakra-ui/react";
+import { Navbar } from "react-bootstrap";
+import { AddIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
   PublicKey,
@@ -12,23 +23,19 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 
-import CreateBetModal from './CreateBetModal';
-import JoinBetModal from './JoinBetModal';
-import CreateLeaderModal from './CreateLeaderModal';
-import JoinLeaderModal from './JoinLeaderModal';
-
+import CreateBetModal from "./CreateBetModal";
+import JoinBetModal from "./JoinBetModal";
+import CreateLeaderModal from "./CreateLeaderModal";
+import JoinLeaderModal from "./JoinLeaderModal";
 
 const Header = (props) => {
-
   const [addIsOpen, setAddIsOpen] = useState(false);
   const [joinIsOpen, setJoinIsOpen] = useState(false);
-
 
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
 
-  const user = props.user
-
+  const user = props.user;
 
   const getBets = () => {
     props.refresh(publicKey);
@@ -45,7 +52,7 @@ const Header = (props) => {
     "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
   );
 
-  const toast = props.toast
+  const toast = props.toast;
 
   const userUpdate = useCallback(async (newUser) => {
     const promise = await API.graphql({
@@ -62,9 +69,8 @@ const Header = (props) => {
           style={{
             borderBottom: "solid",
             borderColor: "primaryColor",
-            backgroundColor: "#ffffff",
+            backgroundColor: "#F7F8FC",
           }}
-
         >
           <Navbar.Brand style={{ marginLeft: "10px" }}>
             <Flex align={"center"} w={"100%"}>
@@ -76,10 +82,10 @@ const Header = (props) => {
           </Navbar.Brand>
 
           <Box flex="1" />
-          <Menu >
+          <Menu>
             <MenuButton
               isDisabled={publicKey == null && props.page == "Dashboard"}
-              //colorScheme="blue" 
+              //colorScheme="blue"
               // backgroundColor="#ff0000"
               // color="#ff0000"
               as={IconButton}
@@ -87,7 +93,7 @@ const Header = (props) => {
               <AddIcon w={8} h={8} />
             </MenuButton>
             <MenuList style={{ color: "#000000" }}>
-              {props.page == "Dashboard" ?
+              {props.page == "Dashboard" ? (
                 <>
                   <MenuItem
                     onClick={() => {
@@ -113,9 +119,9 @@ const Header = (props) => {
                   <MenuItem
                     onClick={() => {
                       setJoinIsOpen(true);
-
                     }}
-                  >Join a Bet
+                  >
+                    Join a Bet
                   </MenuItem>
 
                   <JoinBetModal
@@ -132,11 +138,13 @@ const Header = (props) => {
                     walletIsOpen={props.walletIsOpen}
                     setWalletIsOpen={props.setWalletIsOpen}
                   />
-
-                </> :
+                </>
+              ) : (
                 <>
                   <MenuItem
-                    onClick={() => { setAddLeaderIsOpen(true) }}
+                    onClick={() => {
+                      setAddLeaderIsOpen(true);
+                    }}
                   >
                     Create a Leaderboard
                   </MenuItem>
@@ -151,7 +159,9 @@ const Header = (props) => {
                   />
 
                   <MenuItem
-                    onClick={() => { setJoinLeaderIsOpen(true) }}
+                    onClick={() => {
+                      setJoinLeaderIsOpen(true);
+                    }}
                   >
                     Join a Leaderboard
                   </MenuItem>
@@ -164,12 +174,10 @@ const Header = (props) => {
                     setBoardIDs={props.setBoardIDs}
                     userUpdate={userUpdate}
                   />
-
-                </>}
-
+                </>
+              )}
             </MenuList>
           </Menu>
-
 
           <div style={{ marginRight: "10px", marginLeft: "10px" }}></div>
           <Box>
@@ -185,35 +193,40 @@ const Header = (props) => {
               </>
             )}
           </Box>
-
-
         </Navbar>
       )}
 
-      <Flex bg="#ffffff" p={4} color="white" justifyContent="center">
+      <Flex bg="#F7F8FC" p={4} color="white" justifyContent="center">
+        <Text as="b" style={{ color: "#000000" }} fontSize="xl">
+          {props.page}
+        </Text>
 
-        <Text as='b' style={{ color: "#000000" }} fontSize="xl">{props.page}</Text>
-
-        {!props.showSidebarButton &&
+        {!props.showSidebarButton && (
           <>
             <Box flex="1" />
-            <Menu >
-              <MenuButton isDisabled={publicKey == null && props.page == "Dashboard"}
-                //colorScheme="green" 
+            <Menu>
+              <MenuButton
+                isDisabled={publicKey == null && props.page == "Dashboard"}
+                //colorScheme="green"
                 // backgroundColor="primaryColor"
                 // color="buttonTextColor"
-                _hover={publicKey == null && props.page == "Dashboard" ? {
-                  background: "primaryColor",
-                  color: "buttonTextColor",
-                } : {
-                  background: "hoverColor",
-                  color: "buttonTextColor"
-                }}
-                as={IconButton} >
+                _hover={
+                  publicKey == null && props.page == "Dashboard"
+                    ? {
+                        background: "primaryColor",
+                        color: "buttonTextColor",
+                      }
+                    : {
+                        background: "hoverColor",
+                        color: "buttonTextColor",
+                      }
+                }
+                as={IconButton}
+              >
                 <AddIcon w={8} h={8} />
               </MenuButton>
               <MenuList style={{ color: "#000000" }}>
-                {props.page == "Dashboard" ?
+                {props.page == "Dashboard" ? (
                   <>
                     <MenuItem
                       onClick={() => {
@@ -239,9 +252,9 @@ const Header = (props) => {
                     <MenuItem
                       onClick={() => {
                         setJoinIsOpen(true);
-
                       }}
-                    >Join a Bet
+                    >
+                      Join a Bet
                     </MenuItem>
 
                     <JoinBetModal
@@ -258,11 +271,13 @@ const Header = (props) => {
                       walletIsOpen={props.walletIsOpen}
                       setWalletIsOpen={props.setWalletIsOpen}
                     />
-
-                  </> :
+                  </>
+                ) : (
                   <>
                     <MenuItem
-                      onClick={() => { setAddLeaderIsOpen(true) }}
+                      onClick={() => {
+                        setAddLeaderIsOpen(true);
+                      }}
                     >
                       Create a Leaderboard
                     </MenuItem>
@@ -275,7 +290,9 @@ const Header = (props) => {
                     />
 
                     <MenuItem
-                      onClick={() => { setJoinLeaderIsOpen(true) }}
+                      onClick={() => {
+                        setJoinLeaderIsOpen(true);
+                      }}
                     >
                       Join a Leaderboard
                     </MenuItem>
@@ -286,16 +303,15 @@ const Header = (props) => {
                       user={user}
                       userUpdate={userUpdate}
                     />
-
-                  </>}
-
+                  </>
+                )}
               </MenuList>
             </Menu>
           </>
-        }
+        )}
       </Flex>
     </>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

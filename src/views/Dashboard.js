@@ -29,9 +29,10 @@ import {
   useBreakpointValue,
   GridItem,
   Button,
+  Text,
 } from "@chakra-ui/react";
 import { Card, Row, Col, Container } from "react-bootstrap";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import { RepeatIcon } from "@chakra-ui/icons";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { QRCodeCanvas } from "qrcode.react";
@@ -52,7 +53,7 @@ import { Buffer } from "buffer";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import * as subscriptions from "../graphql/subscriptions";
-import { Auth, API} from "aws-amplify";
+import { Auth, API } from "aws-amplify";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import uniqueHash from "unique-hash";
 import { ConsoleLogger } from "@aws-amplify/core";
@@ -60,7 +61,7 @@ import { ConsoleLogger } from "@aws-amplify/core";
 //Internal Imports
 import Sidebar from "../components/Sidebar.js";
 import Login from "../components/Login.js";
-import Header from "../components/Header.js"
+import Header from "../components/Header.js";
 import {
   MakeBetInstruction,
   VoteInstruction,
@@ -76,17 +77,17 @@ import Temp from "../components/Temp";
 import { Magic } from "magic-sdk";
 import { SolanaExtension } from "@magic-ext/solana";
 
-const smVariant = { navigation: 'drawer', navigationButton: true }
-const mdVariant = { navigation: 'sidebar', navigationButton: false }
+const smVariant = { navigation: "drawer", navigationButton: true };
+const mdVariant = { navigation: "sidebar", navigationButton: false };
 
 const rpcUrl = "https://api.devnet.solana.com";
 
 const magic = new Magic("pk_live_7B73AD963AFECCE0", {
   extensions: {
     solana: new SolanaExtension({
-      rpcUrl
-    })
-  }
+      rpcUrl,
+    }),
+  },
 });
 
 function Dashboard() {
@@ -121,11 +122,11 @@ function Dashboard() {
   const [currentBetIndex, setCurrentBetIndex] = useState(0);
 
   //Sidebar Open
-  const [isSidebarOpen, setSidebarOpen] = useState(false)
-  const variants = useBreakpointValue({ base: smVariant, md: mdVariant })
-  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen)
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const variants = useBreakpointValue({ base: smVariant, md: mdVariant });
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
-  const [walletIsOpen, setWalletIsOpen] = useState(false)
+  const [walletIsOpen, setWalletIsOpen] = useState(false);
 
   //Vars
   /* let network = "https://api.devnet.solana.com";
@@ -176,9 +177,7 @@ function Dashboard() {
     BufferLayout.u8("bump_seed"),
   ]);
 
-
   const [isLoading, setIsLoading] = useState(true);
-
 
   const userUpdate = async (newUser) => {
     const promise = await API.graphql({
@@ -188,9 +187,8 @@ function Dashboard() {
     return promise;
   };
 
-
   const submitOption = async () => {
-    if (voteOption == ""){
+    if (voteOption == "") {
       toast({
         title: "Enter Vote",
         description: "Please choose a voting option",
@@ -198,15 +196,15 @@ function Dashboard() {
         duration: 3000,
         isClosable: true,
       });
-    }else{
+    } else {
       let optionChose = voteOption;
       let index = currentBetIndex;
       let votedIndex = voteIndex;
-  
+
       let betID = allUserBets[index].bet_identifier;
       //use bet id and option to process vote for user
       let potPDA = betAddresses[index];
-  
+
       let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
         [betID, publicKey.toBytes()],
         programId
@@ -266,7 +264,6 @@ function Dashboard() {
         isClosable: true,
       });
     }
-    
   };
 
   const handlePayout = async () => {
@@ -315,27 +312,34 @@ function Dashboard() {
     const signature = await sendTransaction(transaction, connection, {
       minContextSlot,
     });
-  
-  
-  let confirmedTransaction = await connection.getTransaction(signature, {maxSupportedTransactionVersion : 2});
-      let logs = confirmedTransaction.meta.logMessages;
-      console.log(logs);
-      let winnings = parseInt(logs[logs.length - 3].match(/\d/g).join(''), 10);
-      console.log((Math.log(winnings) * Math.log10(playerAccountInfo[index].bet_amount)) / 10000000);
-      if (isNaN(winnings) == false) {
-        let newUser = {
-          id: currentUser.id,
-          name: currentUser.name,
-          birthdate: currentUser.birthdate,
-          phonenumber: currentUser.phonenumber,
-          trustscore: currentUser.trustscore,
-          bettingscore: ((Math.log(winnings) * Math.log10((playerAccountInfo[index].bet_amount)* 10)) / 10000000),
-          bets: currentUser.bets,
-          leaderboards: currentUser.leaderboards,
-          _version: currentUser._version,
-        }
-        userUpdate(newUser);
-      }
+
+    let confirmedTransaction = await connection.getTransaction(signature, {
+      maxSupportedTransactionVersion: 2,
+    });
+    let logs = confirmedTransaction.meta.logMessages;
+    console.log(logs);
+    let winnings = parseInt(logs[logs.length - 3].match(/\d/g).join(""), 10);
+    console.log(
+      (Math.log(winnings) * Math.log10(playerAccountInfo[index].bet_amount)) /
+        10000000
+    );
+    if (isNaN(winnings) == false) {
+      let newUser = {
+        id: currentUser.id,
+        name: currentUser.name,
+        birthdate: currentUser.birthdate,
+        phonenumber: currentUser.phonenumber,
+        trustscore: currentUser.trustscore,
+        bettingscore:
+          (Math.log(winnings) *
+            Math.log10(playerAccountInfo[index].bet_amount * 10)) /
+          10000000,
+        bets: currentUser.bets,
+        leaderboards: currentUser.leaderboards,
+        _version: currentUser._version,
+      };
+      userUpdate(newUser);
+    }
     await connection.confirmTransaction({
       blockhash,
       lastValidBlockHeight,
@@ -344,11 +348,11 @@ function Dashboard() {
   };
 
   const getBets = useCallback(async () => {
-    if (publicKey == null){
+    if (publicKey == null) {
       setBetAddresses([]);
-      setPlayerAccountInfo([])
-      setUserBets([])
-    }else{
+      setPlayerAccountInfo([]);
+      setUserBets([]);
+    } else {
       let tempAddress = {};
       let tempBet = {};
       let allBetAddresses = [];
@@ -376,7 +380,9 @@ function Dashboard() {
               console.log("Success!");
               allBetAddresses.push(accountInfo.pubkey);
               allBets.push(wagerLayout.decode(accountInfo.account.data));
-              allPlayerAccounts.push(playerLayout.decode(playerAccountInfo.data));
+              allPlayerAccounts.push(
+                playerLayout.decode(playerAccountInfo.data)
+              );
             }
           });
         if (index === tempBets.length - 1) {
@@ -401,74 +407,75 @@ function Dashboard() {
   };
 
   const getUser = async (phoneNumber) => {
-      const user = await API.graphql({ 
-        query: queries.getUser,
-        variables: {
-            id: uniqueHash(phoneNumber.substring(1))
-        }
-        })
-      return user;
-  
-    }
-    
+    const user = await API.graphql({
+      query: queries.getUser,
+      variables: {
+        id: uniqueHash(phoneNumber.substring(1)),
+      },
+    });
+    return user;
+  };
 
-  const [magicUser, setMagicUser] = useState({})
+  const [magicUser, setMagicUser] = useState({});
 
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
-    Auth.currentUserCredentials()
-    .catch((e) => {
+    Auth.currentUserCredentials().catch((e) => {
       console.log("=== currentcredentials", { e });
     });
-  Auth.currentAuthenticatedUser()
-    .then((user) => {
-      magic.user
-        .isLoggedIn()
-        .then((isLoggedIn) => {
-          return isLoggedIn
-            ? magic.user
-                .getMetadata()
-                .then((userData) =>
-                {
+    Auth.currentAuthenticatedUser()
+      .then((user) => {
+        magic.user
+          .isLoggedIn()
+          .then((isLoggedIn) => {
+            return isLoggedIn
+              ? magic.user.getMetadata().then((userData) => {
                   setMagicUser({ ...userData, identityId: user.id });
-                  console.log({ ...userData, identityId: user.id })
+                  console.log({ ...userData, identityId: user.id });
                   getUser(userData.phoneNumber)
-                  .catch(console.error)
-                  .then((res) => {
-                    setCurrentUser(res.data.getUser);
-                    getBets(publicKey).catch(console.error);
-                    setIsLoading(false)
-                  });
+                    .catch(console.error)
+                    .then((res) => {
+                      setCurrentUser(res.data.getUser);
+                      getBets(publicKey).catch(console.error);
+                      setIsLoading(false);
+                    });
                 })
-            : setMagicUser({ user: null }) && navigate("/login");
-        })
-        .catch((e) => {
-          console.log("currentUser", { e });
-        });
-    })
-    .catch((e) => {
-      setMagicUser({ user: null });
-      navigate("/login")
-    });
-    
-  },[])
+              : setMagicUser({ user: null }) && navigate("/login");
+          })
+          .catch((e) => {
+            console.log("currentUser", { e });
+          });
+      })
+      .catch((e) => {
+        setMagicUser({ user: null });
+        navigate("/login");
+      });
+  }, []);
 
   // useEffect(() => {
-   
+
   // }, [getBets]); // eslint-disable-line react-hooks/exhaustive-deps
   // /* useEffect(() => {
   // }, [getBets,publicKey]); */
   // //getBets(publicKey).catch(console.error);
 
-  return (
-
-    (isLoading ? (<Loading/>) : 
-      <div style= {{overflow:"hidden"}}>
-      <Sidebar magicUser = {magicUser} variant={variants?.navigation}
+  return isLoading ? (
+    <Loading />
+  ) : (
+    <div style={{ overflow: "hidden" }}>
+      <Sidebar
+        magicUser={magicUser}
+        variant={variants?.navigation}
         isOpen={isSidebarOpen}
-        onClose={toggleSidebar} refresh={getBets} user={currentUser} />
-      <Box ml={!variants?.navigationButton && 250} bg="#ffffff" style={{height: "100vh"}}>
+        onClose={toggleSidebar}
+        refresh={getBets}
+        user={currentUser}
+      />
+      <Box
+        ml={!variants?.navigationButton && 250}
+        bg="#F7F8FC"
+        style={{ height: "100vh" }}
+      >
         <Header
           showSidebarButton={variants?.navigationButton}
           onShowSidebar={toggleSidebar}
@@ -478,86 +485,102 @@ function Dashboard() {
           setWalletIsOpen={setWalletIsOpen}
         />
         <Container>
-          <Row
-            xs={2}
-            md={2}
-            lg={4}
-            className="g-4"
-            style = {{marginLeft: "3%", marginRight: "3%"}}
-          >
-            <Col>
-              <Card
-                style={{
-                  borderColor: "accentColor",
-                  textAlign: "center",
-                }}
-              >
-                <Card.Body>
-                  <Card.Text style={{ color: "accentColor" }}>Earnings</Card.Text>
-                  <Card.Title>
-                    {currentUser == null ? (
-                      <strong>$0</strong>
-                    ) : (
-                      <strong>${currentUser.bettingscore}</strong>
-                    )}
-                  </Card.Title>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col>
-              <Card
-                style={{
-                  borderColor: "accentColor",
-                  textAlign: "center",
-                }}
-              >
-                <Card.Body>
-                  <Card.Text style={{ color: "accentColor" }}>
-                    Active Bets
-                  </Card.Text>
-                  <Card.Title>
-                    <strong>{allUserBets.length}</strong>
-                  </Card.Title>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col>
-              <Card
-                style={{
-                  borderColor: "accentColor",
-                  textAlign: "center",
-                }}
-              >
-                <Card.Body>
-                  <Card.Text style={{ color: "accentColor" }}>Voting</Card.Text>
-                  <Card.Title>
-                    <strong>
-                      {allUserBets.filter((obj) => obj.state === 2).length}
-                    </strong>
-                  </Card.Title>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col>
-              <Card
-                style={{
-                  borderColor: "accentColor",
-                  textAlign: "center",
-                }}
-              >
-                <Card.Body>
-                  <Card.Text style={{ color: "accentColor" }}>
-                    Closed Bets
-                  </Card.Text>
-                  <Card.Title>
-                    <strong>
-                      {allUserBets.filter((obj) => obj.state === 3).length}
-                    </strong>
-                  </Card.Title>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+          <Box display={"flex"} justifyContent={"space-evenly"}>
+            <Box
+              height={140}
+              width={240}
+              border={"1px"}
+              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              borderColor="#DFE0EB"
+              boxShadow={"sm"}
+              backgroundColor={"#fff"}
+              borderRadius={20}
+              display={"flex"}
+              flexDirection={"column"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              <Text align={"center"} fontWeight={700} fontSize={"xl"}>
+                Earnings
+              </Text>
+              {currentUser == null ? (
+                <Text align={"center"} fontWeight={700} fontSize={"2xl"}>
+                  $0
+                </Text>
+              ) : (
+                <Text align={"center"} fontWeight={700} fontSize={"2xl"}>
+                  ${currentUser.bettingscore}
+                </Text>
+              )}
+            </Box>
+            <Box
+              height={140}
+              width={240}
+              border={"1px"}
+              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              borderColor="#DFE0EB"
+              boxShadow={"sm"}
+              backgroundColor={"#fff"}
+              borderRadius={20}
+              display={"flex"}
+              flexDirection={"column"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              <Text align={"center"} fontWeight={700} fontSize={"xl"}>
+                Active Bets
+              </Text>
+
+              <Text align={"center"} fontWeight={700} fontSize={"2xl"}>
+                {allUserBets.length}
+              </Text>
+            </Box>
+            <Box
+              height={140}
+              width={240}
+              border={"1px"}
+              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              borderColor="#DFE0EB"
+              boxShadow={"sm"}
+              backgroundColor={"#fff"}
+              borderRadius={20}
+              display={"flex"}
+              flexDirection={"column"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              <Text align={"center"} fontWeight={700} fontSize={"xl"}>
+                Voting
+              </Text>
+
+              <Text align={"center"} fontWeight={700} fontSize={"2xl"}>
+                {allUserBets.filter((obj) => obj.state === 2).length}
+              </Text>
+            </Box>
+            <Box
+              height={140}
+              width={240}
+              border={"1px"}
+              _hover={{ borderColor: "accentColor", color: "accentColor" }}
+              borderColor="#DFE0EB"
+              boxShadow={"sm"}
+              backgroundColor={"#fff"}
+              borderRadius={20}
+              display={"flex"}
+              flexDirection={"column"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              <Text align={"center"} fontWeight={700} fontSize={"xl"}>
+                Closed Bets
+              </Text>
+
+              <Text align={"center"} fontWeight={700} fontSize={"2xl"}>
+                {allUserBets.filter((obj) => obj.state === 3).length}
+              </Text>
+            </Box>
+          </Box>
+
           <div
             id="scrollableDiv"
             style={{
@@ -572,24 +595,26 @@ function Dashboard() {
               hasMore={false}
               loader={<h4>Loading...</h4>}
               scrollableTarget="scrollableDiv"
-              endMessage={<Row style={{ textAlign: "right" }}>
-              <Button
-                colorScheme="black"
-                variant="ghost"
-                rightIcon={<RepeatIcon />}
-                onClick={() => {
-                  if(publicKey==null){
-                    setWalletIsOpen(true);
-                    getBets(null);
-                  }else{
-                    getBets(publicKey);
-                  }
-                }}
-                style = {{marginBottom:"100px"}}
-              >
-                Refresh
-              </Button>
-            </Row>}
+              endMessage={
+                <Row style={{ textAlign: "right" }}>
+                  <Button
+                    colorScheme="black"
+                    variant="ghost"
+                    rightIcon={<RepeatIcon />}
+                    onClick={() => {
+                      if (publicKey == null) {
+                        setWalletIsOpen(true);
+                        getBets(null);
+                      } else {
+                        getBets(publicKey);
+                      }
+                    }}
+                    style={{ marginBottom: "100px" }}
+                  >
+                    Refresh
+                  </Button>
+                </Row>
+              }
               style={{ boxSizing: "border-box", overflowX: "hidden" }}
             >
               <MakeBetModal
@@ -646,24 +671,23 @@ function Dashboard() {
               })}
             </InfiniteScroll>
           </div>
-
-      
         </Container>
-
       </Box>
-    <BetInfoModal
-          isOpen={codeDisplayIsOpen}
-          setIsOpen={setCodeDisplayIsOpen}
-          code={code}
-          setCode={setCode}
-        />
-    
-    <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen}/>
-    </div>
-    )
-    )
-    
+      <BetInfoModal
+        isOpen={codeDisplayIsOpen}
+        setIsOpen={setCodeDisplayIsOpen}
+        code={code}
+        setCode={setCode}
+      />
 
+      <WalletEntryModal
+        publicKey={publicKey}
+        toast={toast}
+        isOpen={walletIsOpen}
+        setIsOpen={setWalletIsOpen}
+      />
+    </div>
+  );
 }
 
 export default Dashboard;
