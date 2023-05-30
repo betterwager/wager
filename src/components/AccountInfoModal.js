@@ -31,11 +31,11 @@ function AccountInfoModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
   const [editIsOpen, setEditIsOpen] = [props.editIsOpen, props.setEditIsOpen];
   const [user, userUpdate] = [props.user, props.userUpdate];
-  const nameParts = user.name.trim().split(" ");
+  const nameParts = String(user.name).trim().split(" ");
   const firstName = nameParts[0];
   const lastName = nameParts.slice(1).join(" ");
   return (
-    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} size={"md"}>
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} size={"xl"}>
       <ModalOverlay />
       <ModalContent mr={3}>
         <ModalHeader mb={-5}>
