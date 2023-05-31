@@ -119,7 +119,7 @@ function JoinLeaderModal(props) {
           <ModalBody>
             <>
               <FormControl isRequired>
-                <Box mb={4}>
+                <Box mb={3}>
                   <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
                     Join Leaderboard
                   </Text>
@@ -127,7 +127,6 @@ function JoinLeaderModal(props) {
                     Enter the unique code to join the leaderboard!
                   </Text>
                 </Box>
-                <FormLabel>Leaderboard Code</FormLabel>
                 <Input
                   placeholder="Enter Leaderboard Code"
                   value={joinLeaderCode}
@@ -138,23 +137,17 @@ function JoinLeaderModal(props) {
           </ModalBody>
 
           <ModalFooter>
-            <Box width="100%" display={"flex"} flexDirection={"column"}>
+            <Box width="100%" display="flex">
               <Button
+                width="100%"
                 onClick={handleJoinLeaderSubmit}
                 // colorScheme="green"
                 backgroundColor="primaryColor"
                 color="buttonTextColor"
                 boxShadow={"sm"}
+                mb={2}
               >
                 Join!
-              </Button>
-              <Button
-                variant="outline"
-                mt={2}
-                onClick={() => setIsOpen(false)}
-                boxShadow={"sm"}
-              >
-                Close
               </Button>
             </Box>
           </ModalFooter>
