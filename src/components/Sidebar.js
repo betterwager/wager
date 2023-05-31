@@ -28,15 +28,19 @@ import {
   Text,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
-import { allColors } from "../theme"
+import { allColors } from "../theme";
 
 import React, { useEffect, useState, useCallback } from "react";
 
-
 import { QRCodeCanvas } from "qrcode.react";
 import { BsFillDice5Fill } from "react-icons/bs";
-import { FaDice } from "react-icons/fa";
-import { MdLeaderboard } from "react-icons/md";
+import { FaDice, FaMoneyBill } from "react-icons/fa";
+import {
+  MdAdd,
+  MdAddToPhotos,
+  MdLeaderboard,
+  MdOutlineCreate,
+} from "react-icons/md";
 import { RiNumber1, RiNumber2, RiNumber3 } from "react-icons/ri";
 import * as mutations from "../graphql/mutations";
 import * as queries from "../graphql/queries";
@@ -103,15 +107,13 @@ export function SidebarContent(props) {
   const [editIsOpen, setEditIsOpen] = useState(false);
 
   const [friendsIsOpen, setFriendsIsOpen] = useState(false);
-  const [walletIsOpen, setWalletIsOpen] = useState(false)
+  const [walletIsOpen, setWalletIsOpen] = useState(false);
 
   const [newUser, setNewUser] = useState(false);
   const toast = useToast();
-  const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen]
+  const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
 
   const [start1IsOpen, setStart1IsOpen] = useState(false);
-
-
 
   const navigate = useNavigate();
 
@@ -123,10 +125,9 @@ export function SidebarContent(props) {
     const promise = await API.graphql({
       query: mutations.updateUser,
       variables: { input: newUser },
-    })
+    });
     return promise;
   });
-
 
   useEffect(() => {
     getUser()
@@ -141,11 +142,10 @@ export function SidebarContent(props) {
           setLastName(names[1]);
           setBirthdate(currentUser.birthdate);
           setPhoneNumber(currentUser.phonenumber);
-          getUserProfilePicture(currentUser.phonenumber)
-          .then((url) => {
+          getUserProfilePicture(currentUser.phonenumber).then((url) => {
             setProfilePictureURL(url);
-            console.log(url)
-          })
+            console.log(url);
+          });
         }
         if (currentUser == null) {
           setNewUser(true);
@@ -154,32 +154,29 @@ export function SidebarContent(props) {
       });
   }, []);
 
-
   const getUser = async () => {
-    const user = await API.graphql({ 
+    const user = await API.graphql({
       query: queries.getUser,
       variables: {
-          id: uniqueHash(magicUser.phoneNumber.substring(1))
-      }
-      })
+        id: uniqueHash(magicUser.phoneNumber.substring(1)),
+      },
+    });
     return user;
   };
 
-  const magicUser = props.magicUser
+  const magicUser = props.magicUser;
 
-  const [profilePictureURL, setProfilePictureURL] = useState("")
-
-
+  const [profilePictureURL, setProfilePictureURL] = useState("");
 
   //Handling Methods
 
   const handleSignOut = () => {
-    const promise = Auth.signOut()
+    const promise = Auth.signOut();
     setTimeout(() => navigate("/"), 1000);
   };
 
   return (
-    <div style={{ overflow: "hidden" }}>
+    <div style={{ overflow: "hidden", height: "100%" }}>
       <Container
         style={{
           marginLeft: "1vh",
@@ -200,124 +197,208 @@ export function SidebarContent(props) {
           </Navbar.Brand>
         </div>
       </Container>
-      <Box
-      >
-        <Menu
-          style={{ backgroundColor: allColors.primaryColor, color: allColors.buttonTextColor }}
-          theme="dark"
-          defaultSelectedKeys={
-            window.location.pathname == DASHBOARD ||
-              window.location.pathname == DASHBOARD.toLowerCase()
-              ? ["1"]
-              : ["2"]
-          }
-          mode="inline"
+      <Box height={"90%"} display={"flex"} flexDirection={"column"}>
+        <Box
+          height="25%"
+          justifySelf="flex-start"
+          display="flex"
+          flexDirection="column"
+          justifyContent={"flex-start"}
+          py={2}
+          borderBottom="2px"
+          borderBottomColor={"#256759"}
         >
-          <SubMenu
-            style={{ backgroundColor: allColors.primaryColor, color: allColors.buttonTextColor }}
-            selectable={false}
-            key="sub1"
-            title={magicUser.phoneNumber.substring(1)}
-            icon={<UserOutlined />}
+          <Menu
+            style={{
+              backgroundColor: allColors.primaryColor,
+              color: allColors.buttonTextColor,
+            }}
+            theme="dark"
+            defaultSelectedKeys={
+              window.location.pathname == DASHBOARD ||
+              window.location.pathname == DASHBOARD.toLowerCase()
+                ? ["1"]
+                : ["2"]
+            }
+            mode="inline"
           >
-            <Menu.Item onClick={() => {
-              setAccIsOpen(true)
-            }} key="8"
-
+            <SubMenu
+              style={{
+                backgroundColor: allColors.primaryColor,
+                color: allColors.buttonTextColor,
+              }}
+              selectable={false}
+              key="sub1"
+              title={magicUser.phoneNumber.substring(1)}
+              icon={<UserOutlined />}
             >
-              Account Details
+              <Menu.Item
+                onClick={() => {
+                  setAccIsOpen(true);
+                }}
+                key="8"
+              >
+                Account Details
+              </Menu.Item>
+
+              <NewUserModals
+                start1IsOpen={start1IsOpen}
+                setStart1IsOpen={setStart1IsOpen}
+                editIsOpen={editIsOpen}
+                setEditIsOpen={setEditIsOpen}
+              />
+
+              <AccountInfoModal
+                user={user}
+                userUpdate={userUpdate}
+                isOpen={accIsOpen}
+                setIsOpen={setAccIsOpen}
+                editIsOpen={editIsOpen}
+                setEditIsOpen={setEditIsOpen}
+                publicKey={publicKey}
+                newUser={newUser}
+                setNewUser={setNewUser}
+                URL={profilePictureURL}
+              />
+              <AccountEditModal
+                user={user}
+                userUpdate={userUpdate}
+                isOpen={editIsOpen}
+                setIsOpen={setEditIsOpen}
+                publicKey={publicKey}
+                newUser={newUser}
+                setNewUser={setNewUser}
+                firstName={firstName}
+                setFirstName={setFirstName}
+                lastName={lastName}
+                setLastName={setLastName}
+                birthdate={birthdate}
+                setBirthdate={setBirthdate}
+                phoneNumber={phoneNumber}
+                setPhoneNumber={setPhoneNumber}
+                toast={toast}
+                setUser={setUser}
+                URL={profilePictureURL}
+              />
+
+              <Menu.Item onClick={handleSignOut} key="9">
+                Sign Out
+              </Menu.Item>
+            </SubMenu>
+            <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}>
+              <a href={DASHBOARD}>Dashboard</a>
             </Menu.Item>
-
-            <NewUserModals
-              start1IsOpen={start1IsOpen}
-              setStart1IsOpen={setStart1IsOpen}
-              editIsOpen={editIsOpen}
-              setEditIsOpen={setEditIsOpen}
-            />
-
-            <AccountInfoModal
+            <Menu.Item key="2" icon={<CrownOutlined />}>
+              <a href={LEADERBOARD}>Leaderboard</a>
+            </Menu.Item>
+          </Menu>
+        </Box>
+        <Box
+          height="35%"
+          justifySelf="center"
+          display="flex"
+          flexDirection="column"
+          justifyContent={"center"}
+          py={2}
+          borderBottom="2px"
+          borderBottomColor={"#256759"}
+        >
+          <Menu
+            selectable={false}
+            style={{
+              backgroundColor: allColors.primaryColor,
+              color: allColors.buttonTextColor,
+            }}
+            theme="dark"
+            mode="inline"
+          >
+            <Menu.Item
+              onClick={() => setFriendsIsOpen(true)}
+              icon={<MdOutlineCreate />}
+            >
+              Create Wager
+            </Menu.Item>
+            <Menu.Item
+              onClick={() => setFriendsIsOpen(true)}
+              icon={<FaMoneyBill />}
+            >
+              Join Wager
+            </Menu.Item>
+            <Menu.Item
+              onClick={() => setFriendsIsOpen(true)}
+              icon={<MdAddToPhotos />}
+            >
+              Create Leaderboard
+            </Menu.Item>
+            <Menu.Item
+              onClick={() => setFriendsIsOpen(true)}
+              icon={<MdLeaderboard />}
+            >
+              Join Leaderboard
+            </Menu.Item>
+          </Menu>
+        </Box>
+        <Box
+          height="35%"
+          justifySelf="flex-end"
+          display="flex"
+          flexDirection="column"
+          justifyContent={"flex-end"}
+          py={2}
+        >
+          <Menu
+            selectable={false}
+            style={{
+              backgroundColor: allColors.primaryColor,
+              color: allColors.buttonTextColor,
+            }}
+            theme="dark"
+            mode="inline"
+          >
+            <Menu.Item
+              onClick={() => setFriendsIsOpen(true)}
+              icon={<UsergroupAddOutlined />}
+            >
+              Find Friends
+            </Menu.Item>
+            <FriendsModal
               user={user}
-              userUpdate={userUpdate}
-              isOpen={accIsOpen}
-              setIsOpen={setAccIsOpen}
-              editIsOpen={editIsOpen}
-              setEditIsOpen={setEditIsOpen}
-              publicKey={publicKey}
-              newUser={newUser}
-              setNewUser={setNewUser}
-              URL={profilePictureURL}
-            />
-            <AccountEditModal
-              user={user}
-              userUpdate={userUpdate}
-              isOpen={editIsOpen}
-              setIsOpen={setEditIsOpen}
-              publicKey={publicKey}
-              newUser={newUser}
-              setNewUser={setNewUser}
-              firstName={firstName}
-              setFirstName={setFirstName}
-              lastName={lastName}
-              setLastName={setLastName}
-              birthdate={birthdate}
-              setBirthdate={setBirthdate}
-              phoneNumber={phoneNumber}
-              setPhoneNumber={setPhoneNumber}
-              toast={toast}
               setUser={setUser}
-              URL={profilePictureURL}
+              toast={toast}
+              isOpen={friendsIsOpen}
+              setIsOpen={setFriendsIsOpen}
             />
 
-            <Menu.Item onClick={handleSignOut} key="9"
+            <Menu.Item
+              onClick={() => {
+                setWalletIsOpen(true);
+              }}
+              icon={<DollarCircleOutlined />}
             >
-              Sign Out
+              Connect Wallet
             </Menu.Item>
-          </SubMenu>
-          <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}  >
-            <a href={DASHBOARD}>Dashboard</a>
-          </Menu.Item>
-          <Menu.Item key="2" icon={<CrownOutlined />}>
-            <a href={LEADERBOARD}  >Leaderboard</a>
-          </Menu.Item>
-        </Menu>
+
+            <WalletEntryModal
+              publicKey={publicKey}
+              toast={toast}
+              isOpen={walletIsOpen}
+              setIsOpen={setWalletIsOpen}
+            />
+
+            <Menu.Item icon={<ExclamationCircleOutlined />}>
+              <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank">
+                Contact Support
+              </a>
+            </Menu.Item>
+          </Menu>
+        </Box>
       </Box>
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <Menu selectable={false} style={{ backgroundColor: allColors.primaryColor, color: allColors.buttonTextColor }}
-        theme="dark" mode="inline">
-        <Menu.Item onClick={() => setFriendsIsOpen(true)} icon={<UsergroupAddOutlined />}>
-          Find Friends
-        </Menu.Item>
-        <FriendsModal user={user} setUser={setUser} toast={toast} isOpen={friendsIsOpen} setIsOpen={setFriendsIsOpen} />
-
-        <Menu.Item onClick={() => {
-          setWalletIsOpen(true)
-        }} icon={<DollarCircleOutlined />}>
-          Connect Wallet
-        </Menu.Item>
-
-        <WalletEntryModal publicKey={publicKey} toast={toast} isOpen={walletIsOpen} setIsOpen={setWalletIsOpen} />
-
-        <Menu.Item icon={<ExclamationCircleOutlined />}>
-          <a href="https://forms.gle/r288veKH6uAU6spUA" target="_blank">
-            Contact Support
-          </a>
-        </Menu.Item>
-      </Menu>
     </div>
   );
 }
 
-
 const Sidebar = (props) => {
-  return props.variant === 'sidebar' ? (
+  return props.variant === "sidebar" ? (
     <Box
       position="fixed"
       left={0}
@@ -327,7 +408,13 @@ const Sidebar = (props) => {
       h="100%"
       bg="primaryColor"
     >
-      <SidebarContent refresh={props.refresh}  magicUser = {props.magicUser} user={props.user} isOpen={props.isOpen} setIsOpen={props.setIsOpen} />
+      <SidebarContent
+        refresh={props.refresh}
+        magicUser={props.magicUser}
+        user={props.user}
+        isOpen={props.isOpen}
+        setIsOpen={props.setIsOpen}
+      />
     </Box>
   ) : (
     <Drawer isOpen={props.isOpen} placement="left" onClose={props.onClose}>
@@ -335,15 +422,18 @@ const Sidebar = (props) => {
         <DrawerContent style={{ backgroundColor: "primaryColor" }}>
           <DrawerCloseButton style={{ color: "#ffffff" }} />
           <DrawerBody>
-
-            <SidebarContent refresh={props.refresh} user={props.user}  magicUser = {props.magicUser} isOpen={props.isOpen} setIsOpen={props.onClose} />
-
+            <SidebarContent
+              refresh={props.refresh}
+              user={props.user}
+              magicUser={props.magicUser}
+              isOpen={props.isOpen}
+              setIsOpen={props.onClose}
+            />
           </DrawerBody>
         </DrawerContent>
       </DrawerOverlay>
     </Drawer>
-  )
-}
-
+  );
+};
 
 export default Sidebar;
