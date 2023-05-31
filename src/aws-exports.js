@@ -3,10 +3,6 @@
 
 const awsmobile = {
     "aws_project_region": "us-east-1",
-    "aws_appsync_graphqlEndpoint": "https://6jko7wu5i5ei5p442o2k2f2amm.appsync-api.us-east-1.amazonaws.com/graphql",
-    "aws_appsync_region": "us-east-1",
-    "aws_appsync_authenticationType": "API_KEY",
-    "aws_appsync_apiKey": "da2-3bwysvtz5zf2tcp7gcd7mrkqie",
     "aws_cloud_logic_custom": [
         {
             "name": "magicRestAPI",
@@ -14,6 +10,10 @@ const awsmobile = {
             "region": "us-east-1"
         }
     ],
+    "aws_appsync_graphqlEndpoint": "https://6jko7wu5i5ei5p442o2k2f2amm.appsync-api.us-east-1.amazonaws.com/graphql",
+    "aws_appsync_region": "us-east-1",
+    "aws_appsync_authenticationType": "API_KEY",
+    "aws_appsync_apiKey": "da2-3bwysvtz5zf2tcp7gcd7mrkqie",
     "aws_cognito_identity_pool_id": "us-east-1:8147e93f-a402-478e-bebb-2ca11cf82ab1",
     "aws_cognito_region": "us-east-1",
     "aws_user_pools_id": "us-east-1_GL2udjqVj",
@@ -36,7 +36,9 @@ const awsmobile = {
     },
     "aws_cognito_verification_mechanisms": [
         "PHONE_NUMBER"
-    ]
+    ],
+    "aws_user_files_s3_bucket": "wager-profiles195802-staging",
+    "aws_user_files_s3_bucket_region": "us-east-1"
 };
 
 

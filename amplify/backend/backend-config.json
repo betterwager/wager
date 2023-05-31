@@ -105,5 +105,12 @@
         }
       ]
     }
+  },
+  "storage": {
+    "s3wagerprofiles": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
+    }
   }
 }

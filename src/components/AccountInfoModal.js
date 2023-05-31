@@ -78,8 +78,7 @@ function AccountInfoModal(props) {
             >
               <Avatar
                 size="xl"
-                name="Segun Adebayo"
-                src="https://bit.ly/sage-adebayo"
+                src={props.URL}
               />
               <Box>
                 <Text

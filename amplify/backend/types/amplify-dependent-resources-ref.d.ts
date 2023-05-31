@@ -31,5 +31,11 @@ export type AmplifyDependentResourcesAttributes = {
       "Name": "string",
       "Region": "string"
     }
+  },
+  "storage": {
+    "s3wagerprofiles": {
+      "BucketName": "string",
+      "Region": "string"
+    }
   }
 }

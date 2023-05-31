@@ -66,6 +66,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { NavLink as Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { getUserProfilePicture } from "../utils/utils";
 import { magic } from "../utils/globals";
 import { DASHBOARD, HOME, LEADERBOARD } from "../App.js";
 import logo from "../assets/Wager.svg";
@@ -126,6 +127,7 @@ export function SidebarContent(props) {
     return promise;
   });
 
+
   useEffect(() => {
     getUser()
       .catch(console.error)
@@ -139,6 +141,11 @@ export function SidebarContent(props) {
           setLastName(names[1]);
           setBirthdate(currentUser.birthdate);
           setPhoneNumber(currentUser.phonenumber);
+          getUserProfilePicture(currentUser.phonenumber)
+          .then((url) => {
+            setProfilePictureURL(url);
+            console.log(url)
+          })
         }
         if (currentUser == null) {
           setNewUser(true);
@@ -160,6 +167,7 @@ export function SidebarContent(props) {
 
   const magicUser = props.magicUser
 
+  const [profilePictureURL, setProfilePictureURL] = useState("")
 
 
 
@@ -237,6 +245,7 @@ export function SidebarContent(props) {
               publicKey={publicKey}
               newUser={newUser}
               setNewUser={setNewUser}
+              URL={profilePictureURL}
             />
             <AccountEditModal
               user={user}
@@ -256,6 +265,7 @@ export function SidebarContent(props) {
               setPhoneNumber={setPhoneNumber}
               toast={toast}
               setUser={setUser}
+              URL={profilePictureURL}
             />
 
             <Menu.Item onClick={handleSignOut} key="9"

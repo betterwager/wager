@@ -1,0 +1,12 @@
+{
+  "resourceName": "s3wagerprofiles",
+  "bucketName": "wager-profiles",
+  "policyUUID": "64ab86da",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ]
+}

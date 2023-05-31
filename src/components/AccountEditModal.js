@@ -10,13 +10,16 @@ import {
   Modal,
   ModalBody,
   ModalContent,
+  Avatar,
+  AvatarBadge,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
   Button,
+  Center,
 } from "@chakra-ui/react";
 import "bootstrap/dist/css/bootstrap.css";
-import React from "react";
+import React, {useEffect, useRef, useState} from "react";
 import uniqueHash from "unique-hash";
 import PhoneInput from "react-phone-input-2";
 import { Container, Form } from "react-bootstrap";
@@ -24,13 +27,15 @@ import { API, Auth } from "aws-amplify";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import { FaDice } from "react-icons/fa";
+import { AiOutlineUserAdd } from "react-icons/ai";
+import { Storage } from "@aws-amplify/storage"
+
 function AccountEditModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
 
   const [user, setUser] = [props.user, props.setUser];
   const userUpdate = props.userUpdate;
   const [newUser, setNewUser] = [props.newUser, props.setNewUser];
-  const publicKey = props.publicKey;
   const toast = props.toast;
 
   const [firstName, setFirstName] = [props.firstName, props.setFirstName];
@@ -75,6 +80,13 @@ function AccountEditModal(props) {
               isClosable: true,
             });
           });
+          if (profilePicture){
+            await Storage.put(user.phonenumber, profilePicture, {
+              level: 'protected',
+              contentType: profilePicture.type,
+            })
+            .then((result) => console.log(result))
+          }
         } else {
           let newUser = {
             id: uniqueHash(phoneNumber),
@@ -85,8 +97,6 @@ function AccountEditModal(props) {
             bettingscore: 0,
             requests: [],
             friends: [],
-            publickey: " ",
-            privatekey: " ",
           };
 
           const promise = await API.graphql({
@@ -104,6 +114,13 @@ function AccountEditModal(props) {
               isClosable: true,
             });
           });
+          if (profilePicture){
+            await Storage.put(user.phonenumber, profilePicture, {
+              level: 'protected',
+              contentType: profilePicture.type,
+            })
+            .then((result) => console.log(result))
+          }
         }
       } else {
         toast({
@@ -123,6 +140,28 @@ function AccountEditModal(props) {
         isClosable: true,
       });
     }
+  };
+
+  const submitProfilePicture = (e) => {
+    e.preventDefault()
+    inputRef.current.click();
+  }
+
+  const inputRef = useRef(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePictureURL, setProfilePictureURL] = useState(props.URL);
+
+  const handleFileChange = async (event) => {
+    const fileObj = event.target.files && event.target.files[0];
+    if (!fileObj) {
+      return;
+    }
+    event.target.value = null;
+    
+    console.log(fileObj);
+    console.log(user.phonenumber)
+    setProfilePicture(fileObj)
+    setProfilePictureURL(URL.createObjectURL(fileObj))
   };
 
   return (
@@ -165,6 +204,22 @@ function AccountEditModal(props) {
                 Edit your account information below
               </Text>
             </Box>
+            <Center display="flex"  gap={3}>
+            <Avatar onClick={submitProfilePicture} 
+            src = {profilePictureURL}
+            bg='gray.400'
+            hover={{
+                backgroundColor: "primaryColor",
+                boxShadow: "xl",
+              }} size="2xl" icon={<AiOutlineUserAdd fontSize='6rem' />} />
+            <input
+              style={{display: 'none'}}
+              ref={inputRef}
+              type="file"
+              onChange={handleFileChange}
+              accept="image/png, image/jpeg"
+            />
+            </Center>
             <Box display="flex" flexDirection="column" gap={3}>
               <FormControl isRequired>
                 <Box>

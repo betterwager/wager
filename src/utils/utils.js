@@ -5,7 +5,7 @@ import {Auth, API} from "aws-amplify"
 import { useCallback } from "react";
 import * as mutations from "../graphql/mutations";
 import * as queries from "../graphql/queries";
-
+import { Storage } from "@aws-amplify/storage";
 
 
 
@@ -199,6 +199,15 @@ export const getUser = async (userid) => {
     });
   return user;
 };
+
+export const getUserProfilePicture = async(phoneNumber) => {
+  const signedURL = await Storage.get(
+    phoneNumber,
+    {
+      level: 'protected'
+    })
+  return signedURL
+}
 
 
 
