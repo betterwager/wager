@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Grid,
@@ -11,6 +11,8 @@ import {
   Tbody,
   Tfoot,
   Flex,
+  Text,
+  useToast,
   FormControl,
   useBreakpointValue,
   Modal,
@@ -25,6 +27,7 @@ import {
   Td,
   TableCaption,
   TableContainer,
+  Avatar,
 } from "@chakra-ui/react";
 import { Row } from "react-bootstrap";
 import { RepeatIcon } from "@chakra-ui/icons";
@@ -43,7 +46,19 @@ import Loading from "../components/Loading.js";
 import Login from "../components/Login.js";
 import Header from "../components/Header.js";
 import { magic } from "../utils/globals.js";
+import { getUserProfilePicture } from "../utils/utils.js";
+import AccountInfoModal from "../components/AccountInfoModal.js";
 import Temp from "../components/Temp.js";
+import {
+  Keypair,
+  Connection,
+  TransactionInstruction,
+  Transaction,
+  PublicKey,
+} from "@solana/web3.js";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import * as BufferLayout from "@solana/buffer-layout";
+import { FaTrophy } from 'react-icons/fa';
 
 const smVariant = { navigation: "drawer", navigationButton: true };
 const mdVariant = { navigation: "sidebar", navigationButton: false };
@@ -59,6 +74,10 @@ function Leaderboard() {
   const [boardUsers, setBoardUsers] = useState([]);
   const [code, setCode] = useState("");
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
+  
+  const [profilePictureURL, setProfilePictureURL] = useState("");
+  const [accIsOpen, setAccIsOpen] = useState(false);
+  const [accUser, setAccUser] = useState({});
 
   //Sidebar Open
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -83,6 +102,56 @@ function Leaderboard() {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const [allUserBets, setUserBets] = useState([]);
+  const [betAddresses, setBetAddresses] = useState([]);
+  const [playerAccountInfo, setPlayerAccountInfo] = useState([]);
+  const toast=useToast();
+
+
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+
+  const systemProgram = new PublicKey("11111111111111111111111111111111");
+  const rentSysvar = new PublicKey(
+    "SysvarRent111111111111111111111111111111111"
+  );
+  const programId = useMemo(
+    () => new PublicKey("GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"),
+    []
+  );
+
+  const wagerLayout = BufferLayout.struct([
+    BufferLayout.seq(BufferLayout.u8(), 20, "bet_identifier"),
+    BufferLayout.nu64("balance"),
+    BufferLayout.seq(
+      BufferLayout.struct([
+        BufferLayout.seq(BufferLayout.u8(), 20, "name"),
+        BufferLayout.u8("bet_count"),
+        BufferLayout.u8("vote_count"),
+        BufferLayout.nu64("bet_total"),
+      ]),
+      8,
+      "options"
+    ),
+    BufferLayout.nu64("min_bet"),
+    BufferLayout.nu64("max_bet"),
+    BufferLayout.u8("min_players"),
+    BufferLayout.u8("max_players"),
+    BufferLayout.u8("player_count"),
+    BufferLayout.nu64("time"),
+    BufferLayout.u8("vote_count"),
+    BufferLayout.u8("winner_index"),
+    BufferLayout.u8("bump_seed"),
+    BufferLayout.u8("state"),
+  ]);
+
+  const playerLayout = BufferLayout.struct([
+    BufferLayout.u8("option_index"),
+    BufferLayout.nu64("bet_amount"),
+    BufferLayout.u8("voted"),
+    BufferLayout.u8("bump_seed"),
+  ]);
+
   const getUser = async (phoneNumber) => {
     const user = await API.graphql({
       query: queries.getUser,
@@ -92,6 +161,58 @@ function Leaderboard() {
     });
     return user;
   };
+
+  const getBets = useCallback(async () => {
+    if (publicKey == null) {
+      setBetAddresses([]);
+      setPlayerAccountInfo([]);
+      setUserBets([]);
+    } else {
+      let tempAddress = {};
+      let tempBet = {};
+      let allBetAddresses = [];
+      let allBets = [];
+      let allPlayerAccounts = [];
+      let tempBets = await connection.getParsedProgramAccounts(programId, {
+        filters: [
+          {
+            dataSize: 299,
+          },
+        ],
+      });
+      tempBets.forEach(async function (accountInfo, index) {
+        tempBet = wagerLayout.decode(accountInfo.account.data);
+        tempAddress = PublicKey.findProgramAddressSync(
+          [tempBet.bet_identifier, publicKey.toBytes()],
+          programId
+        ); //{
+        console.log(tempAddress[0]);
+        await connection
+          .getAccountInfo(tempAddress[0])
+          .then((playerAccountInfo) => {
+            console.log(playerAccountInfo);
+            if (playerAccountInfo !== null) {
+              console.log("Success!");
+              allBetAddresses.push(accountInfo.pubkey);
+              allBets.push(wagerLayout.decode(accountInfo.account.data));
+              allPlayerAccounts.push(
+                playerLayout.decode(playerAccountInfo.data)
+              );
+            }
+          });
+        if (index === tempBets.length - 1) {
+          console.log(allBets);
+          console.log(allBetAddresses);
+          console.log(allPlayerAccounts);
+          setBetAddresses(allBetAddresses);
+          setUserBets(allBets);
+          setPlayerAccountInfo(allPlayerAccounts);
+        }
+      });
+    }
+    //let news;
+    //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
+  }, [publicKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [magicUser, setMagicUser] = useState({});
 
@@ -114,6 +235,10 @@ function Leaderboard() {
                     .then((res) => {
                       console.log(res);
                       setCurrentUser(res.data.getUser);
+                      let url = getUserProfilePicture(res.data.getUser.phonenumber)
+                        setProfilePictureURL(url);
+                        console.log(url);
+                      
                       let userBoards = res.data.getUser.leaderboards.items;
                       console.log(userBoards);
                       let boardnames = userBoards.map(
@@ -158,11 +283,14 @@ function Leaderboard() {
   ) : (
     <div style={{ overflow: "hidden" }}>
       <Sidebar
+        magicUser={magicUser}
         variant={variants?.navigation}
+        boardIDs={boardIDs}
+        setBoardIDs={setBoardIDs}
         isOpen={isSidebarOpen}
+        refresh={getBets}
         onClose={toggleSidebar}
         user={currentUser}
-        magicUser={magicUser}
       />
       <Box
         ml={!variants?.navigationButton && 250}
@@ -172,10 +300,14 @@ function Leaderboard() {
         <Header
           showSidebarButton={variants?.navigationButton}
           onShowSidebar={toggleSidebar}
+          setUser={setCurrentUser}
           user={currentUser}
+          toast={toast}
           boardIDs={boardIDs}
           setBoardIDs={setBoardIDs}
           page="Leaderboard"
+          profilePictureURL={profilePictureURL}
+          setProfilePictureURL={setProfilePictureURL}
         />
         <div
           style={{
@@ -250,38 +382,137 @@ function Leaderboard() {
                 </Row>
               }
             >
+                        <Box
+                        marginBottom="1rem"
+                        boxShadow={"sm"}
+                      >
+                        <Box p={3}>
+                        <Box
+                          display="flex"
+                          flexDirection={"row"}
+                          justifyContent={"space-between"}
+                          alignItems={"center"}
+                        >
+                           <Box
+                            width="25%"
+                            display="flex"
+                            flexDirection={"column"}
+                            alignItems={"flex-start"}
+                            ml={3}
+                          >
+                            <Text fontSize="md" fontWeight={700} color="black">
+                              Rank
+                            </Text>
+                          </Box>
+                          <Box
+                            width="50%"
+                            display="flex"
+                            flexDirection={"column"}
+                            alignItems={"flex-start"}
+                            ml={3}
+                          >
+                          </Box>
+    
+                          <Box width="25%" display="flex" justifyContent="flex-end">
+                          
+                          <Text fontSize="md" fontWeight={700} color="black">
+                              Bet Score
+                            </Text>
+                          </Box>
+                          </Box>
+                        </Box>
+                      </Box>
+
               {boardUsers == null ? (
                 <></>
               ) : (
-                <TableContainer
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                  }}
-                  maxWidth="90%"
-                >
-                  <Table variant="striped">
-                    <Thead>
-                      <Tr>
-                        <Th>User</Th>
-                        <Th>Trust Score</Th>
-                        <Th>Name</Th>
-                        <Th>Bet Score</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {boardUsers.map((user, index) => (
-                        <Tr key={index}>
-                          <Td>{user.phonenumber}</Td>
-                          <Td>{user.trustscore}</Td>
-                          <Td>{user.name}</Td>
-                          <Td>{user.bettingscore}</Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                      boardUsers.map((user, index) => (
+                        <Box
+                        onClick={() => {
+                          setAccUser(user)
+                          setAccIsOpen(true)}
+                        }
+                        marginTop="1rem"
+                        marginBottom="1rem"
+                        border="solid"
+                        borderWidth="1px"
+                        borderColor="#DFE0EB"
+                        borderRadius={8}
+                        backgroundColor="#fff"
+                        boxShadow={"sm"}
+                        _hover={{
+                          border: "1px",
+                          borderColor: "primaryColor",
+                          boxShadow: "xl",
+                        }}
+                      >
+                        <Box p={5}>
+                        <Box
+                          display="flex"
+                          flexDirection={"row"}
+                          justifyContent={"space-between"}
+                          alignItems={"center"}
+                        >
+                           <Box
+                            width="5%"
+                            display="flex"
+                            flexDirection={"column"}
+                            alignItems={"flex-start"}
+                            ml={3}
+                          >
+                            <Box display="flex" gap={2}>
+                              <Text fontSize="4xl" fontWeight={700} color={index == 0 ? "gold" : (index == 1 ? "silver" : "brown")}>
+                                {index + 1}
+                              </Text>
+                            </Box>
+                          </Box>
+                          
+                          
+                          <Box
+                            width="15%"
+                            display="flex"
+                            flexDirection={"column"}
+                            alignItems={"flex-start"}
+                            ml={3}
+                          >
+                            <Avatar size="lg" src={getUserProfilePicture(user.phonenumber)}/>
+                          </Box>
+                          <Box
+                            width="45%"
+                            display="flex"
+                            flexDirection={"column"}
+                            alignItems={"flex-start"}
+                            ml={3}
+                          >
+                            <Box display="flex" gap={5} style={{alignItems:"center"}}>
+                              <Text fontSize="xl" fontWeight={700} >
+                                {user.name}
+                              </Text>
+                            </Box>
+                          </Box>
+    
+                          <Box width="15%" display="flex" justifyContent="flex-end">
+                          <Box display="flex" gap={2}>
+                              <Text fontSize="xl" fontWeight={700}>
+                                {user.bettingscore}
+                              </Text>
+                            </Box>
+                          </Box>
+                        </Box>
+    
+                      </Box>
+                      </Box>
+                      ))
               )}
+
+            <AccountInfoModal
+                user={accUser}
+                isOpen={accIsOpen}
+                setIsOpen={setAccIsOpen}
+                URL={getUserProfilePicture(currentUser.phonenumber)}
+                self={false}
+              />
+
             </InfiniteScroll>
           </div>
         </div>

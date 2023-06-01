@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { API, Auth } from "aws-amplify";
 import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
 import * as mutations from "../graphql/mutations";
@@ -7,6 +8,7 @@ import {
   Center,
   Icon,
   IconButton,
+  Avatar,
   Text,
   Flex,
   Menu,
@@ -17,6 +19,7 @@ import {
 import { Navbar } from "react-bootstrap";
 import { AddIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { getUserProfilePicture } from "../utils/utils";
 import {
   PublicKey,
   Transaction,
@@ -27,19 +30,41 @@ import CreateBetModal from "./CreateBetModal";
 import JoinBetModal from "./JoinBetModal";
 import CreateLeaderModal from "./CreateLeaderModal";
 import JoinLeaderModal from "./JoinLeaderModal";
+import AccountInfoModal from "./AccountInfoModal";
+import AccountEditModal from "./AccountEditModal";
 
 const Header = (props) => {
+  const navigate=useNavigate();
   const [addIsOpen, setAddIsOpen] = useState(false);
   const [joinIsOpen, setJoinIsOpen] = useState(false);
 
   const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
 
-  const user = props.user;
+  const [user, setUser] = [props.user, props.setUser]
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+
+
+  useEffect(() => {
+    if (user){
+      let names = user.name.split(" ");
+        setFirstName(names[0]);
+        setLastName(names[1]);
+        setBirthdate(user.birthdate);
+    }
+  },[])
 
   const getBets = () => {
     props.refresh(publicKey);
   };
+
+  const handleSignOut = () => {
+    const promise = Auth.signOut();
+    setTimeout(() => navigate("/"), 1000);
+  };
+
 
   let { connection } = useConnection();
   let { publicKey, sendTransaction } = useWallet();
@@ -51,6 +76,11 @@ const Header = (props) => {
   const programId = new PublicKey(
     "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
   );
+
+  const [accIsOpen, setAccIsOpen] = useState(false);
+  const [editIsOpen, setEditIsOpen] = useState(false);
+  const [newUser, setNewUser] = useState(false);
+
 
   const toast = props.toast;
 
@@ -82,7 +112,7 @@ const Header = (props) => {
           </Navbar.Brand>
 
           <Box flex="1" />
-          <Menu>
+          {/* <Menu>
             <MenuButton
               isDisabled={publicKey == null && props.page == "Dashboard"}
               //colorScheme="blue"
@@ -103,18 +133,7 @@ const Header = (props) => {
                     Create a Bet
                   </MenuItem>
 
-                  <CreateBetModal
-                    getBets={getBets}
-                    toast={toast}
-                    connection={connection}
-                    programId={programId}
-                    publicKey={publicKey}
-                    sendTransaction={sendTransaction}
-                    rentSysvar={rentSysvar}
-                    systemProgram={systemProgram}
-                    isOpen={addIsOpen}
-                    setIsOpen={setAddIsOpen}
-                  />
+
 
                   <MenuItem
                     onClick={() => {
@@ -124,20 +143,7 @@ const Header = (props) => {
                     Join a Bet
                   </MenuItem>
 
-                  <JoinBetModal
-                    getBets={getBets}
-                    toast={toast}
-                    connection={connection}
-                    programId={programId}
-                    publicKey={publicKey}
-                    sendTransaction={sendTransaction}
-                    rentSysvar={rentSysvar}
-                    systemProgram={systemProgram}
-                    isOpen={joinIsOpen}
-                    setIsOpen={setJoinIsOpen}
-                    walletIsOpen={props.walletIsOpen}
-                    setWalletIsOpen={props.setWalletIsOpen}
-                  />
+
                 </>
               ) : (
                 <>
@@ -149,14 +155,6 @@ const Header = (props) => {
                     Create a Leaderboard
                   </MenuItem>
 
-                  <CreateLeaderModal
-                    isOpen={addLeaderIsOpen}
-                    setIsOpen={setAddLeaderIsOpen}
-                    user={user}
-                    boardIDs={props.boardIDs}
-                    setBoardIDs={props.setBoardIDs}
-                    userUpdate={userUpdate}
-                  />
 
                   <MenuItem
                     onClick={() => {
@@ -166,18 +164,11 @@ const Header = (props) => {
                     Join a Leaderboard
                   </MenuItem>
 
-                  <JoinLeaderModal
-                    isOpen={joinLeaderIsOpen}
-                    setIsOpen={setJoinLeaderIsOpen}
-                    user={user}
-                    boardIDs={props.boardIDs}
-                    setBoardIDs={props.setBoardIDs}
-                    userUpdate={userUpdate}
-                  />
+
                 </>
               )}
             </MenuList>
-          </Menu>
+          </Menu> */}
 
           <div style={{ marginRight: "10px", marginLeft: "10px" }}></div>
           <Box>
@@ -197,14 +188,57 @@ const Header = (props) => {
       )}
 
       <Flex bg="#F7F8FC" p={4} color="white" justifyContent="center">
-        <Text as="b" style={{ color: "#000000" }} fontSize="xl">
+        <Text as="b" color="black" style={{ margin: "5px" }} fontSize="xl">
           {props.page}
         </Text>
 
         {!props.showSidebarButton && (
           <>
             <Box flex="1" />
+            <Text color="black" as="b" style={{margin: "10px", marginRight: "20px"}}>{props.user && props.user.name}</Text>
+
             <Menu>
+              <MenuButton as={Avatar} size="md" src={props.profilePictureURL} />
+              <MenuList>
+                <MenuItem color="black" onClick={() => setAccIsOpen(true)}>
+                  Account Details
+                </MenuItem>
+                <MenuItem color="black" onClick={handleSignOut}>
+                  Sign Out
+                </MenuItem>
+              </MenuList>
+            </Menu>
+            <AccountInfoModal
+                user={user}
+                userUpdate={userUpdate}
+                isOpen={accIsOpen}
+                setIsOpen={setAccIsOpen}
+                editIsOpen={editIsOpen}
+                setEditIsOpen={setEditIsOpen}
+                newUser={newUser}
+                setNewUser={setNewUser}
+                URL={props.profilePictureURL}
+                self={true}
+              />
+              <AccountEditModal
+                user={user}
+                userUpdate={userUpdate}
+                isOpen={editIsOpen}
+                setIsOpen={setEditIsOpen}
+                newUser={newUser}
+                setNewUser={setNewUser}
+                firstName={firstName}
+                setFirstName={setFirstName}
+                lastName={lastName}
+                setLastName={setLastName}
+                birthdate={birthdate}
+                setBirthdate={setBirthdate}
+                toast={toast}
+                setUser={setUser}
+                setURL={props.setProfilePictureURL}
+                URL={props.profilePictureURL}
+              />
+            {/* <Menu>
               <MenuButton
                 isDisabled={publicKey == null && props.page == "Dashboard"}
                 //colorScheme="green"
@@ -306,7 +340,7 @@ const Header = (props) => {
                   </>
                 )}
               </MenuList>
-            </Menu>
+            </Menu> */}
           </>
         )}
       </Flex>

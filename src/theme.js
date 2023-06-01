@@ -14,6 +14,7 @@ export const allColors = {
   primaryColor: "#195F50",
   accentColor: "#3E36D9",
   buttonTextColor: "#fff",
+  textColor: "#000000",
   hoverColor: "#7DC3B4",
   formLabelColor: "#344054",
   formDescriptionColor: "#475467",

@@ -54,6 +54,9 @@ function AccountEditModal(props) {
     setBirthdate(e.target.value);
   };
 
+  useEffect(() => {
+    setProfilePictureURL(props.URL)
+  },[])
   const handleEditSubmit = async () => {
     let phoneNumber = user.phonenumber;
     const name = firstName + " " + lastName;
@@ -82,7 +85,7 @@ function AccountEditModal(props) {
           });
           if (profilePicture){
             await Storage.put(user.phonenumber, profilePicture, {
-              level: 'protected',
+              level: 'public',
               contentType: profilePicture.type,
             })
             .then((result) => console.log(result))
@@ -149,7 +152,7 @@ function AccountEditModal(props) {
 
   const inputRef = useRef(null);
   const [profilePicture, setProfilePicture] = useState(null);
-  const [profilePictureURL, setProfilePictureURL] = useState(props.URL);
+  const [profilePictureURL, setProfilePictureURL] = useState("");
 
   const handleFileChange = async (event) => {
     const fileObj = event.target.files && event.target.files[0];

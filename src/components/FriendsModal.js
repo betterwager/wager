@@ -9,7 +9,9 @@ import {
     Input,
     Modal,
     GridItem,
+    Center,
     ModalBody,
+    ButtonGroup,
     ModalContent,
     Box,
     ModalFooter,
@@ -41,6 +43,8 @@ import {
   import { Container, Form, Row, Col} from "react-bootstrap";
   import InfiniteScroll from "react-infinite-scroll-component";
   import PhoneInput from "react-phone-input-2"
+  import { FaDice } from "react-icons/fa";
+  import {CloseButton} from "@chakra-ui/react"
   
   function FriendsModal(props) {
     const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
@@ -49,6 +53,7 @@ import {
 
     const [user, setUser] = [props.user, props.setUser]
     const [phoneNumber, setPhoneNumber] = useState("")
+    const [requestMode, setRequestMode] = useState(false)
     
 
     const requestFriend = async (e) => {
@@ -92,7 +97,7 @@ import {
       let requests = user.requests
       requests = requests.filter(item => item !== phoneNumber)
       let updatedUser = {
-        id: uniqueHash(user.phone_number),
+        id: uniqueHash(user.phonenumber),
         requests: requests,
         _version: user._version,
       }
@@ -115,7 +120,7 @@ import {
         friends.push(phoneNumber)
       }
       let updatedUser = {
-        id: uniqueHash(user.phone_number),
+        id: uniqueHash(user.phonenumber),
         requests: requests,
         friends: friends,
         _version: user._version,
@@ -154,7 +159,7 @@ import {
       friends = friends.filter(item => item !== phoneNumber)
       console.log(friends)
       let updatedUser = {
-        id: uniqueHash(user.phone_number),
+        id: uniqueHash(user.phonenumber),
         friends: friends,
         _version: user._version,
       }
@@ -167,21 +172,51 @@ import {
 
     
     return (
-      <Modal
-      size="2xl"
-        isOpen={isOpen}
-        onClose={() => {
-          setIsOpen(false);
-        }}
-
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Find Friends</ModalHeader>
-          <ModalBody>
-                <FormLabel>Enter Phone Number</FormLabel>
-                
+      <>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader mb={-5}>
+          <Box
+            width={"100%"}
+            display={"inline-flex"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+          >
+            <Icon
+              border={"1px"}
+              borderRadius={"10px"}
+              borderColor="borderLightColor"
+              boxShadow={"sm"}
+              p={2}
+              my={3}
+              h={"48px"}
+              w={"48px"}
+              as={FaDice}
+              color="formLabelColor"
+            />
+            <CloseButton
+              color={"formLabelColor"}
+              size="lg"
+              onClick={() => setIsOpen(false)}
+            />
+          </Box>
+        </ModalHeader>
                 <Form onSubmit={requestFriend}>
+          <ModalBody>
+            <>
+              <FormControl isRequired>
+                <Box mb={4}>
+                  <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
+                    Find Friends
+                  </Text>
+                  <Text color="formDescriptionColor" fontWeight={400}>
+                    Enter phone number to find friends
+                  </Text>
+                </Box>
+                {/*                 <Text color="formLabelColor" fontWeight={500} mb={1}>
+                  Bet Code*
+                </Text> */}
                 <Flex>
                 <PhoneInput
                   country="us"
@@ -199,11 +234,15 @@ import {
                         icon={<AddIcon />}
                   />
                   </Flex>
-            </Form>
-            <Flex></Flex>
-            <Row>
+              </FormControl>
+              <Center>
+                <Button onClick={() => setRequestMode(false)} variant={requestMode ? "ghost" : "solid"} style={{margin:"10px", color: "primaryColor"}} width='400px'>All Friends</Button>
+                <Button onClick={() => setRequestMode(true)}  variant={requestMode ? "solid" : "ghost"} style={{margin:"10px"}} width='400px'>Friend Requests</Button>
+              </Center>
+              <Row>
+
+              {!requestMode ? (
               <Col>
-            
               <div
             id="scrollableDiv1"
             style={{
@@ -213,7 +252,6 @@ import {
               marginTop: "10px"
             }}
           >
-            <Text fontSize="lg" as='b'>Friends: </Text>
             <InfiniteScroll
             dataLength={user && user.friends ? user.friends.length : 0}
               hasMore={false}
@@ -236,68 +274,74 @@ import {
               </InfiniteScroll>
               </div>
               </Col>
-              <Col>
+              ): (
+                <Col>
 
-              <div
-            id="scrollableDiv2"
-            style={{
-              height: "200px",
-              overflow: "auto",
-              flexDirection: "column",
-              marginTop:'10px'
-            }}
-          >
-            <Text fontSize="lg" as='b'>Requests: </Text>
-            <InfiniteScroll
-            dataLength={user && user.requests ? user.requests.length : 0}
-              hasMore={false}
-              loader={<h4>Loading...</h4>}
-              scrollableTarget="scrollableDiv2"
-              endMessage={<Row style={{ textAlign: "right" }}></Row>}>
-              {(user && user.requests) && user.requests.map((request) => (
-                <Flex style = {{justifyContent:"space-between", marginTop: 10}}>
-                  
-                  <Text >{request}</Text>
-                  <div>
-                  <IconButton
-                          // colorScheme="green"
-                          backgroundColor="primaryColor"
-                          color="buttonTextColor"
-                          onClick={(e) => acceptFriendRequest(e,request)}
-                          variant="link"
-                          icon={<CheckIcon />}
-                    />
-                  <IconButton
-                          colorScheme="red"
-                          onClick={(e) => rejectFriendRequest(e,request)}
-                          variant="link"
-                          icon={<CloseIcon />}
-                    />
-                  </div>
-                </Flex>
-              ))}
-
-              </InfiniteScroll>
-              </div>
-              </Col>
-            </Row>
-            
-
-            
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="ghost"
-              mr={3}
-              onClick={() => {
-                setIsOpen(false);
+                <div
+              id="scrollableDiv2"
+              style={{
+                height: "200px",
+                overflow: "auto",
+                flexDirection: "column",
+                marginTop:'10px'
               }}
             >
-              Close
-            </Button>
+              <InfiniteScroll
+              dataLength={user && user.requests ? user.requests.length : 0}
+                hasMore={false}
+                loader={<h4>Loading...</h4>}
+                scrollableTarget="scrollableDiv2"
+                endMessage={<Row style={{ textAlign: "right" }}></Row>}>
+                {(user && user.requests) && user.requests.map((request) => (
+                  <Flex style = {{justifyContent:"space-between", marginTop: 10, alignItems:"center"}}>
+                    
+                    <Text >{request}</Text>
+                    <div>
+                    <IconButton
+                            // colorScheme="green"
+                            backgroundColor="primaryColor"
+                            color="buttonTextColor"
+                            onClick={(e) => acceptFriendRequest(e,request)}
+                            variant="solid"
+                            icon={<CheckIcon />}
+                      />
+                    <IconButton
+                            colorScheme="red"
+                            onClick={(e) => rejectFriendRequest(e,request)}
+                            variant="ghost"
+                            icon={<CloseIcon />}
+                      />
+                    </div>
+                  </Flex>
+                ))}
+  
+                </InfiniteScroll>
+                </div>
+                </Col>
+              )}
+                
+
+          
+              </Row>
+            </>
+          </ModalBody>
+
+          <ModalFooter>
+            <Box width="100%" display={"flex"} flexDirection={"column"}>
+              <Button
+                variant="outline"
+                mt={2}
+                boxShadow={"sm"}
+                onClick={() => setIsOpen(false)}
+              >
+                Close
+              </Button>
+            </Box>
           </ModalFooter>
-        </ModalContent>
-      </Modal>
+        </Form>
+      </ModalContent>
+    </Modal>
+      </>
     );
   }
   

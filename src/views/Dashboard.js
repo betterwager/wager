@@ -73,7 +73,7 @@ import BetDisplayCards from "../components/BetDisplayCards";
 import WalletEntryModal from "../components/WalletEntryModal";
 import Loading from "../components/Loading";
 import Temp from "../components/Temp";
-
+import { getUserProfilePicture } from "../utils/utils";
 import { Magic } from "magic-sdk";
 import { SolanaExtension } from "@magic-ext/solana";
 
@@ -417,6 +417,10 @@ function Dashboard() {
   };
 
   const [magicUser, setMagicUser] = useState({});
+  const [profilePictureURL, setProfilePictureURL] = useState("");
+  
+  const [boardNames, setBoardNames] = useState([]);
+  const [boardIDs, setBoardIDs] = useState([]);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -437,6 +441,21 @@ function Dashboard() {
                     .then((res) => {
                       setCurrentUser(res.data.getUser);
                       getBets(publicKey).catch(console.error);
+                      let url = getUserProfilePicture(res.data.getUser.phonenumber)
+                          setProfilePictureURL(url);
+                          console.log(url);
+                      console.log(res);
+                      let userBoards = res.data.getUser.leaderboards.items;
+                      console.log(userBoards);
+                      let boardnames = userBoards.map(
+                        (board) => board.leaderboard.name
+                      );
+                      console.log(boardnames);
+                      setBoardNames(boardnames);
+                      let boardids = userBoards.map(
+                        (board) => board.leaderboard.id
+                      );
+                      setBoardIDs(boardids);
                       setIsLoading(false);
                     });
                 })
@@ -468,8 +487,12 @@ function Dashboard() {
         variant={variants?.navigation}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
+        boardIDs={boardIDs}
+        setBoardIDs={setBoardIDs}
         refresh={getBets}
         user={currentUser}
+        walletIsOpen={walletIsOpen}
+        setWalletIsOpen={setWalletIsOpen}
       />
       <Box
         ml={!variants?.navigationButton && 250}
@@ -481,8 +504,14 @@ function Dashboard() {
           onShowSidebar={toggleSidebar}
           toast={toast}
           page="Dashboard"
+          user={currentUser}
+          setUser={setCurrentUser}
+          boardIDs={boardIDs}
+          setBoardIDs={setBoardIDs}
           walletIsOpen={walletIsOpen}
           setWalletIsOpen={setWalletIsOpen}
+          profilePictureURL={profilePictureURL}
+          setProfilePictureURL={setProfilePictureURL}
         />
         <Container>
           <Box display={"flex"} justifyContent={"space-evenly"}>

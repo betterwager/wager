@@ -29,8 +29,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { FaDice } from "react-icons/fa";
 function AccountInfoModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
-  const [editIsOpen, setEditIsOpen] = [props.editIsOpen, props.setEditIsOpen];
-  const [user, userUpdate] = [props.user, props.userUpdate];
+  const user = props.user
   const nameParts = String(user.name).trim().split(" ");
   const firstName = nameParts[0];
   const lastName = nameParts.slice(1).join(" ");
@@ -181,18 +180,19 @@ function AccountInfoModal(props) {
 
         <ModalFooter>
           <Box width={"100%"}>
+            {props.self == true &&
             <Button
               width={"100%"}
               onClick={() => {
                 setIsOpen(false);
-                setEditIsOpen(true);
+                props.setEditIsOpen(true);
               }} // colorScheme="green"
               backgroundColor="primaryColor"
               color="buttonTextColor"
               boxShadow={"sm"}
             >
               Edit
-            </Button>
+            </Button>}
           </Box>
         </ModalFooter>
       </ModalContent>

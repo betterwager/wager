@@ -6,6 +6,8 @@ import { useCallback } from "react";
 import * as mutations from "../graphql/mutations";
 import * as queries from "../graphql/queries";
 import { Storage } from "@aws-amplify/storage";
+import  awsmobile  from "../aws-exports";
+import { parseUrl } from "@aws-sdk/url-parser";
 
 
 
@@ -200,13 +202,12 @@ export const getUser = async (userid) => {
   return user;
 };
 
-export const getUserProfilePicture = async(phoneNumber) => {
-  const signedURL = await Storage.get(
-    phoneNumber,
-    {
-      level: 'protected'
-    })
-  return signedURL
+export const getUserProfilePicture = (phoneNumber) => {
+  let bucket = awsmobile.aws_user_files_s3_bucket
+  let region = awsmobile.aws_user_files_s3_bucket_region
+  let key = encodeURIComponent(phoneNumber)
+  const s3ObjectUrl = `https://${bucket}.s3.amazonaws.com/public/${key}`;
+  return s3ObjectUrl
 }
 
 

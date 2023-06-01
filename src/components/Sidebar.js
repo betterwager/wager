@@ -79,6 +79,10 @@ import AccountEditModal from "./AccountEditModal";
 import NewUserModals from "./NewUserModals";
 import WalletEntryModal from "./WalletEntryModal";
 import FriendsModal from "./FriendsModal";
+import CreateBetModal from "./CreateBetModal";
+import JoinBetModal from "./JoinBetModal";
+import CreateLeaderModal from "./CreateLeaderModal";
+import JoinLeaderModal from "./JoinLeaderModal";
 
 require("@solana/wallet-adapter-react-ui/styles.css");
 const { Sider } = Layout;
@@ -97,15 +101,6 @@ const NavLink = styled(Link)`
 
 export function SidebarContent(props) {
   const [user, setUser] = useState({});
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [birthdate, setBirthdate] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-
-  const [accIsOpen, setAccIsOpen] = useState(false);
-
-  const [editIsOpen, setEditIsOpen] = useState(false);
-
   const [friendsIsOpen, setFriendsIsOpen] = useState(false);
   const [walletIsOpen, setWalletIsOpen] = useState(false);
 
@@ -137,15 +132,6 @@ export function SidebarContent(props) {
 
         if (currentUser != null) {
           setUser(currentUser);
-          let names = currentUser.name.split(" ");
-          setFirstName(names[0]);
-          setLastName(names[1]);
-          setBirthdate(currentUser.birthdate);
-          setPhoneNumber(currentUser.phonenumber);
-          getUserProfilePicture(currentUser.phonenumber).then((url) => {
-            setProfilePictureURL(url);
-            console.log(url);
-          });
         }
         if (currentUser == null) {
           setNewUser(true);
@@ -166,14 +152,26 @@ export function SidebarContent(props) {
 
   const magicUser = props.magicUser;
 
-  const [profilePictureURL, setProfilePictureURL] = useState("");
+  let { connection } = useConnection();
+  const systemProgram = new PublicKey("11111111111111111111111111111111");
+  const rentSysvar = new PublicKey(
+    "SysvarRent111111111111111111111111111111111"
+  );
 
+  const getBets = () => {
+    props.refresh(publicKey);
+  };
+
+  const programId = new PublicKey(
+    "GvtuZ3JAXJ29cU3CE5AW24uoHc2zAgrPaMGcFT4WMcrm"
+  );
+
+  const [addIsOpen, setAddIsOpen] = useState(false);
+  const [joinIsOpen, setJoinIsOpen] = useState(false);
+  const [addLeaderIsOpen, setAddLeaderIsOpen] = useState(false);
+  const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
   //Handling Methods
 
-  const handleSignOut = () => {
-    const promise = Auth.signOut();
-    setTimeout(() => navigate("/"), 1000);
-  };
 
   return (
     <div style={{ overflow: "hidden", height: "100%" }}>
@@ -222,69 +220,6 @@ export function SidebarContent(props) {
             }
             mode="inline"
           >
-            <SubMenu
-              style={{
-                backgroundColor: allColors.primaryColor,
-                color: allColors.buttonTextColor,
-              }}
-              selectable={false}
-              key="sub1"
-              title={magicUser.phoneNumber.substring(1)}
-              icon={<UserOutlined />}
-            >
-              <Menu.Item
-                onClick={() => {
-                  setAccIsOpen(true);
-                }}
-                key="8"
-              >
-                Account Details
-              </Menu.Item>
-
-              <NewUserModals
-                start1IsOpen={start1IsOpen}
-                setStart1IsOpen={setStart1IsOpen}
-                editIsOpen={editIsOpen}
-                setEditIsOpen={setEditIsOpen}
-              />
-
-              <AccountInfoModal
-                user={user}
-                userUpdate={userUpdate}
-                isOpen={accIsOpen}
-                setIsOpen={setAccIsOpen}
-                editIsOpen={editIsOpen}
-                setEditIsOpen={setEditIsOpen}
-                publicKey={publicKey}
-                newUser={newUser}
-                setNewUser={setNewUser}
-                URL={profilePictureURL}
-              />
-              <AccountEditModal
-                user={user}
-                userUpdate={userUpdate}
-                isOpen={editIsOpen}
-                setIsOpen={setEditIsOpen}
-                publicKey={publicKey}
-                newUser={newUser}
-                setNewUser={setNewUser}
-                firstName={firstName}
-                setFirstName={setFirstName}
-                lastName={lastName}
-                setLastName={setLastName}
-                birthdate={birthdate}
-                setBirthdate={setBirthdate}
-                phoneNumber={phoneNumber}
-                setPhoneNumber={setPhoneNumber}
-                toast={toast}
-                setUser={setUser}
-                URL={profilePictureURL}
-              />
-
-              <Menu.Item onClick={handleSignOut} key="9">
-                Sign Out
-              </Menu.Item>
-            </SubMenu>
             <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />}>
               <a href={DASHBOARD}>Dashboard</a>
             </Menu.Item>
@@ -313,29 +248,74 @@ export function SidebarContent(props) {
             mode="inline"
           >
             <Menu.Item
-              onClick={() => setFriendsIsOpen(true)}
+              onClick={() => setAddIsOpen(true)}
               icon={<MdOutlineCreate />}
             >
               Create Wager
             </Menu.Item>
+
+            <CreateBetModal
+                    getBets={getBets}
+                    toast={toast}
+                    connection={connection}
+                    programId={programId}
+                    publicKey={publicKey}
+                    sendTransaction={sendTransaction}
+                    rentSysvar={rentSysvar}
+                    systemProgram={systemProgram}
+                    isOpen={addIsOpen}
+                    setIsOpen={setAddIsOpen}
+                  />
+
+
             <Menu.Item
-              onClick={() => setFriendsIsOpen(true)}
+              onClick={() => setJoinIsOpen(true)}
               icon={<FaMoneyBill />}
             >
               Join Wager
             </Menu.Item>
+            <JoinBetModal
+                    getBets={getBets}
+                    toast={toast}
+                    connection={connection}
+                    programId={programId}
+                    publicKey={publicKey}
+                    sendTransaction={sendTransaction}
+                    rentSysvar={rentSysvar}
+                    systemProgram={systemProgram}
+                    isOpen={joinIsOpen}
+                    setIsOpen={setJoinIsOpen}
+                    walletIsOpen={props.walletIsOpen}
+                    setWalletIsOpen={props.setWalletIsOpen}
+                  />
             <Menu.Item
-              onClick={() => setFriendsIsOpen(true)}
+              onClick={() => setAddLeaderIsOpen(true)}
               icon={<MdAddToPhotos />}
             >
               Create Leaderboard
             </Menu.Item>
+            <CreateLeaderModal
+                    isOpen={addLeaderIsOpen}
+                    setIsOpen={setAddLeaderIsOpen}
+                    user={user}
+                    boardIDs={props.boardIDs}
+                    setBoardIDs={props.setBoardIDs}
+                    userUpdate={userUpdate}
+                  />
             <Menu.Item
-              onClick={() => setFriendsIsOpen(true)}
+              onClick={() => setJoinLeaderIsOpen(true)}
               icon={<MdLeaderboard />}
             >
               Join Leaderboard
             </Menu.Item>
+            <JoinLeaderModal
+                    isOpen={joinLeaderIsOpen}
+                    setIsOpen={setJoinLeaderIsOpen}
+                    user={user}
+                    boardIDs={props.boardIDs}
+                    setBoardIDs={props.setBoardIDs}
+                    userUpdate={userUpdate}
+                  />
           </Menu>
         </Box>
         <Box
@@ -412,6 +392,8 @@ const Sidebar = (props) => {
         refresh={props.refresh}
         magicUser={props.magicUser}
         user={props.user}
+        boardIDs={props.boardIDs}
+        setBoardIDs={props.setBoardIDs}
         isOpen={props.isOpen}
         setIsOpen={props.setIsOpen}
       />
@@ -428,6 +410,8 @@ const Sidebar = (props) => {
               magicUser={props.magicUser}
               isOpen={props.isOpen}
               setIsOpen={props.onClose}
+              boardIDs={props.boardIDs}
+              setBoardIDs={props.setBoardIDs}
             />
           </DrawerBody>
         </DrawerContent>

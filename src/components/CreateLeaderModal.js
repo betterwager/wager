@@ -62,6 +62,7 @@ function CreateLeaderModal(props) {
           userId: user.id,
         };
         console.log(userLeaderboard);
+        console.log(props.boardIDs)
         userLeaderCreate(userLeaderboard)
           .then((res) => {
             let allBoards = props.boardIDs;

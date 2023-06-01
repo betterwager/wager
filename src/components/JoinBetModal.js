@@ -37,10 +37,6 @@ import { FaDice } from "react-icons/fa";
 function JoinBetModal(props) {
   const [joinCode, setJoinCode] = useState("");
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
-  const [walletIsOpen, setWalletIsOpen] = [
-    props.walletIsOpen,
-    props.setWalletIsOpen,
-  ];
   const toast = props.toast;
 
   const programId = props.programId;
@@ -55,8 +51,6 @@ function JoinBetModal(props) {
       betAPICall(queryParameters.get("bet"));
       setJoinCode(queryParameters.get("bet"));
       setIsOpen(true);
-    } else {
-      setWalletIsOpen(true);
     }
   }, []);
 
