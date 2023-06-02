@@ -347,6 +347,7 @@ function Leaderboard() {
               View Join Code
             </Button>
           </Flex>
+          <Box width="95%">
 
           <div
             id="scrollableDiv2"
@@ -422,6 +423,7 @@ function Leaderboard() {
                           </Box>
                         </Box>
                       </Box>
+
 
               {boardUsers == null ? (
                 <></>
@@ -504,7 +506,6 @@ function Leaderboard() {
                       </Box>
                       ))
               )}
-
             <AccountInfoModal
                 user={accUser}
                 isOpen={accIsOpen}
@@ -515,6 +516,8 @@ function Leaderboard() {
 
             </InfiniteScroll>
           </div>
+          
+          </Box>
         </div>
       </Box>
 

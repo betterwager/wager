@@ -7,6 +7,7 @@ import {
     Icon,
     IconButton,
     Input,
+    Avatar,
     Modal,
     GridItem,
     Center,
@@ -42,10 +43,12 @@ import {
   import {Auth} from "aws-amplify"
   import { Container, Form, Row, Col} from "react-bootstrap";
   import InfiniteScroll from "react-infinite-scroll-component";
+  import { getUserProfilePicture } from "../utils/utils";
   import PhoneInput from "react-phone-input-2"
   import { FaDice } from "react-icons/fa";
   import {CloseButton} from "@chakra-ui/react"
-  
+  import AccountInfoModal from "./AccountInfoModal";
+
   function FriendsModal(props) {
     const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
     
@@ -54,6 +57,19 @@ import {
     const [user, setUser] = [props.user, props.setUser]
     const [phoneNumber, setPhoneNumber] = useState("")
     const [requestMode, setRequestMode] = useState(false)
+
+    const [currentFriend, setCurrentFriend] = useState({})
+    const [currentFriendIsOpen, setCurrentFriendIsOpen] = useState(false)
+
+    const openFriend = (e,phone) => {
+      if (e.target == e.currentTarget) {
+        getUser(uniqueHash(phone))
+        .then((res) => {
+          setCurrentFriend(res.data.getUser)
+          setCurrentFriendIsOpen(true)
+        })
+      }
+    }
     
 
     const requestFriend = async (e) => {
@@ -259,16 +275,34 @@ import {
               scrollableTarget="scrollableDiv1"
               endMessage={<Row style={{ textAlign: "right" }}></Row>}>
               {(user && user.friends) && user.friends.map((friend) => (
-                <Flex style = {{justifyContent:"space-between", marginTop: 10}}>
-                  
-                  <Text>{friend}</Text>
+                <Box
+                  marginTop="1rem"
+                  marginBottom="1rem"
+                  border="solid"
+                  borderWidth="1px"
+                  borderColor="#DFE0EB"
+                  borderRadius={8}
+                  backgroundColor="#fff"
+                  boxShadow={"sm"}
+                  _hover={{
+                    border: "1px",
+                    borderColor: "primaryColor",
+                    boxShadow: "sm",
+                  }}
+                  onClick={(e) => openFriend(e,friend)}
+                >       
+                <Flex style = {{justifyContent:"space-between", margin: 10, alignItems:"center"}}>
+                  <Avatar size="md" src={getUserProfilePicture(friend)}/>
+
+                  <Text as="b">{friend}</Text>
                   <IconButton
                           colorScheme="red"
                           onClick={(e) => removeFriend(e,friend)}
-                          variant="link"
+                          variant="ghost"
                           icon={<CloseIcon />}
                     />
                 </Flex>
+                </Box>
               ))}
 
               </InfiniteScroll>
@@ -293,9 +327,26 @@ import {
                 scrollableTarget="scrollableDiv2"
                 endMessage={<Row style={{ textAlign: "right" }}></Row>}>
                 {(user && user.requests) && user.requests.map((request) => (
-                  <Flex style = {{justifyContent:"space-between", marginTop: 10, alignItems:"center"}}>
-                    
-                    <Text >{request}</Text>
+                  <>
+                   <Box
+                  marginTop="1rem"
+                  marginBottom="1rem"
+                  border="solid"
+                  borderWidth="1px"
+                  borderColor="#DFE0EB"
+                  borderRadius={8}
+                  backgroundColor="#fff"
+                  boxShadow={"sm"}
+                  _hover={{
+                    border: "1px",
+                    borderColor: "primaryColor",
+                    boxShadow: "sm",
+                  }}
+                  onClick={(e) => openFriend(e,request)}
+                >
+                  <Flex style = {{justifyContent:"space-between", margin: 10, alignItems:"center"}}>
+                    <Avatar size="md" src={getUserProfilePicture(request)}/>
+                    <Text as="b">{request}</Text>
                     <div>
                     <IconButton
                             // colorScheme="green"
@@ -313,6 +364,45 @@ import {
                       />
                     </div>
                   </Flex>
+                  </Box>
+                  <Box
+                  marginTop="1rem"
+                  marginBottom="1rem"
+                  border="solid"
+                  borderWidth="1px"
+                  borderColor="#DFE0EB"
+                  borderRadius={8}
+                  backgroundColor="#fff"
+                  boxShadow={"sm"}
+                  _hover={{
+                    border: "1px",
+                    borderColor: "primaryColor",
+                    boxShadow: "sm",
+                  }}
+                  onClick={() => openFriend(request)}
+                >
+                  <Flex style = {{justifyContent:"space-between", margin: 10, alignItems:"center"}}>
+                    <Avatar size="md" src={getUserProfilePicture(request)}/>
+                    <Text as="b">{request}</Text>
+                    <div>
+                    <IconButton
+                            // colorScheme="green"
+                            backgroundColor="primaryColor"
+                            color="buttonTextColor"
+                            onClick={(e) => acceptFriendRequest(e,request)}
+                            variant="solid"
+                            icon={<CheckIcon />}
+                      />
+                    <IconButton
+                            colorScheme="red"
+                            onClick={(e) => rejectFriendRequest(e,request)}
+                            variant="ghost"
+                            icon={<CloseIcon />}
+                      />
+                    </div>
+                  </Flex>
+                  </Box>
+                  </>
                 ))}
   
                 </InfiniteScroll>
@@ -320,6 +410,14 @@ import {
                 </Col>
               )}
                 
+              
+                <AccountInfoModal
+                user={currentFriend}
+                isOpen={currentFriendIsOpen}
+                setIsOpen={setCurrentFriendIsOpen}
+                URL={getUserProfilePicture(currentFriend.phonenumber)}
+                self={false}
+              />
 
           
               </Row>
