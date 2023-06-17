@@ -1,3 +1,5 @@
+import ethers from 'ethers';
+
 async function main() {
   const HelloWorld = await ethers.getContractFactory("HelloWorld");
   const hello_world = await HelloWorld.deploy("Hello World!");

@@ -1,5 +1,8 @@
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+IERC20 public usdcToken;
 contract Wager {
     enum WagerState {
         Betting,
@@ -18,7 +21,7 @@ contract Wager {
         string[] outcomes;
         uint256 bettingEndTime;
         mapping(address => Bet) bets;
-        mapping(address => Vote) votes;
+        Vote[] votes;
         address[] participants;
     }
     //Wager Identifier = Hash of Creator Address & Wager Name
@@ -26,7 +29,6 @@ contract Wager {
     struct Vote {
         address creator;
         string option;
-        bool hasVoted;
     }
 
     struct Bet {
@@ -37,21 +39,18 @@ contract Wager {
 
     WagerData public wagerData;
 
+    //Events
     event ParticipantJoined(address indexed wagerCreator, address participant);
 
     event BetPlaced(
-        address indexed wagerCreator,
+        uint indexed wagerHash,
         address participant,
         uint256 amount
     );
 
-    event VotesCompleted(
-        address indexed wagerCreator,
-        string Name,
-        bool outcome
-    );
+    event VotesCompleted(uint indexed wagerHash, string Name, string outcome);
 
-    event WagerClosed(address indexed wagerCreator, uint256 winnersCount);
+    event WagerClosed(address indexed wagerCreator, string _outcome);
 
     //Event for Moving to Voting & Moving to Closed Stage
 
@@ -63,7 +62,8 @@ contract Wager {
         uint256 _maxPlayers,
         string memory _name,
         string[] memory _outcomes,
-        uint256 _votingEndTime
+        uint256 _bettingEndTime
+				address _usdcToken
     ) {
         wagerData.creator = _creator;
         wagerData.minBet = _minBet;
@@ -72,10 +72,12 @@ contract Wager {
         wagerData.maxPlayers = _maxPlayers;
         wagerData.name = _name;
         wagerData.outcomes = _outcomes;
-        wagerData.votingEndTime = _votingEndTime;
+        wagerData.bettingEndTime = _bettingEndTime;
         wagerData.state = WagerState.Betting;
+				usdcToken = IERC20(_usdcToken);
     }
 
+    //Modifiers
     modifier onlyCreator() {
         require(
             msg.sender == wagerData.creator,
@@ -108,13 +110,28 @@ contract Wager {
         _;
     }
 
-    function getTotalPool() internal view returns (int) {
-        int total = 0;
-        for (int i = 0; i < wagerData.participants.length; i++) {
-            total += bets[i].betAmount;
+    //Internal Functions
+    function getTotalPool() internal view returns (uint) {
+        uint total = 0;
+        for (uint i = 0; i < wagerData.participants.length; i++) {
+            total += wagerData.bets[wagerData.participants[i]].betAmount;
         }
         return total;
     }
+
+    function totalVotes() private view returns (string memory) {}
+    function checkIfVoted(address voter) private view returns (bool) {
+        for (uint i = 0; i < wagerData.votes.length; i++) {
+            if (wagerData.votes[i].creator == voter) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Functions
+
+
 
     function joinWager() external {
         require(
@@ -137,26 +154,33 @@ contract Wager {
             "Invalid bet amount"
         );
 
+		require(usdcToken.transferFrom(msg.sender, address(this), _amount), "USDC transfer failed");
         wagerData.bets[msg.sender].betAmount = msg.value;
 
-        emit BetPlaced(wagerData.creator, msg.sender, msg.value);
+        uint wagerHash = uint(
+            keccak256(abi.encodePacked(wagerData.creator, wagerData.name))
+        );
+        emit BetPlaced(wagerHash, msg.sender, msg.value);
     }
 
-    function vote(bool _outcome) external onlyVotingPhase {
+
+
+    function vote(string memory _outcome) external onlyVotingPhase {
         require(
             wagerData.bets[msg.sender].betAmount > 0,
             "Participant has not placed a bet"
         );
-        require(
-            !wagerData.hasVoted[msg.sender],
-            "Participant has already voted"
-        );
+        require(checkIfVoted(msg.sender), "Participant has already voted");
 
-        wagerData.votes[msg.sender].hasVoted = true;
-        wagerData.votes[msg.sender].option = _outcome;
+        wagerData.votes.push(Vote(msg.sender, _outcome));
 
         if (wagerData.votes.length == wagerData.participants.length) {
-            emit VoteCasted(wagerData.creator, msg.sender, _outcome);
+            uint wagerHash = uint(
+                keccak256(abi.encodePacked(wagerData.creator, wagerData.name))
+            );
+            string memory result = totalVotes();
+
+            emit VotesCompleted(wagerHash, wagerData.name, result);
         }
     }
 
@@ -166,16 +190,48 @@ contract Wager {
             "Wager is already closed"
         );
 
+        string memory result = totalVotes();
+
+				
+
         wagerData.state = WagerState.Closed;
 
-        uint256 winnersCount = wagerData.voteCounts[true] >=
-            wagerData.voteCounts[false]
-            ? wagerData.voteCounts[true]
-            : wagerData.voteCounts[false];
-
-        emit WagerClosed(wagerData.creator, winnersCount);
+        emit WagerClosed(wagerData.creator, result);
     }
 
+function closeWager() external onlyClosedPhase onlyCreator {
+        require(
+            wagerData.state != WagerState.Closed,
+            "Wager is already closed"
+        );
+
+        string memory result = totalVotes();
+
+
+        Bet[] winningParticipants;
+        uint winningParticipantsTotal = 0;
+        for (uint i = 0; i < wagerData.participants.length; i ++){
+            address participant = wagerData.participants[i];
+            Bet memory bet = wagerData.bets[participant];
+            if (bet.option == result){
+                winningParticipants.push(bet);
+                winningParticipantsTotal += bet.betAmount;
+            }
+        }
+
+        for (uint i = 0; i < winningParticipants.length; i ++){
+            uint256 payout = (winningParticipants[i].betAmount / winningParticipantsTotal) * getTotalPool();
+            usdcToken.transfer(address(this), winningParticipants[i].creator, payout);
+        }   
+
+        wagerData.state = WagerState.Closed;
+
+        emit WagerClosed(wagerData.creator, result);
+    }
+
+
+    emit WagerClosed(wagerData.creator, winnersCount);
+}
     function isParticipant(address _participant) public view returns (bool) {
         for (uint256 i = 0; i < wagerData.participants.length; i++) {
             if (wagerData.participants[i] == _participant) {
@@ -186,8 +242,10 @@ contract Wager {
     }
 }
 
+
+//Creates Wager Objects for Users
 contract WagerFactory {
-    mapping(address => Wager[]) public wagers;
+    mapping(uint => Wager[]) public wagers;
 
     event WagerCreated(
         address indexed creator,
@@ -198,7 +256,7 @@ contract WagerFactory {
         uint256 minPlayers,
         uint256 maxPlayers,
         string[] outcomes,
-        uint256 votingEndTime
+        uint256 bettingEndTime
     );
 
     function createWager(
@@ -208,7 +266,7 @@ contract WagerFactory {
         uint256 _maxPlayers,
         string memory _name,
         string[] memory _outcomes,
-        uint256 _votingEndTime
+        uint256 _bettingEndTime
     ) external {
         Wager newWager = new Wager(
             msg.sender,
@@ -218,10 +276,12 @@ contract WagerFactory {
             _maxPlayers,
             _name,
             _outcomes,
-            _votingEndTime
+            _bettingEndTime
         );
+        //8 integer hash of creator address and wager name
+        uint wagerHash = uint(keccak256(abi.encodePacked(msg.sender, _name)));
 
-        wagers[msg.sender].push(newWager);
+        wagers[wagerHash].push(newWager);
 
         emit WagerCreated(
             msg.sender,
@@ -232,7 +292,7 @@ contract WagerFactory {
             _minPlayers,
             _maxPlayers,
             _outcomes,
-            _votingEndTime
+            _bettingEndTime
         );
     }
 }
