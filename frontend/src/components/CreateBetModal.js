@@ -41,9 +41,9 @@ import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
 import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
 import BetInfoModal from "./BetInfoModal.js";
-
 import { FaDice } from "react-icons/fa";
 import DateTimePicker from "react-datetime-picker";
+import { WagerFactory } from "../utils/globals.js";
 
 let OptionsList = [];
 
@@ -61,12 +61,6 @@ function CreateBetModal(props) {
 
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
   const toast = props.toast;
-
-  const programId = props.programId;
-  const [publicKey, sendTransaction] = [props.publicKey, props.sendTransaction];
-  const systemProgram = props.systemProgram;
-  const rentSysvar = props.rentSysvar;
-  const connection = props.connection;
 
   const handleBetNameChange = (e) => {
     setBetName(e.target.value);
@@ -117,125 +111,40 @@ function CreateBetModal(props) {
       OptionsList != [] &&
       time != null
     ) {
-      let totalOptions = [...OptionsList];
-      while (totalOptions.length < 8) {
-        totalOptions.push("zero");
-      }
-      let tempStr = betName + " ".repeat(20 - betName.length);
-      setBetName(tempStr);
 
-      let timestamp = time.getTime() / 1000;
-
-      //let index = uniqueHash(betName + maxBet + allOptions);
-
-      let [potPDA, potBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(tempStr, 0, 20)],
-        programId
-      );
-
-      let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-        [Buffer.from(tempStr, 0, 20), publicKey.toBytes()],
-        programId
-      );
-      console.log(betName);
-      console.log(potPDA.toBase58());
-      console.log(potBump);
-      console.log(PublicKey.isOnCurve(potPDA));
-
-      console.log([
-        { name: totalOptions[0], vote_count: 0 },
-        { name: totalOptions[1], vote_count: 0 },
-        { name: totalOptions[2], vote_count: 0 },
-        { name: totalOptions[3], vote_count: 0 },
-        { name: totalOptions[4], vote_count: 0 },
-        { name: totalOptions[5], vote_count: 0 },
-        { name: totalOptions[6], vote_count: 0 },
-        { name: totalOptions[7], vote_count: 0 },
-      ]);
-
-      //Create bet RPC Call(Send Transaction for Create Bet)
-      const instruction = new TransactionInstruction({
-        programId: programId,
-        keys: [
-          {
-            pubkey: publicKey,
-            isSigner: true,
-            isWritable: true,
-          },
-          {
-            pubkey: potPDA,
-            isSigner: false,
-            isWritable: true,
-          },
-          {
-            pubkey: playerPDA,
-            isSigner: false,
-            isWritable: true,
-          },
-          {
-            pubkey: systemProgram,
-            isSigner: false,
-            isWritable: false,
-          },
-          {
-            pubkey: rentSysvar,
-            isSigner: false,
-            isWritable: false,
-          },
-        ],
-        data: NewWagerInstruction(
-          tempStr,
-          minPlayers,
-          maxPlayers,
+      try {
+        await WagerFactory.methods.createWager(
           minBet,
           maxBet,
-          //Options
-          [
-            { name: Buffer.from(totalOptions[0]), bet_count: 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[1]), bet_count: 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[2]), bet_count: 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[3]), bet_count: 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[4]), bet_count: 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[5]), bet_count: 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[6]), bet_count: 0, vote_count: 0 },
-            { name: Buffer.from(totalOptions[7]), bet_count: 0, vote_count: 0 },
-          ],
-          timestamp,
-          potBump
-          //Hours
-        ),
-      });
-      let transaction = new Transaction().add(instruction);
-      const {
-        context: { slot: minContextSlot },
-        value: { blockhash, lastValidBlockHeight },
-      } = await connection.getLatestBlockhashAndContext();
-      transaction.recentBlockhash = blockhash;
-      console.log("blockhash retreived");
-      const signature = await sendTransaction(transaction, connection, {
-        minContextSlot,
-      });
-      await connection.confirmTransaction({
-        blockhash,
-        lastValidBlockHeight,
-        signature,
-      });
-      toast({
-        title: "Bet Created",
-        description: "Now let's get betting!",
-        status: "success",
-        duration: 9000,
-        isClosable: true,
-      });
-      setBetCode(betName);
-
-      setIsOpen(false);
-
-      clearBetState();
-
-      setAddSuccessIsOpen(true);
-
-      props.getBets();
+          minPlayers,
+          maxPlayers,
+          betName,
+          OptionsList,
+          time.getTime() / 1000, //Miliseconds from 1970
+        ).send({ from: sender })
+        .then(() => {
+          toast({
+            title: "Bet Created",
+            description: "Now let's get betting!",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
+          setBetCode(betName);
+          setIsOpen(false);
+          clearBetState();
+          setAddSuccessIsOpen(true);
+          props.getBets();
+        })
+      } catch (error) {
+        toast({
+          title: "Bet Failed",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+        setIsOpen(false);
+      }
     } else {
       alert("Invalid Bet Parameters");
     }

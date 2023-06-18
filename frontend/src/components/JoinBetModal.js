@@ -33,86 +33,20 @@ import * as BufferLayout from "@solana/buffer-layout";
 import { Buffer } from "buffer";
 import { JoinBetInstruction, NewWagerInstruction } from "../utils/utils.js";
 import { FaDice } from "react-icons/fa";
+import { WagerFactory, Wager } from "../utils/globals.js";
 
 function JoinBetModal(props) {
   const [joinCode, setJoinCode] = useState("");
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
   const toast = props.toast;
 
-  const programId = props.programId;
-  const [publicKey, sendTransaction] = [props.publicKey, props.sendTransaction];
-  const systemProgram = props.systemProgram;
-  const rentSysvar = props.rentSysvar;
-  const connection = props.connection;
-
   useEffect(() => {
     const queryParameters = new URLSearchParams(window.location.search);
-    if (queryParameters.has("bet") && publicKey != null) {
-      betAPICall(queryParameters.get("bet"));
+    if (queryParameters.has("bet")) {
       setJoinCode(queryParameters.get("bet"));
       setIsOpen(true);
     }
   }, []);
-
-  const betAPICall = async (betParam) => {
-    //WRITE LOGIC FOR ADDING NEW BET FROM URL HERE
-    //Param: betParam is the url parameter
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(betParam, 0, 20)],
-      programId
-    );
-
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(betParam, 0, 20), publicKey.toBytes()],
-      programId
-    );
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
-        {
-          pubkey: potPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: playerPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: systemProgram,
-          isSigner: false,
-          isWritable: false,
-        },
-        {
-          pubkey: rentSysvar,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId,
-      data: JoinBetInstruction(),
-    });
-    const transaction = new Transaction().add(instruction);
-    const {
-      context: { slot: minContextSlot },
-      value: { blockhash, lastValidBlockHeight },
-    } = await connection.getLatestBlockhashAndContext();
-    transaction.recentBlockhash = blockhash;
-    console.log("blockhash retreived");
-    const signature = await sendTransaction(transaction, connection, {
-      minContextSlot,
-    });
-    await connection.confirmTransaction({
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    });
-  };
 
   const handlejoinCodeChange = (e) => {
     setJoinCode(e.target.value);
@@ -124,80 +58,30 @@ function JoinBetModal(props) {
     //let option = betOption;
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
-    let tempStr = joinCode + " ".repeat(20 - joinCode.length);
-    setJoinCode(tempStr);
+    try {
+      await WagerFactory.methods.joinWager(parseInt(joinCode)).send({ from: sender })
+      .then(() => {
+        toast({
+          title: joinCode + " Successfuly Joined.",
+          description: "Now let's get betting!",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+      })
+    } catch (error) {
+      setIsOpen(false);
+      setJoinCode("");
+      toast({
+        title: "Failed to join the Wager",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
 
-    //Sending Bet Transaction and Balance for Bet
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr)],
-      programId
-    );
-    console.log([
-      Buffer.from(tempStr),
-      publicKey.toBytes(),
-      programId.toBytes(),
-    ]);
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr, 0, 20), publicKey.toBytes()],
-      programId
-    );
-    //Make bet RPC Call(Send Transaction for Make Bet)
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
-        {
-          pubkey: potPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: playerPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: systemProgram,
-          isSigner: false,
-          isWritable: false,
-        },
-        {
-          pubkey: rentSysvar,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId,
-      data: JoinBetInstruction(),
-    });
-    const transaction = new Transaction().add(instruction);
-    const {
-      context: { slot: minContextSlot },
-      value: { blockhash, lastValidBlockHeight },
-    } = await connection.getLatestBlockhashAndContext();
-    transaction.recentBlockhash = blockhash;
-    console.log("blockhash retreived");
-    const signature = await sendTransaction(transaction, connection, {
-      minContextSlot,
-    });
-    await connection.confirmTransaction({
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    });
     //use account info to join based on if bet in id is active
-    setIsOpen(false);
-    setJoinCode("");
-    toast({
-      title: joinCode + " Successfuly Joined.",
-      description: "Now let's get betting!",
-      status: "success",
-      duration: 9000,
-      isClosable: true,
-    });
+
     props.getBets();
   };
 

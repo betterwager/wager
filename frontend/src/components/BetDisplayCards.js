@@ -69,84 +69,11 @@ function BetDisplayCards(props) {
   const bet = props.bet;
   const index = props.index;
 
-  const toast = props.toast;
-  const connection = props.connection;
-  const programId = props.programId;
-  const systemProgram = props.systemProgram;
-  const sendTransaction = props.sendTransaction;
-  const publicKey = props.publicKey;
-
   const handlePayout = props.handlePayout;
   const submitOption = props.submitOption;
   const selectOption = props.selectOption;
 
-  const handlePing = async (name, index) => {
-    let option = 0;
-    //let value = betValue;
-    //let bet = userBets[index]; //bet object in contention
-    //Sending Bet Transaction and Balance for Bet
-    let tempStr = name + " ".repeat(20 - name.length);
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr)],
-      programId
-    );
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr), publicKey.toBytes()],
-      programId
-    );
-    //Make bet RPC Call(Send Transaction for Make Bet)
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
-        {
-          pubkey: potPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: playerPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: systemProgram,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId,
-      data: MakeBetInstruction(option, playerBump, 0),
-    });
-    const transaction = new Transaction().add(instruction);
-    const {
-      context: { slot: minContextSlot },
-      value: { blockhash, lastValidBlockHeight },
-    } = await connection.getLatestBlockhashAndContext();
-    transaction.recentBlockhash = blockhash;
-    console.log("blockhash retreived");
-
-    const signature = await sendTransaction(transaction, connection, {
-      minContextSlot,
-    });
-    await connection.confirmTransaction({
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    });
-    const transactionResults = await connection.getTransaction(signature);
-    console.log(transactionResults.meta.logMessages);
-
-    toast({
-      title: "Voting Stage Requested",
-      status: "success",
-      duration: 9000,
-      isClosable: true,
-    });
-  };
+  
 
   return (
     <>
@@ -154,33 +81,6 @@ function BetDisplayCards(props) {
         <Container key={index}>
           {
             <BetDataModal
-              position={
-                playerAccountInfo[index].bet_amount == 0
-                  ? "N/A"
-                  : String.fromCharCode
-                      .apply(
-                        String,
-                        bet.options[props.playerAccountInfo[index].option_index]
-                          .name
-                      )
-                      .substr(
-                        0,
-                        String.fromCharCode
-                          .apply(
-                            String,
-                            bet.options[
-                              props.playerAccountInfo[index].option_index
-                            ].name
-                          )
-                          .indexOf("\0")
-                      )
-              }
-              stake={playerAccountInfo[index].bet_amount / 100000000}
-              pot={bet.balance / 100000000}
-              time={new Date(bet.time * 1000).toLocaleTimeString("en-US", {
-                timeStyle: "short",
-              })}
-              players={bet.player_count}
               isOpen={betInfoIsOpen}
               setIsOpen={setBetInfoIsOpen}
             />
@@ -237,22 +137,6 @@ function BetDisplayCards(props) {
 
                       <Box width="25%" display="flex" justifyContent="flex-end">
                         <Button
-                          style={{ margin: "5px" }}
-                          borderColor="accentColor"
-                          borderRadius="20px"
-                          color="accentColor"
-                          variant="outline"
-                          mr={3}
-                          onClick={() => {
-                            let name = bet.bet_identifier;
-                            name = String.fromCharCode.apply(String, name);
-                            if (name.indexOf(" ") >= 0) name = name.trim();
-                            handlePing(name, index);
-                          }}
-                        >
-                          Ping
-                        </Button>
-                        <Button
                           variant={"outline"}
                           borderColor={"accentColor"}
                           borderRadius={20}
@@ -264,9 +148,6 @@ function BetDisplayCards(props) {
                           onClick={() => {
                             setBetIsOpen(true);
                             setCurrentBet(bet);
-                            let name = bet.bet_identifier;
-                            name = String.fromCharCode.apply(String, name);
-                            if (name.indexOf(" ") >= 0) name = name.trim();
                             setJoinCode(name);
                             setCurrentOptions(bet.options);
                           }}
@@ -292,27 +173,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Position</Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          {playerAccountInfo[index].bet_amount == 0
-                            ? "N/A"
-                            : String.fromCharCode
-                                .apply(
-                                  String,
-                                  bet.options[
-                                    props.playerAccountInfo[index].option_index
-                                  ].name
-                                )
-                                .substr(
-                                  0,
-                                  String.fromCharCode
-                                    .apply(
-                                      String,
-                                      bet.options[
-                                        props.playerAccountInfo[index]
-                                          .option_index
-                                      ].name
-                                    )
-                                    .indexOf("\0")
-                                )}
+                         
                         </Text>
                       </Box>
 
@@ -326,7 +187,6 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Stake </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          ${playerAccountInfo[index].bet_amount / 100000000}
                         </Text>
                       </Box>
 
