@@ -20,7 +20,7 @@ contract Wager {
         uint256 maxPlayers;
         string[] outcomes;
         uint256 bettingEndTime;
-        mapping(address => Bet) bets;
+        mapping(address => Bet[]) bets;
         Vote[] votes;
         address[] participants;
     }
@@ -45,6 +45,7 @@ contract Wager {
     event BetPlaced(
         uint indexed wagerHash,
         address participant,
+        string option, 
         uint256 amount
     );
 
@@ -56,6 +57,7 @@ contract Wager {
 
     constructor(
         address _creator,
+        uint256 _wagerHash,
         uint256 _minBet,
         uint256 _maxBet,
         uint256 _minPlayers,
@@ -73,7 +75,7 @@ contract Wager {
         wagerData.outcomes = _outcomes;
         wagerData.bettingEndTime = _bettingEndTime;
         wagerData.state = WagerState.Betting;
-        usdcToken = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d);
+		usdcToken = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d);
     }
 
     //Modifiers
@@ -113,7 +115,7 @@ contract Wager {
     function getTotalPool() internal view returns (uint) {
         uint total = 0;
         for (uint i = 0; i < wagerData.participants.length; i++) {
-            total += wagerData.bets[wagerData.participants[i]].betAmount;
+            total += wagerData.bets[wagerData.participants[i]][0].betAmount;
         }
         return total;
     }
@@ -143,7 +145,7 @@ contract Wager {
         emit ParticipantJoined(wagerData.creator, msg.sender);
     }
 
-    function placeBet(uint _amount) external payable onlyBettingPhase {
+    function placeBet(uint _amount, string memory option) external payable onlyBettingPhase {
         require(
             isParticipant(msg.sender),
             "Participant has not joined the wager"
@@ -153,23 +155,33 @@ contract Wager {
             "Invalid bet amount"
         );
 
-                require(usdcToken.transferFrom(msg.sender, address(this), _amount), "USDC transfer failed");
-        wagerData.bets[msg.sender].betAmount = msg.value;
+		require(usdcToken.transferFrom(msg.sender, address(this), _amount), "USDC transfer failed");
+        
+        Bet memory userBet;
+
+        userBet.creator = msg.sender;
+        userBet.betAmount = msg.value;
+        userBet.option = option;
+
+
+        wagerData.bets[msg.sender].push(userBet);
 
         uint wagerHash = uint(
             keccak256(abi.encodePacked(wagerData.creator, wagerData.name))
         );
-        emit BetPlaced(wagerHash, msg.sender, msg.value);
+        emit BetPlaced(wagerHash, msg.sender, option, msg.value);
     }
 
 
 
-    function vote(string memory _outcome) external onlyVotingPhase {
+    function vote(string memory _outcome) external {
         require(
-            wagerData.bets[msg.sender].betAmount > 0,
+            wagerData.bets[msg.sender][0].betAmount > 0,
             "Participant has not placed a bet"
         );
         require(checkIfVoted(msg.sender), "Participant has already voted");
+        require(block.timestamp < wagerData.bettingEndTime, "Betting Time is still active");
+
 
         wagerData.votes.push(Vote(msg.sender, _outcome));
 
@@ -178,12 +190,12 @@ contract Wager {
                 keccak256(abi.encodePacked(wagerData.creator, wagerData.name))
             );
             string memory result = totalVotes();
-
             emit VotesCompleted(wagerHash, wagerData.name, result);
+            closeWager();
         }
     }
 
-    function closeWager() external onlyClosedPhase onlyCreator {
+    function closeWager() public onlyClosedPhase onlyCreator {
             require(
                 wagerData.state != WagerState.Closed,
                 "Wager is already closed"
@@ -192,11 +204,13 @@ contract Wager {
             string memory result = totalVotes();
 
             //need figure out how to be able to add to this array of Bets 
-            Bet[] memory winningParticipants = new Bet[]((wagerData.participants.length));
+            uint len = wagerData.participants.length;
+            Bet[] memory winningParticipants = new Bet[](len); 
+            
             uint winningParticipantsTotal = 0;
             for (uint i = 0; i < wagerData.participants.length; i ++){
                 address participant = wagerData.participants[i];
-                Bet memory bet = wagerData.bets[participant];
+                Bet memory bet = wagerData.bets[participant][0];
                 if (keccak256(abi.encodePacked(bet.option)) == keccak256(abi.encodePacked(result))){
                     winningParticipants[i] = bet;
                     winningParticipantsTotal += bet.betAmount;
@@ -221,61 +235,21 @@ contract Wager {
         }
         return false;
     }
-}
+    
+    //getter for external wagerData members
+    function bettingEndTime() external view returns (uint256) {
+        return wagerData.bettingEndTime;
+    }
 
+    function creator() external view returns (address) {
+        return wagerData.creator;
+    }
 
-//Creates Wager Objects for Users
-contract WagerFactory {
-    mapping(uint => Wager[]) public wagers;
-
-    event WagerCreated(
-        address indexed creator,
-        address wagerAddress,
-        string name,
-        uint256 minBet,
-        uint256 maxBet,
-        uint256 minPlayers,
-        uint256 maxPlayers,
-        string[] outcomes,
-        uint256 bettingEndTime
-    );
-
-    function createWager(
-        uint256 _minBet,
-        uint256 _maxBet,
-        uint256 _minPlayers,
-        uint256 _maxPlayers,
-        string memory _name,
-        string[] memory _outcomes,
-        uint256 _bettingEndTime
-    ) external {
-        Wager newWager = new Wager(
-            msg.sender,
-            _minBet,
-            _maxBet,
-            _minPlayers,
-            _maxPlayers,
-            _name,
-            _outcomes,
-            _bettingEndTime
-        );
-        //8 integer hash of creator address and wager name
-        uint wagerHash = uint(keccak256(abi.encodePacked(msg.sender, _name)));
-
-        wagers[wagerHash].push(newWager);
-
-        emit WagerCreated(
-            msg.sender,
-            address(newWager),
-            _name,
-            _minBet,
-            _maxBet,
-            _minPlayers,
-            _maxPlayers,
-            _outcomes,
-            _bettingEndTime
-        );
+    function name() external view returns (string memory) {
+        return wagerData.name;
     }
 }
+
+
 
 
