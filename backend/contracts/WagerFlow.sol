@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-IERC20 public usdcToken;
 contract Wager {
+    IERC20 public usdcToken;
     enum WagerState {
         Betting,
         Voting,
@@ -63,7 +63,6 @@ contract Wager {
         string memory _name,
         string[] memory _outcomes,
         uint256 _bettingEndTime
-				address _usdcToken
     ) {
         wagerData.creator = _creator;
         wagerData.minBet = _minBet;
@@ -74,7 +73,7 @@ contract Wager {
         wagerData.outcomes = _outcomes;
         wagerData.bettingEndTime = _bettingEndTime;
         wagerData.state = WagerState.Betting;
-				usdcToken = IERC20(_usdcToken);
+        usdcToken = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d);
     }
 
     //Modifiers
@@ -144,7 +143,7 @@ contract Wager {
         emit ParticipantJoined(wagerData.creator, msg.sender);
     }
 
-    function placeBet() external payable onlyBettingPhase {
+    function placeBet(uint _amount) external payable onlyBettingPhase {
         require(
             isParticipant(msg.sender),
             "Participant has not joined the wager"
@@ -154,7 +153,7 @@ contract Wager {
             "Invalid bet amount"
         );
 
-		require(usdcToken.transferFrom(msg.sender, address(this), _amount), "USDC transfer failed");
+                require(usdcToken.transferFrom(msg.sender, address(this), _amount), "USDC transfer failed");
         wagerData.bets[msg.sender].betAmount = msg.value;
 
         uint wagerHash = uint(
@@ -185,53 +184,35 @@ contract Wager {
     }
 
     function closeWager() external onlyClosedPhase onlyCreator {
-        require(
-            wagerData.state != WagerState.Closed,
-            "Wager is already closed"
-        );
+            require(
+                wagerData.state != WagerState.Closed,
+                "Wager is already closed"
+            );
 
-        string memory result = totalVotes();
+            string memory result = totalVotes();
 
-				
-
-        wagerData.state = WagerState.Closed;
-
-        emit WagerClosed(wagerData.creator, result);
-    }
-
-function closeWager() external onlyClosedPhase onlyCreator {
-        require(
-            wagerData.state != WagerState.Closed,
-            "Wager is already closed"
-        );
-
-        string memory result = totalVotes();
-
-
-        Bet[] winningParticipants;
-        uint winningParticipantsTotal = 0;
-        for (uint i = 0; i < wagerData.participants.length; i ++){
-            address participant = wagerData.participants[i];
-            Bet memory bet = wagerData.bets[participant];
-            if (bet.option == result){
-                winningParticipants.push(bet);
-                winningParticipantsTotal += bet.betAmount;
+            //need figure out how to be able to add to this array of Bets 
+            Bet[] memory winningParticipants = new Bet[]((wagerData.participants.length));
+            uint winningParticipantsTotal = 0;
+            for (uint i = 0; i < wagerData.participants.length; i ++){
+                address participant = wagerData.participants[i];
+                Bet memory bet = wagerData.bets[participant];
+                if (keccak256(abi.encodePacked(bet.option)) == keccak256(abi.encodePacked(result))){
+                    winningParticipants[i] = bet;
+                    winningParticipantsTotal += bet.betAmount;
+                }
             }
+
+            for (uint i = 0; i < winningParticipants.length; i ++){
+                uint256 payout = (winningParticipants[i].betAmount / winningParticipantsTotal) * getTotalPool();
+                usdcToken.transferFrom(address(this), winningParticipants[i].creator, payout);
+            }   
+
+            wagerData.state = WagerState.Closed;
+
+            emit WagerClosed(wagerData.creator, result);
         }
 
-        for (uint i = 0; i < winningParticipants.length; i ++){
-            uint256 payout = (winningParticipants[i].betAmount / winningParticipantsTotal) * getTotalPool();
-            usdcToken.transfer(address(this), winningParticipants[i].creator, payout);
-        }   
-
-        wagerData.state = WagerState.Closed;
-
-        emit WagerClosed(wagerData.creator, result);
-    }
-
-
-    emit WagerClosed(wagerData.creator, winnersCount);
-}
     function isParticipant(address _participant) public view returns (bool) {
         for (uint256 i = 0; i < wagerData.participants.length; i++) {
             if (wagerData.participants[i] == _participant) {
@@ -296,3 +277,5 @@ contract WagerFactory {
         );
     }
 }
+
+
