@@ -83,7 +83,7 @@ function CreateLeaderModal(props) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <ModalOverlay />
         <ModalContent>
@@ -115,7 +115,7 @@ function CreateLeaderModal(props) {
           </ModalHeader>
           <Form>
             <ModalBody>
-              <>
+              <React.Fragment>
                 <Box mb={3}>
                   <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
                     Create Leaderboard
@@ -130,7 +130,7 @@ function CreateLeaderModal(props) {
                     placeholder="Enter Leaderboard Name"
                   />
                 </FormControl>
-              </>
+              </React.Fragment>
             </ModalBody>
             <ModalFooter>
               <Box width="100%" display={"flex"} mb={2}>
@@ -155,7 +155,7 @@ function CreateLeaderModal(props) {
         isOpen={addLeaderSuccessIsOpen}
         setIsOpen={setAddLeaderSuccessIsOpen}
       />
-    </>
+    </React.Fragment>
   );
 }
 

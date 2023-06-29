@@ -117,7 +117,7 @@ function JoinLeaderModal(props) {
         </ModalHeader>{" "}
         <Form>
           <ModalBody>
-            <>
+            <React.Fragment>
               <FormControl isRequired>
                 <Box mb={3}>
                   <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
@@ -133,7 +133,7 @@ function JoinLeaderModal(props) {
                   onChange={handlejoinLeaderCodeChange}
                 />
               </FormControl>
-            </>
+            </React.Fragment>
           </ModalBody>
 
           <ModalFooter>

@@ -20,7 +20,7 @@ contract Wager {
         uint256 maxPlayers;
         string[] outcomes;
         uint256 bettingEndTime;
-        mapping(address => Bet[]) bets;
+        mapping(address => Bet) bets;
         Vote[] votes;
         address[] participants;
     }
@@ -111,10 +111,10 @@ contract Wager {
     }
 
     //Internal Functions
-    function getTotalPool() internal view returns (uint) {
+    function getTotalPool() public view returns (uint) {
         uint total = 0;
         for (uint i = 0; i < wagerData.participants.length; i++) {
-            total += wagerData.bets[wagerData.participants[i]][0].betAmount;
+            total += wagerData.bets[wagerData.participants[i]].betAmount;
         }
         return total;
     }
@@ -173,7 +173,7 @@ contract Wager {
         return voteUnique[max];
     }
 
-    function checkIfVoted(address voter) private view returns (bool) {
+    function checkIfVoted(address voter) public view returns (bool) {
         for (uint i = 0; i < wagerData.votes.length; i++) {
             if (wagerData.votes[i].creator == voter) {
                 return true;
@@ -216,7 +216,7 @@ contract Wager {
         userBet.option = option;
 
 
-        wagerData.bets[msg.sender].push(userBet);
+        wagerData.bets[msg.sender] = userBet;
 
         uint wagerHash = uint(
             keccak256(abi.encodePacked(wagerData.creator, wagerData.name))
@@ -225,10 +225,9 @@ contract Wager {
     }
 
 
-
     function vote(string memory _outcome) external {
         require(
-            wagerData.bets[msg.sender][0].betAmount > 0,
+            wagerData.bets[msg.sender].betAmount > 0,
             "Participant has not placed a bet"
         );
         require(checkIfVoted(msg.sender), "Participant has already voted");
@@ -262,7 +261,7 @@ contract Wager {
             uint winningParticipantsTotal = 0;
             for (uint i = 0; i < wagerData.participants.length; i ++){
                 address participant = wagerData.participants[i];
-                Bet memory bet = wagerData.bets[participant][0];
+                Bet memory bet = wagerData.bets[participant];
                 if (keccak256(abi.encodePacked(bet.option)) == keccak256(abi.encodePacked(result))){
                     winningParticipants[i] = bet;
                     winningParticipantsTotal += bet.betAmount;
@@ -299,6 +298,10 @@ contract Wager {
 
     function name() external view returns (string memory) {
         return wagerData.name;
+    }
+
+    function getWinningOption() external view returns (string memory) {
+        return totalVotes();
     }
 }
 

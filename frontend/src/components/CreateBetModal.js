@@ -62,6 +62,8 @@ function CreateBetModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
   const toast = props.toast;
 
+  const magicUser = props.magicUser;
+
   const handleBetNameChange = (e) => {
     setBetName(e.target.value);
   };
@@ -113,6 +115,7 @@ function CreateBetModal(props) {
     ) {
 
       try {
+
         await WagerFactory.methods.createWager(
           minBet,
           maxBet,
@@ -121,7 +124,7 @@ function CreateBetModal(props) {
           betName,
           OptionsList,
           time.getTime() / 1000, //Miliseconds from 1970
-        ).send({ from: sender })
+        ).send({ from: magicUser.address })
         .then(() => {
           toast({
             title: "Bet Created",
@@ -162,7 +165,7 @@ function CreateBetModal(props) {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Modal size={"2xl"} isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <ModalOverlay />
         <ModalContent>
@@ -193,7 +196,7 @@ function CreateBetModal(props) {
             </Box>
           </ModalHeader>
           <ModalBody>
-            <>
+            <React.Fragment>
               <Box mb={4}>
                 <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
                   Create a Wager!
@@ -289,11 +292,9 @@ function CreateBetModal(props) {
                     </Text>
                     {OptionsList.map((option) => {
                       return (
-                        <>
                           <Badge key={option} mr={1} mb={2}>
                             {option}
                           </Badge>
-                        </>
                       );
                     })}
                     <Form onSubmit={handleOptionEnter}>
@@ -338,7 +339,7 @@ function CreateBetModal(props) {
                   </Box>
                 </FormControl>
               </Box>
-            </>
+            </React.Fragment>
           </ModalBody>
           <ModalFooter>
             <Box width="100%" display={"flex"} flexDirection={"column"}>
@@ -372,7 +373,7 @@ function CreateBetModal(props) {
         isOpen={addSuccessIsOpen}
         setIsOpen={setAddSuccessIsOpen}
       />
-    </>
+    </React.Fragment>
   );
 }
 

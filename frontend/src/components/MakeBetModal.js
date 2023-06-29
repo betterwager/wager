@@ -45,7 +45,7 @@ import {
   VoteInstruction,
   PayoutInstruction,
 } from "../utils/utils.js";
-import { WagerFactory, Wager } from "../utils/globals.js";
+import { WagerFactory, Wager, magic } from "../utils/globals.js";
 
 function MakeBetModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
@@ -61,6 +61,8 @@ function MakeBetModal(props) {
   const currentBet = props.currentBet;
   const currentOptions = props.currentOptions;
   const getBets = props.getBets;
+
+  const magicUser = props.magicUser;
 
   const toast = props.toast;
 
@@ -87,10 +89,10 @@ function MakeBetModal(props) {
     //let value = betValue;
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
-    const fromAddress = (await web3.eth.getAccounts())[0];
+    const fromAddress = magicUser.address;
 
     try {
-      await WagerFactory.methods.placeBet(joinCode, amount, betOption).send({ from: fromAddress })
+      await WagerFactory.methods.placeBet(joinCode, betValue, betOption).send({ from: fromAddress })
       .then(() => {
         toast({
           title: "Bet Successfully Placed.",

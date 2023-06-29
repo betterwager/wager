@@ -75,8 +75,9 @@ import Loading from "../components/Loading";
 import Temp from "../components/Temp";
 import { getUserProfilePicture } from "../utils/utils";
 import { Magic } from "magic-sdk";
+
 import { SolanaExtension } from "@magic-ext/solana";
-import {web3, WagerFactory, Wager} from "../utils/globals.js";
+import {web3, WagerFactory, Wager, magic} from "../utils/globals.js";
 
 const smVariant = { navigation: "drawer", navigationButton: true };
 const mdVariant = { navigation: "sidebar", navigationButton: false };
@@ -91,8 +92,6 @@ function Dashboard() {
   //Current Wagered Bet
   const [currentBet, setCurrentBet] = useState({});
 
-  //All User Bet Addresses for Display
-  const [betAddresses, setBetAddresses] = useState([]);
   //Join Code for entering a new Bet
   const [joinCode, setJoinCode] = useState("");
   //Open Betting Modal
@@ -105,8 +104,6 @@ function Dashboard() {
   const [codeDisplayIsOpen, setCodeDisplayIsOpen] = useState(false);
   //Bet Information Display Current
   const [code, setCode] = useState("");
-  //User's actions on all bets
-  const [playerAccountInfo, setPlayerAccountInfo] = useState([]);
   //Voting Option Selected
   const [voteOption, setVoteOption] = useState("");
   //Voting Index Selected
@@ -123,6 +120,7 @@ function Dashboard() {
 
 
   const [isLoading, setIsLoading] = useState(true);
+
 
   //Contract Information
 
@@ -152,7 +150,7 @@ function Dashboard() {
       let betID = allUserBets[index].bet_identifier;
 
       try {
-        await WagerFactory.methods.vote(betCode, optionChose).send({ from: sender })
+        await WagerFactory.methods.vote(betCode, optionChose).send({ from: magicUser.address })
         .then(() => {
           toast({
             title: "Voting Success!",
@@ -174,48 +172,41 @@ function Dashboard() {
   };
 
   const handlePayout = async () => {
-    let index = currentBetIndex;
-    let potPDA = betAddresses[index];
-    let betID = allUserBets[index].bet_identifier;
   };
 
   
 
   const getBets = useCallback(async () => {
-    if (publicKey == null) {
-      setBetAddresses([]);
-      setPlayerAccountInfo([]);
+    if (magicUser.address == null) {
       setUserBets([]);
     } else {
-      let allBets = [];
-      let allBetAddresses = [];
-      let allPlayerAccounts = [];
-
       const fromAddress = (await web3.eth.getAccounts())[0];
       await WagerFactory.methods.getUserWagers().call({ from: fromAddress})
       .then((res) => {
-        result.forEach(wager => {
-          console.log('Wager Creator:', wager.creator);
-          console.log('Wager Name:', wager.name);
-          console.log('Wager State:', wager.state);
-          console.log('Wager Min Bet:', wager.minBet);
-          console.log('Wager Max Bet:', wager.maxBet);
-          console.log('Wager Min Players:', wager.minPlayers);
-          console.log('Wager Max Players:', wager.maxPlayers);
-          console.log('Wager Outcomes:', wager.outcomes);
-          console.log('Wager Betting End Time:', wager.bettingEndTime);
-          console.log('Wager Participants:', wager.participants);
-          console.log('Wager Bets:', wager.bets);
-          console.log('Wager Votes:', wager.votes);
+        let userWagers = [];
+        res.forEach(wager => {
+          let newWager = {
+            creator: wager.creator,
+            name: wager.name,
+            state: wager.state,
+            minBet: wager.minBet,
+            maxBet: wager.maxBet,
+            minPlayers: wager.minPlayers,
+            maxPlayers: wager.maxPlayers,
+            outcomes: wager.outcomes,
+            bettingEndTime: wager.bettingEndTime,
+            participants: wager.participants,
+            bets: wager.bets,
+            votes: wager.votes
+          }
+          userWagers.push(newWager);
         });
-        setBetAddresses(allBetAddresses);
-        setUserBets(allBets);
-        setPlayerAccountInfo(allPlayerAccounts);
+        setUserBets(userWagers);
       })
     }
     //let news;
     //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
-  }, [publicKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectOption = (e, betIndex) => {
     let list = e.target.value.split("@&@");
@@ -258,7 +249,7 @@ function Dashboard() {
                     .catch(console.error)
                     .then((res) => {
                       setCurrentUser(res.data.getUser);
-                      getBets(publicKey).catch(console.error);
+                      getBets(magicUser.address).catch(console.error);
                       let url = getUserProfilePicture(res.data.getUser.phonenumber)
                           setProfilePictureURL(url);
                           console.log(url);
@@ -302,7 +293,7 @@ function Dashboard() {
     <div style={{ overflow: "hidden" }}>
       <Sidebar
         magicUser={magicUser}
-        variant={variants?.navigation}
+        variant={variants.navigation}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
         boardIDs={boardIDs}
@@ -313,12 +304,12 @@ function Dashboard() {
         setWalletIsOpen={setWalletIsOpen}
       />
       <Box
-        ml={!variants?.navigationButton && 250}
+        ml={!variants.navigationButton && 250}
         bg="#F7F8FC"
         style={{ height: "100vh" }}
       >
         <Header
-          showSidebarButton={variants?.navigationButton}
+          showSidebarButton={variants.navigationButton}
           onShowSidebar={toggleSidebar}
           toast={toast}
           page="Dashboard"
@@ -465,11 +456,11 @@ function Dashboard() {
                     variant="ghost"
                     rightIcon={<RepeatIcon />}
                     onClick={() => {
-                      if (publicKey == null) {
+                      if (magicUser.address == null) {
                         setWalletIsOpen(true);
                         getBets(null);
                       } else {
-                        getBets(publicKey);
+                        getBets(magicUser.address);
                       }
                     }}
                     style={{ marginBottom: "100px" }}
@@ -484,6 +475,7 @@ function Dashboard() {
                 getBets={getBets}
                 toast={toast}
                 isOpen={betIsOpen}
+                magicUser={magicUser}
                 setIsOpen={setBetIsOpen}
                 currentBet={currentBet}
                 currentOptions={currentOptions}
@@ -500,14 +492,13 @@ function Dashboard() {
                     state={bet.state}
                     code={code}
                     toast={toast}
+                    magicUser={magicUser}
                     setCode={setCode}
                     joinCode={joinCode}
                     setJoinCode={setJoinCode}
-                    playerAccountInfo={playerAccountInfo}
                     allUserBets={allUserBets}
                     codeDisplayIsOpen={codeDisplayIsOpen}
                     setCodeDisplayIsOpen={setCodeDisplayIsOpen}
-                    betAddresses={betAddresses}
                     bet={bet}
                     betIsOpen={betIsOpen}
                     setBetIsOpen={setBetIsOpen}
@@ -533,7 +524,7 @@ function Dashboard() {
       />
 
       <WalletEntryModal
-        publicKey={publicKey}
+        publicKey={magicUser.address}
         toast={toast}
         isOpen={walletIsOpen}
         setIsOpen={setWalletIsOpen}

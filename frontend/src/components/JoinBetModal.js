@@ -40,6 +40,8 @@ function JoinBetModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
   const toast = props.toast;
 
+  const magicUser = props.magicUser;
+
   useEffect(() => {
     const queryParameters = new URLSearchParams(window.location.search);
     if (queryParameters.has("bet")) {
@@ -59,7 +61,7 @@ function JoinBetModal(props) {
     //let value = value;
     //let joinCode = joinCode; //bet object in contention
     try {
-      await WagerFactory.methods.joinWager(parseInt(joinCode)).send({ from: sender })
+      await WagerFactory.methods.joinWager(parseInt(joinCode)).send({ from: magicUser.address })
       .then(() => {
         toast({
           title: joinCode + " Successfuly Joined.",
@@ -117,7 +119,7 @@ function JoinBetModal(props) {
         </ModalHeader>
         <Form onSubmit={(e) => handleJoinBet(e)}>
           <ModalBody>
-            <>
+            <React.Fragment>
               <FormControl isRequired>
                 <Box mb={4}>
                   <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
@@ -136,7 +138,7 @@ function JoinBetModal(props) {
                   onChange={handlejoinCodeChange}
                 />
               </FormControl>
-            </>
+            </React.Fragment>
           </ModalBody>
 
           <ModalFooter>

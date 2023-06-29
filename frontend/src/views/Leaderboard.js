@@ -426,7 +426,7 @@ function Leaderboard() {
 
 
               {boardUsers == null ? (
-                <></>
+                <React.Fragment></React.Fragment>
               ) : (
                       boardUsers.map((user, index) => (
                         <Box

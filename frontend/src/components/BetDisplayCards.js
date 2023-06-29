@@ -33,7 +33,7 @@ import { Container, Card, Row, Col, Form } from "react-bootstrap";
 import { AiOutlineInfo } from "react-icons/ai";
 
 import BetDataModal from "./BetDataModal.js";
-
+import {magic} from "../utils/globals.js";
 import {
   PublicKey,
   Transaction,
@@ -47,6 +47,7 @@ import {
   VoteInstruction,
   PayoutInstruction,
 } from "../utils/utils.js";
+import { WagerFactory } from "../utils/globals.js";
 
 function BetDisplayCards(props) {
   const state = props.state;
@@ -63,7 +64,6 @@ function BetDisplayCards(props) {
     props.setCurrentOptions,
   ];
   const [joinCode, setJoinCode] = [props.joinCode, props.setJoinCode];
-  const playerAccountInfo = props.playerAccountInfo;
   const allUserBets = props.allUserBets;
 
   const bet = props.bet;
@@ -73,10 +73,12 @@ function BetDisplayCards(props) {
   const submitOption = props.submitOption;
   const selectOption = props.selectOption;
 
+  const magicUser = props.magicUser
+
   
 
   return (
-    <>
+    <React.Fragment>
       {state >= 1 && state <= 3 ? (
         <Container key={index}>
           {
@@ -116,20 +118,14 @@ function BetDisplayCards(props) {
                         flexDirection={"column"}
                         alignItems={"flex-start"}
                         onClick={() => {
-                          let name = bet.bet_identifier;
-                          name = String.fromCharCode.apply(String, name);
-                          if (name.indexOf(" ") >= 0) name = name.trim();
-                          setCode(name);
+                          setCode(bet.name);
                           setCodeDisplayIsOpen(true);
                         }}
                         ml={3}
                       >
                         <Box display="flex" gap={2}>
                           <Text fontSize="xl" fontWeight={700}>
-                            {String.fromCharCode.apply(
-                              String,
-                              bet.bet_identifier
-                            )}
+                            {bet.name}
                           </Text>
                         </Box>
                         <Text color="#aaaaaa">Status: Created</Text>
@@ -148,10 +144,10 @@ function BetDisplayCards(props) {
                           onClick={() => {
                             setBetIsOpen(true);
                             setCurrentBet(bet);
-                            setJoinCode(name);
+                            setJoinCode(bet.name);
                             setCurrentOptions(bet.options);
                           }}
-                          disabled={playerAccountInfo[index].bet_amount != 0}
+                          disabled={bet.bets[magicUser.address].betAmount != 0}
                         >
                           Make Bet
                         </Button>
@@ -173,7 +169,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Position</Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                         
+                         {bet.bets[magicUser.address].betAmount != 0 ? bet.bets[magicUser.address].option : "N/A"}
                         </Text>
                       </Box>
 
@@ -187,6 +183,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Stake </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
+                          {bet.bets[magicUser.address].betAmount != 0 ? bet.bets[magicUser.address].betAmount / 100000000 : "N/A"}
                         </Text>
                       </Box>
 
@@ -200,7 +197,10 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Total Pot </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          ${bet.balance / 100000000}
+                          {() => {
+                            let pool = WagerFactory.getTotalPool();
+                            return pool;
+                          }}
                         </Text>
                       </Box>
 
@@ -215,12 +215,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Time </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          {new Date(bet.time * 1000).toLocaleTimeString(
-                            "en-US",
-                            {
-                              timeStyle: "short",
-                            }
-                          )}
+                          {bet.bettingEndTime}
                         </Text>
                       </Box>
 
@@ -231,7 +226,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Players </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          {bet.player_count}
+                          {bet.participants.length}
                         </Text>
                       </Box>
                     </Box>
@@ -254,10 +249,7 @@ function BetDisplayCards(props) {
                       >
                         <Box display="flex" gap={2}>
                           <Text fontSize="xl" fontWeight={700}>
-                            {String.fromCharCode.apply(
-                              String,
-                              bet.bet_identifier
-                            )}
+                            {bet.name}
                           </Text>
                         </Box>
                         <Text color="#aaaaaa">Status: Voting</Text>
@@ -269,7 +261,7 @@ function BetDisplayCards(props) {
                         alignItems={"center"}
                         gap={2}
                       >
-                        {playerAccountInfo[index].voted == 0 ? (
+                        {WagerFactory.checkIfVoted(bet.address) == false ? (
                           <Select
                             onChange={(e) => {
                               selectOption(e, index);
@@ -278,31 +270,24 @@ function BetDisplayCards(props) {
                             variant="outline"
                             placeholder="Select option"
                           >
-                            {bet.options.map((option, index) => {
-                              let name = String.fromCharCode.apply(
-                                String,
-                                option.name
-                              );
-                              if (name.indexOf("\0") >= 0)
-                                name = name.substr(0, name.indexOf("\0"));
-                              if (name !== "zero" && name !== "") {
+                            {bet.outcomes.map((option) => {
+                              
                                 return (
                                   <option
-                                    key={index}
-                                    value={name + "@&@" + index}
+                                    key={option}
+                                    value={option}
                                   >
-                                    {name}
+                                    {option}
                                   </option>
                                 );
-                              }
-                            })}
+                              })}
                           </Select>
                         ) : (
                           <Select variant="outline" disabled />
                         )}
 
                         <Button
-                          disabled={playerAccountInfo[index].voted == 1}
+                          disabled={WagerFactory.checkIfVoted() == 1}
                           variant={"outline"}
                           borderColor={"accentColor"}
                           borderRadius={20}
@@ -333,27 +318,10 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Position</Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          {playerAccountInfo[index].bet_amount == 0
+                          {bet.bets[magicUser.address].betAmount == 0
                             ? "N/A"
-                            : String.fromCharCode
-                                .apply(
-                                  String,
-                                  bet.options[
-                                    props.playerAccountInfo[index].option_index
-                                  ].name
-                                )
-                                .substr(
-                                  0,
-                                  String.fromCharCode
-                                    .apply(
-                                      String,
-                                      bet.options[
-                                        props.playerAccountInfo[index]
-                                          .option_index
-                                      ].name
-                                    )
-                                    .indexOf("\0")
-                                )}
+                            : bet.bets[magicUser.address].option
+                                }
                         </Text>
                       </Box>
 
@@ -367,7 +335,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Stake </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          ${playerAccountInfo[index].bet_amount / 100000000}
+                          ${bet.bets[magicUser.address].betAmount / 100000000}
                         </Text>
                       </Box>
 
@@ -381,7 +349,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Total Pot </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          ${bet.balance / 100000000}
+                          ${WagerFactory.getTotalPool() / 100000000}
                         </Text>
                       </Box>
 
@@ -396,7 +364,7 @@ function BetDisplayCards(props) {
                       >
                         <Text fontWeight={600}>Time </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          {new Date(bet.time * 1000).toLocaleTimeString(
+                          {new Date(bet.bettingEndTime * 1000).toLocaleTimeString(
                             "en-US",
                             {
                               timeStyle: "short",
@@ -414,7 +382,7 @@ function BetDisplayCards(props) {
                           Players{" "}
                         </Text>
                         <Text width="50%" fontWeight={600} color={"#9FA2B4"}>
-                          {bet.player_count}
+                          {bet.participants.length}
                         </Text>
                       </Box>
                     </Box>
@@ -435,10 +403,7 @@ function BetDisplayCards(props) {
                       </Col>
                       <Col style={{ textAlign: "left" }}>
                         <Card.Title>
-                          {String.fromCharCode.apply(
-                            String,
-                            bet.bet_identifier
-                          )}
+                          {bet.name}
                         </Card.Title>
                         <Card.Text style={{ color: "#aaaaaa" }}>
                           Status: Settled
@@ -451,21 +416,7 @@ function BetDisplayCards(props) {
                           variant="outline"
                         >
                           Winning Option:{" "}
-                          {String.fromCharCode
-                            .apply(
-                              String,
-                              bet.options[allUserBets[index].winner_index].name
-                            )
-                            .substr(
-                              0,
-                              String.fromCharCode
-                                .apply(
-                                  String,
-                                  bet.options[allUserBets[index].winner_index]
-                                    .name
-                                )
-                                .indexOf("\0")
-                            )}
+                          {WagerFactory.getWinningOption(bet.address)}
                         </Button>
                         {true ? (
                           <Button
@@ -497,7 +448,7 @@ function BetDisplayCards(props) {
       ) : (
         <Container key={index}></Container>
       )}
-    </>
+    </React.Fragment>
   );
 }
 
