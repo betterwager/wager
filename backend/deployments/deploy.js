@@ -1,7 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
-
+  //Hello World Contract Deployment
+  const HelloWorldFactory = await hre.ethers.getContractFactory("HelloWorld");
+  const helloWorld = await HelloWorldFactory.deploy("test");
+  await helloWorld.deployed();
+  console.log(`Cupcake vending machine deployed to ${helloWorld.address}`);
   //Wager Contract Deployment
   //test arguments to deploy with
   const creatorAddress = "0x1234567890abcdef1234567890abcdef12345678";

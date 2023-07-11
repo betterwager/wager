@@ -20,7 +20,7 @@ contract Wager {
         uint256 maxPlayers;
         string[] outcomes;
         uint256 bettingEndTime;
-        mapping(address => Bet) bets;
+        mapping(address => Bet[]) bets;
         Vote[] votes;
         address[] participants;
     }
@@ -57,6 +57,7 @@ contract Wager {
 
     constructor(
         address _creator,
+        uint256 _wagerHash,
         uint256 _minBet,
         uint256 _maxBet,
         uint256 _minPlayers,
@@ -114,7 +115,7 @@ contract Wager {
     function getTotalPool() public view returns (uint) {
         uint total = 0;
         for (uint i = 0; i < wagerData.participants.length; i++) {
-            total += wagerData.bets[wagerData.participants[i]].betAmount;
+            total += wagerData.bets[wagerData.participants[i]][0].betAmount;
         }
         return total;
     }
@@ -216,7 +217,7 @@ contract Wager {
         userBet.option = option;
 
 
-        wagerData.bets[msg.sender] = userBet;
+        wagerData.bets[msg.sender].push(userBet);
 
         uint wagerHash = uint(
             keccak256(abi.encodePacked(wagerData.creator, wagerData.name))
@@ -225,9 +226,10 @@ contract Wager {
     }
 
 
+
     function vote(string memory _outcome) external {
         require(
-            wagerData.bets[msg.sender].betAmount > 0,
+            wagerData.bets[msg.sender][0].betAmount > 0,
             "Participant has not placed a bet"
         );
         require(checkIfVoted(msg.sender), "Participant has already voted");
@@ -261,7 +263,7 @@ contract Wager {
             uint winningParticipantsTotal = 0;
             for (uint i = 0; i < wagerData.participants.length; i ++){
                 address participant = wagerData.participants[i];
-                Bet memory bet = wagerData.bets[participant];
+                Bet memory bet = wagerData.bets[participant][0];
                 if (keccak256(abi.encodePacked(bet.option)) == keccak256(abi.encodePacked(result))){
                     winningParticipants[i] = bet;
                     winningParticipantsTotal += bet.betAmount;
@@ -304,6 +306,7 @@ contract Wager {
         return totalVotes();
     }
 }
+
 
 
 
