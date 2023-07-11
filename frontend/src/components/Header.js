@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { API, Auth } from "aws-amplify";
 import { FaDice, FaUsers, FaMoneyCheckAlt, FaDiceD20 } from "react-icons/fa";
@@ -93,99 +93,8 @@ const Header = (props) => {
   });
 
   return (
-    <>
-      {props.showSidebarButton && (
-        <Navbar
-          style={{
-            borderBottom: "solid",
-            borderColor: "primaryColor",
-            backgroundColor: "#F7F8FC",
-          }}
-        >
-          <Navbar.Brand style={{ marginLeft: "10px" }}>
-            <Flex align={"center"} w={"100%"}>
-              <Icon h={"40%"} w={"40%"} as={FaDice} color="primaryColor" />
-              <Text fontSize="3xl" fontWeight={"bold"} color="primaryColor">
-                Wager
-              </Text>
-            </Flex>
-          </Navbar.Brand>
+    <React.Fragment>
 
-          <Box flex="1" />
-          {/* <Menu>
-            <MenuButton
-              isDisabled={publicKey == null && props.page == "Dashboard"}
-              //colorScheme="blue"
-              // backgroundColor="#ff0000"
-              // color="#ff0000"
-              as={IconButton}
-            >
-              <AddIcon w={8} h={8} />
-            </MenuButton>
-            <MenuList style={{ color: "#000000" }}>
-              {props.page == "Dashboard" ? (
-                <>
-                  <MenuItem
-                    onClick={() => {
-                      setAddIsOpen(true);
-                    }}
-                  >
-                    Create a Bet
-                  </MenuItem>
-
-
-
-                  <MenuItem
-                    onClick={() => {
-                      setJoinIsOpen(true);
-                    }}
-                  >
-                    Join a Bet
-                  </MenuItem>
-
-
-                </>
-              ) : (
-                <>
-                  <MenuItem
-                    onClick={() => {
-                      setAddLeaderIsOpen(true);
-                    }}
-                  >
-                    Create a Leaderboard
-                  </MenuItem>
-
-
-                  <MenuItem
-                    onClick={() => {
-                      setJoinLeaderIsOpen(true);
-                    }}
-                  >
-                    Join a Leaderboard
-                  </MenuItem>
-
-
-                </>
-              )}
-            </MenuList>
-          </Menu> */}
-
-          <div style={{ marginRight: "10px", marginLeft: "10px" }}></div>
-          <Box>
-            {props.showSidebarButton && (
-              <>
-                <IconButton
-                  icon={<HamburgerIcon w={8} h={8} />}
-                  style={{ marginRight: "10px" }}
-                  colorScheme="blackAlpha"
-                  variant="outline"
-                  onClick={props.onShowSidebar}
-                />
-              </>
-            )}
-          </Box>
-        </Navbar>
-      )}
 
       <Flex bg="#F7F8FC" p={4} color="white" justifyContent="center">
         <Text as="b" color="black" style={{ margin: "5px" }} fontSize="xl">
@@ -193,7 +102,7 @@ const Header = (props) => {
         </Text>
 
         {!props.showSidebarButton && (
-          <>
+          <React.Fragment>
             <Box flex="1" />
             <Text color="black" as="b" style={{margin: "10px", marginRight: "20px"}}>{props.user && props.user.name}</Text>
 
@@ -238,113 +147,10 @@ const Header = (props) => {
                 setURL={props.setProfilePictureURL}
                 URL={props.profilePictureURL}
               />
-            {/* <Menu>
-              <MenuButton
-                isDisabled={publicKey == null && props.page == "Dashboard"}
-                //colorScheme="green"
-                // backgroundColor="primaryColor"
-                // color="buttonTextColor"
-                _hover={
-                  publicKey == null && props.page == "Dashboard"
-                    ? {
-                        background: "primaryColor",
-                        color: "buttonTextColor",
-                      }
-                    : {
-                        background: "hoverColor",
-                        color: "buttonTextColor",
-                      }
-                }
-                as={IconButton}
-              >
-                <AddIcon w={8} h={8} />
-              </MenuButton>
-              <MenuList style={{ color: "#000000" }}>
-                {props.page == "Dashboard" ? (
-                  <>
-                    <MenuItem
-                      onClick={() => {
-                        setAddIsOpen(true);
-                      }}
-                    >
-                      Create a Bet
-                    </MenuItem>
-
-                    <CreateBetModal
-                      getBets={getBets}
-                      toast={toast}
-                      connection={connection}
-                      programId={programId}
-                      publicKey={publicKey}
-                      sendTransaction={sendTransaction}
-                      rentSysvar={rentSysvar}
-                      systemProgram={systemProgram}
-                      isOpen={addIsOpen}
-                      setIsOpen={setAddIsOpen}
-                    />
-
-                    <MenuItem
-                      onClick={() => {
-                        setJoinIsOpen(true);
-                      }}
-                    >
-                      Join a Bet
-                    </MenuItem>
-
-                    <JoinBetModal
-                      getBets={getBets}
-                      toast={toast}
-                      connection={connection}
-                      programId={programId}
-                      publicKey={publicKey}
-                      sendTransaction={sendTransaction}
-                      rentSysvar={rentSysvar}
-                      systemProgram={systemProgram}
-                      isOpen={joinIsOpen}
-                      setIsOpen={setJoinIsOpen}
-                      walletIsOpen={props.walletIsOpen}
-                      setWalletIsOpen={props.setWalletIsOpen}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <MenuItem
-                      onClick={() => {
-                        setAddLeaderIsOpen(true);
-                      }}
-                    >
-                      Create a Leaderboard
-                    </MenuItem>
-
-                    <CreateLeaderModal
-                      isOpen={addLeaderIsOpen}
-                      setIsOpen={setAddLeaderIsOpen}
-                      user={user}
-                      userUpdate={userUpdate}
-                    />
-
-                    <MenuItem
-                      onClick={() => {
-                        setJoinLeaderIsOpen(true);
-                      }}
-                    >
-                      Join a Leaderboard
-                    </MenuItem>
-
-                    <JoinLeaderModal
-                      isOpen={joinLeaderIsOpen}
-                      setIsOpen={setJoinLeaderIsOpen}
-                      user={user}
-                      userUpdate={userUpdate}
-                    />
-                  </>
-                )}
-              </MenuList>
-            </Menu> */}
-          </>
+          </React.Fragment>
         )}
       </Flex>
-    </>
+    </React.Fragment>
   );
 };
 

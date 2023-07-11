@@ -33,7 +33,6 @@ contract WagerFactory {
 
         Wager newWager = new Wager(
             msg.sender,
-            wagerHash,
             _minBet,
             _maxBet,
             _minPlayers,
@@ -81,6 +80,18 @@ contract WagerFactory {
 
     function vote(uint wagerHash, string memory option) external{
         allWagers[wagerHash].vote(option);
+    }
+
+    function getTotalPool(uint wagerHash) external view returns (uint){
+        return allWagers[wagerHash].getTotalPool();
+    }
+
+    function checkIfVoted(uint wagerHash) external view returns (bool){
+        return allWagers[wagerHash].checkIfVoted(msg.sender);
+    }
+
+    function getWinningOption(uint wagerHash) external view returns (string memory){
+        return allWagers[wagerHash].getWinningOption();
     }
 
 }

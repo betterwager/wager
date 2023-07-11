@@ -233,4 +233,4 @@ export const leaderUpdate = async (newLeader) => {
     variables: { input: newLeader },
   });
   return promise;
-};
+}

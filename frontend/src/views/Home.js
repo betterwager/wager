@@ -43,7 +43,7 @@ const Home = (props) => {
     let error = !email
       .toLowerCase()
       .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        /^(([^<React.Fragment>()[\]\\.,;:\s@"]+(\.[^<React.Fragment>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
     error &&
       toast({
@@ -73,7 +73,7 @@ const Home = (props) => {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Navbar
         style={{
           borderBottom: "solid",
@@ -413,7 +413,7 @@ const Home = (props) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </React.Fragment>
   );
 };
 

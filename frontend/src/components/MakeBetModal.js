@@ -45,6 +45,7 @@ import {
   VoteInstruction,
   PayoutInstruction,
 } from "../utils/utils.js";
+import { WagerFactory, Wager, magic } from "../utils/globals.js";
 
 function MakeBetModal(props) {
   const [isOpen, setIsOpen] = [props.isOpen, props.setIsOpen];
@@ -61,17 +62,9 @@ function MakeBetModal(props) {
   const currentOptions = props.currentOptions;
   const getBets = props.getBets;
 
+  const magicUser = props.magicUser;
+
   const toast = props.toast;
-
-  const programId = props.programId;
-  const [publicKey, sendTransaction] = [props.publicKey, props.sendTransaction];
-  const systemProgram = props.systemProgram;
-  const rentSysvar = props.rentSysvar;
-  const connection = props.connection;
-
-  const handlejoinCodeChange = (e) => {
-    setJoinCode(e.target.value);
-  };
 
   const handleBetOption = (e) => {
     setBetOption(e.target.value);
@@ -93,75 +86,35 @@ function MakeBetModal(props) {
 
   const handleBetting = async (e, index) => {
     e.preventDefault();
-    let option = betOption;
     //let value = betValue;
     //let bet = userBets[index]; //bet object in contention
     //Sending Bet Transaction and Balance for Bet
-    let tempStr = joinCode + " ".repeat(20 - joinCode.length);
-    setJoinCode(tempStr);
-    let [potPDA, potBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr)],
-      programId
-    );
-    let [playerPDA, playerBump] = await PublicKey.findProgramAddress(
-      [Buffer.from(tempStr), publicKey.toBytes()],
-      programId
-    );
-    //Make bet RPC Call(Send Transaction for Make Bet)
-    let instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: publicKey,
-          isSigner: true,
-          isWritable: true,
-        },
-        {
-          pubkey: potPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: playerPDA,
-          isSigner: false,
-          isWritable: true,
-        },
-        {
-          pubkey: systemProgram,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      programId: programId,
-      data: MakeBetInstruction(option, playerBump, betValue * 100000000),
-    });
-    const transaction = new Transaction().add(instruction);
-    const {
-      context: { slot: minContextSlot },
-      value: { blockhash, lastValidBlockHeight },
-    } = await connection.getLatestBlockhashAndContext();
-    transaction.recentBlockhash = blockhash;
-    console.log("blockhash retreived");
+    const fromAddress = magicUser.address;
 
-    const signature = await sendTransaction(transaction, connection, {
-      minContextSlot,
-    });
-    await connection.confirmTransaction({
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    });
-    const transactionResults = await connection.getTransaction(signature);
-    console.log(transactionResults.meta.logMessages);
-
-    toast({
-      title: "Bet Successfully Placed.",
-      description: joinCode,
-      status: "success",
-      duration: 9000,
-      isClosable: true,
-    });
-    setIsOpen(false);
-    getBets(publicKey);
+    try {
+      await WagerFactory.methods.placeBet(joinCode, betValue, betOption).send({ from: fromAddress })
+      .then(() => {
+        toast({
+          title: "Bet Successfully Placed.",
+          description: joinCode,
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+        setIsOpen(false);
+        getBets();
+      })
+      console.log('Successfully placed the bet.');
+    } catch (error) {
+      toast({
+        title: "Bet Failed to Place.",
+        description: joinCode,
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+      setIsOpen(false);
+    }
   };
 
   return (
