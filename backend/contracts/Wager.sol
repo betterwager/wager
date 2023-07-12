@@ -57,7 +57,6 @@ contract Wager {
 
     constructor(
         address _creator,
-        uint256 _wagerHash,
         uint256 _minBet,
         uint256 _maxBet,
         uint256 _minPlayers,

@@ -4,7 +4,6 @@ async function main() {
   //Wager Contract Deployment
   //test arguments to deploy with
   const creatorAddress = "0x1234567890abcdef1234567890abcdef12345678";
-  const wagerHash = 1234; // Minimum bet amount in wei
   const minBet = 100; // Minimum bet amount in wei
   const maxBet = 1000; // Maximum bet amount in wei
   const minPlayers = 2; // Minimum number of players
@@ -16,7 +15,6 @@ async function main() {
   const Wager = await hre.ethers.getContractFactory("Wager");
   const wager = await Wager.deploy(
     creatorAddress,
-    wagerHash,
     minBet,
     maxBet,
     minPlayers,
