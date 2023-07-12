@@ -41,7 +41,7 @@ function NewUserModals(props) {
   const [editIsOpen, setEditIsOpen] = [props.editIsOpen, props.setEditIsOpen];
 
   return (
-    <>
+    <React.Fragment>
       <Modal isOpen={start1IsOpen} size="lg" isCentered>
         <ModalOverlay backdropFilter="blur(10px) brightness(0%)" />
         <ModalContent>
@@ -173,7 +173,7 @@ function NewUserModals(props) {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </React.Fragment>
   );
 }
 

@@ -112,7 +112,7 @@ contract Wager {
     }
 
     //Internal Functions
-    function getTotalPool() internal view returns (uint) {
+    function getTotalPool() public view returns (uint) {
         uint total = 0;
         for (uint i = 0; i < wagerData.participants.length; i++) {
             total += wagerData.bets[wagerData.participants[i]][0].betAmount;
@@ -120,8 +120,61 @@ contract Wager {
         return total;
     }
 
-    function totalVotes() private view returns (string memory) {}
-    function checkIfVoted(address voter) private view returns (bool) {
+    function contains(string[] memory array, string memory element) internal pure returns (bool) {
+        for (uint i = 0; i < array.length; i++) {
+            if (keccak256(bytes(array[i])) == keccak256(bytes(element))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function searchValue(string[] memory array, string memory element) internal pure returns (uint) {
+        for (uint i = 0; i < array.length; i++) {
+            if (keccak256(bytes(array[i])) == keccak256(bytes(element))) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    function totalVotes() private view returns (string memory) {
+        uint count = 0;
+        string[] memory temp = new string[](wagerData.votes.length);
+        for (uint i = 0; i < wagerData.votes.length; i ++){
+            if (!contains(temp, wagerData.votes[i].option)){
+                temp[i] = wagerData.votes[i].option;
+                count ++;
+            }
+        }
+        string[] memory voteUnique = new string[](count);
+        uint increment = 0;
+        for (uint i = 0; i < wagerData.votes.length; i ++){
+            if (!contains(voteUnique, wagerData.votes[i].option)){
+                voteUnique[increment] = wagerData.votes[i].option;
+                increment ++;
+            }
+        }
+
+        uint[] memory voteCount = new uint[](voteUnique.length);
+        if (voteUnique.length == 1){
+            return voteUnique[0];
+        }
+        for (uint i = 0; i < wagerData.votes.length; i ++){
+            uint index = searchValue(voteUnique, wagerData.votes[i].option);
+            voteCount[index] += 1;
+        }
+        uint max = 0;
+        for (uint i = 0; i < voteCount.length; i ++){
+            if (voteCount[i] > max){
+                max = voteCount[i];
+            }
+        }
+
+        return voteUnique[max];
+    }
+
+    function checkIfVoted(address voter) public view returns (bool) {
         for (uint i = 0; i < wagerData.votes.length; i++) {
             if (wagerData.votes[i].creator == voter) {
                 return true;
@@ -247,6 +300,10 @@ contract Wager {
 
     function name() external view returns (string memory) {
         return wagerData.name;
+    }
+
+    function getWinningOption() external view returns (string memory) {
+        return totalVotes();
     }
 }
 

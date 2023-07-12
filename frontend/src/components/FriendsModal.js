@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
     useToast,
     Flex,
@@ -188,7 +188,7 @@ import {
 
     
     return (
-      <>
+      <React.Fragment>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <ModalOverlay />
       <ModalContent>
@@ -220,7 +220,7 @@ import {
         </ModalHeader>
                 <Form onSubmit={requestFriend}>
           <ModalBody>
-            <>
+            <React.Fragment>
               <FormControl isRequired>
                 <Box mb={4}>
                   <Text color="formTitleColor" fontWeight={600} fontSize={"lg"}>
@@ -327,7 +327,7 @@ import {
                 scrollableTarget="scrollableDiv2"
                 endMessage={<Row style={{ textAlign: "right" }}></Row>}>
                 {(user && user.requests) && user.requests.map((request) => (
-                  <>
+                  <React.Fragment>
                    <Box
                   marginTop="1rem"
                   marginBottom="1rem"
@@ -402,7 +402,7 @@ import {
                     </div>
                   </Flex>
                   </Box>
-                  </>
+                  </React.Fragment>
                 ))}
   
                 </InfiniteScroll>
@@ -421,7 +421,7 @@ import {
 
           
               </Row>
-            </>
+            </React.Fragment>
           </ModalBody>
 
           <ModalFooter>
@@ -439,7 +439,7 @@ import {
         </Form>
       </ModalContent>
     </Modal>
-      </>
+      </React.Fragment>
     );
   }
   
