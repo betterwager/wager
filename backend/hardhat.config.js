@@ -1,17 +1,16 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-ethers");
-
-const { API_URL, PRIVATE_KEY } = process.env;
+const globals = require("./globals");
 
 module.exports = {
   solidity: "0.8.18",
-  //defaultNetwork: "sepolia",
+  defaultNetwork: "arbitrumGoerli",
   networks: {
     hardhat: { chainId: 1337 },
     arbitrumGoerli: {
       url: "https://goerli-rollup.arbitrum.io/rpc",
       chainId: 421613,
-      //accounts: [GOERLI_TESTNET_PRIVATE_KEY]
+      accounts: [globals.PRIVATE_KEY],
     },
     arbitrumOne: {
       url: "https://arb1.arbitrum.io/rpc",
