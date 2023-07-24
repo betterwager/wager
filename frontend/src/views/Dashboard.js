@@ -242,7 +242,7 @@ function Dashboard() {
           .isLoggedIn()
           .then((isLoggedIn) => {
             return isLoggedIn
-              ? magic.user.getMetadata().then((userData) => {
+              ? magic.user.getInfo().then((userData) => {
                   setMagicUser({ ...userData, identityId: user.id });
                   console.log({ ...userData, identityId: user.id });
                   getUser(userData.phoneNumber)

@@ -14,7 +14,7 @@ export const magic = new Magic("pk_live_7B73AD963AFECCE0", {
 
 export const web3 = new Web3(magic.rpcProvider);
 
-const Factoryabi = "{}";
+const Factoryabi = "";
 const FactoryAddress = "{}";
 // export const WagerFactory = new web3.eth.Contract(JSON.parse(Factoryabi), FactoryAddress);
 export const WagerFactory = {}
