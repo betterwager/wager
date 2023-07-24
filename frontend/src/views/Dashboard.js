@@ -77,12 +77,10 @@ import { getUserProfilePicture } from "../utils/utils";
 import { Magic } from "magic-sdk";
 
 import { SolanaExtension } from "@magic-ext/solana";
-import {web3, WagerFactory, Wager, magic} from "../utils/globals.js";
+import { web3, WagerFactory, Wager, magic } from "../utils/globals.js";
 
 const smVariant = { navigation: "drawer", navigationButton: true };
 const mdVariant = { navigation: "sidebar", navigationButton: false };
-
-
 
 function Dashboard() {
   //AWS Object of User
@@ -118,9 +116,7 @@ function Dashboard() {
 
   const [walletIsOpen, setWalletIsOpen] = useState(false);
 
-
   const [isLoading, setIsLoading] = useState(true);
-
 
   //Contract Information
 
@@ -145,21 +141,23 @@ function Dashboard() {
       let optionChose = voteOption;
       let index = currentBetIndex;
       let votedIndex = voteIndex;
-      let betCode = ""
+      let betCode = "";
 
       let betID = allUserBets[index].bet_identifier;
 
       try {
-        await WagerFactory.methods.vote(betCode, optionChose).send({ from: magicUser.address })
-        .then(() => {
-          toast({
-            title: "Voting Success!",
-            description: "You voted for: " + optionChose,
-            status: "success",
-            duration: 9000,
-            isClosable: true,
+        await WagerFactory.methods
+          .vote(betCode, optionChose)
+          .send({ from: magicUser.address })
+          .then(() => {
+            toast({
+              title: "Voting Success!",
+              description: "You voted for: " + optionChose,
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
           });
-        })
       } catch (error) {
         toast({
           title: "Voting Failed",
@@ -171,38 +169,37 @@ function Dashboard() {
     }
   };
 
-  const handlePayout = async () => {
-  };
-
-  
+  const handlePayout = async () => {};
 
   const getBets = useCallback(async () => {
     if (magicUser.address == null) {
       setUserBets([]);
     } else {
       const fromAddress = (await web3.eth.getAccounts())[0];
-      await WagerFactory.methods.getUserWagers().call({ from: fromAddress})
-      .then((res) => {
-        let userWagers = [];
-        res.forEach(wager => {
-          let newWager = {
-            creator: wager.creator,
-            name: wager.name,
-            state: wager.state,
-            minBet: wager.minBet,
-            maxBet: wager.maxBet,
-            minPlayers: wager.minPlayers,
-            maxPlayers: wager.maxPlayers,
-            outcomes: wager.outcomes,
-            bettingEndTime: wager.bettingEndTime,
-            participants: wager.participants,
-            bets: wager.bets,
-            votes: wager.votes
-          }
-          userWagers.push(newWager);
+      await WagerFactory.methods
+        .getUserWagers()
+        .call({ from: fromAddress })
+        .then((res) => {
+          let userWagers = [];
+          res.forEach((wager) => {
+            let newWager = {
+              creator: wager.creator,
+              name: wager.name,
+              state: wager.state,
+              minBet: wager.minBet,
+              maxBet: wager.maxBet,
+              minPlayers: wager.minPlayers,
+              maxPlayers: wager.maxPlayers,
+              outcomes: wager.outcomes,
+              bettingEndTime: wager.bettingEndTime,
+              participants: wager.participants,
+              bets: wager.bets,
+              votes: wager.votes,
+            };
+            userWagers.push(newWager);
+          });
+          setUserBets(userWagers);
         });
-        setUserBets(userWagers);
-      })
     }
     //let news;
     //console.log(String.fromCharCode.apply(String, allBets[0].options[0].name))
@@ -227,7 +224,7 @@ function Dashboard() {
 
   const [magicUser, setMagicUser] = useState({});
   const [profilePictureURL, setProfilePictureURL] = useState("");
-  
+
   const [boardNames, setBoardNames] = useState([]);
   const [boardIDs, setBoardIDs] = useState([]);
 
@@ -242,18 +239,23 @@ function Dashboard() {
           .isLoggedIn()
           .then((isLoggedIn) => {
             return isLoggedIn
-              ? magic.user.getMetadata().then((userData) => {
+              ? magic.user.getInfo().then((userData) => {
                   setMagicUser({ ...userData, identityId: user.id });
-                  console.log({ ...userData, identityId: user.id });
+                  console.log("user data info", {
+                    ...userData,
+                    identityId: user.id,
+                  });
                   getUser(userData.phoneNumber)
                     .catch(console.error)
                     .then((res) => {
                       setCurrentUser(res.data.getUser);
                       getBets(magicUser.address).catch(console.error);
-                      let url = getUserProfilePicture(res.data.getUser.phonenumber)
-                          setProfilePictureURL(url);
-                          console.log(url);
-                      console.log(res);
+                      let url = getUserProfilePicture(
+                        res.data.getUser.phonenumber
+                      );
+                      setProfilePictureURL(url);
+                      console.log("Url", url);
+                      console.log("response", res);
                       let userBoards = res.data.getUser.leaderboards.items;
                       console.log(userBoards);
                       let boardnames = userBoards.map(

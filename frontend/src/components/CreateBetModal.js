@@ -113,33 +113,34 @@ function CreateBetModal(props) {
       OptionsList != [] &&
       time != null
     ) {
-
       try {
-
-        await WagerFactory.methods.createWager(
-          minBet,
-          maxBet,
-          minPlayers,
-          maxPlayers,
-          betName,
-          OptionsList,
-          time.getTime() / 1000, //Miliseconds from 1970
-        ).send({ from: magicUser.address })
-        .then(() => {
-          toast({
-            title: "Bet Created",
-            description: "Now let's get betting!",
-            status: "success",
-            duration: 9000,
-            isClosable: true,
+        await WagerFactory.methods
+          .createWager(
+            minBet,
+            maxBet,
+            minPlayers,
+            maxPlayers,
+            betName,
+            OptionsList,
+            Math.floor(time.getTime() / 1000) //Miliseconds from 1970
+          )
+          .send({ from: magicUser.address })
+          .then(() => {
+            toast({
+              title: "Bet Created",
+              description: "Now let's get betting!",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            setBetCode(betName);
+            setIsOpen(false);
+            clearBetState();
+            setAddSuccessIsOpen(true);
+            props.getBets();
           });
-          setBetCode(betName);
-          setIsOpen(false);
-          clearBetState();
-          setAddSuccessIsOpen(true);
-          props.getBets();
-        })
       } catch (error) {
+        console.log(error);
         toast({
           title: "Bet Failed",
           status: "success",
@@ -292,9 +293,9 @@ function CreateBetModal(props) {
                     </Text>
                     {OptionsList.map((option) => {
                       return (
-                          <Badge key={option} mr={1} mb={2}>
-                            {option}
-                          </Badge>
+                        <Badge key={option} mr={1} mb={2}>
+                          {option}
+                        </Badge>
                       );
                     })}
                     <Form onSubmit={handleOptionEnter}>
