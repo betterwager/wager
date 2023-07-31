@@ -253,6 +253,7 @@ export function SidebarContent(props) {
             <CreateBetModal
                     getBets={getBets}
                     toast={toast}
+                    magicUser={magicUser}
                     sendTransaction={sendTransaction}
                     isOpen={addIsOpen}
                     setIsOpen={setAddIsOpen}
@@ -439,6 +440,7 @@ export function SidebarContent(props) {
             <CreateBetModal
                     getBets={getBets}
                     toast={toast}
+                    magicUser={magicUser}
                     sendTransaction={sendTransaction}
                     isOpen={addIsOpen}
                     setIsOpen={setAddIsOpen}

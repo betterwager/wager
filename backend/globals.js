@@ -1,5 +1,5 @@
 const PRIVATE_KEY =
-  "f7d05d581c47f7b76608b3f82c5f29e13811e87d35ca6690c3600afbbe10cce8";
+  "7a0383c373a50a0d527c3d5caaa6cfc1fcdaf02d3639289dd44d7e1a07d4cc9c";
 
 module.exports = {
   PRIVATE_KEY: PRIVATE_KEY,

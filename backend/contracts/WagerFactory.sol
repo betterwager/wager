@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./Wager.sol";
+import {WagerData} from "./Wager.sol";
 
 //Creates Wager Objects for Users
 contract WagerFactory {
@@ -15,8 +16,30 @@ contract WagerFactory {
         string name
     );
 
-    function getUserWagers() view external returns (Wager[] memory){
-        return allUserWagers[msg.sender];
+    function getUserWagers() view external returns (string memory userWagers){
+        for (uint i = 0; i <  allUserWagers[msg.sender].length; i ++){
+            userWagers = string(abi.encodePacked(userWagers, allUserWagers[msg.sender][i].viewWager().creator, ",",  allUserWagers[msg.sender][i].viewWager().name, ",",  uint256ToString( allUserWagers[msg.sender][i].viewWager().minBet), ";"));
+        }
+        return userWagers;
+    }
+    
+    function uint256ToString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
     }
 
     function createWager(
@@ -29,7 +52,6 @@ contract WagerFactory {
         uint256 _bettingEndTime
     ) external {
         //8 integer hash of creator address and wager name
-        uint wagerHash = uint(keccak256(abi.encodePacked(msg.sender, _name)));
 
         Wager newWager = new Wager(
             msg.sender,
@@ -43,11 +65,11 @@ contract WagerFactory {
         );
 
 
-        allWagers[wagerHash] = newWager;
+        allWagers[uint(keccak256(abi.encodePacked(msg.sender, _name)))] = newWager;
         allUserWagers[msg.sender].push(newWager);
 
         
-        emit WagerCreated(wagerHash, address(newWager), _name);
+        emit WagerCreated(uint(keccak256(abi.encodePacked(msg.sender, _name))), address(newWager), _name);
     }
 
     function joinWager(uint wagerHash) external{
@@ -69,29 +91,27 @@ contract WagerFactory {
         );
 
         Wager(address(allWagers[wagerHash])).joinWager();
-        allUserWagers[msg.sender].push(Wager(address(allWagers[wagerHash])));
+        allUserWagers[msg.sender].push(allWagers[wagerHash]);
     }
 
 
 
-    function placeBet(uint wagerHash, uint amount, string memory option) external{
-        allWagers[wagerHash].placeBet(amount, option);
-    }
+    // function placeBet(uint wagerHash, uint amount, string memory option) external{
+    //     allWagers[wagerHash].placeBet(amount, option);
+    // }
 
-    function vote(uint wagerHash, string memory option) external{
-        allWagers[wagerHash].vote(option);
-    }
+    // function vote(uint wagerHash, string memory option) external{
+    //     allWagers[wagerHash].vote(option);
+    // }
 
-    function getTotalPool(uint wagerHash) external view returns (uint){
-        return allWagers[wagerHash].getTotalPool();
-    }
 
-    function checkIfVoted(uint wagerHash) external view returns (bool){
-        return allWagers[wagerHash].checkIfVoted(msg.sender);
-    }
 
-    function getWinningOption(uint wagerHash) external view returns (string memory){
-        return allWagers[wagerHash].getWinningOption();
-    }
+    // function checkIfVoted(uint wagerHash) external view returns (bool){
+    //     return allWagers[wagerHash].checkIfVoted(msg.sender);
+    // }
+
+    // function getWinningOption(uint wagerHash) external view returns (string memory){
+    //     return allWagers[wagerHash].getWinningOption();
+    // }
 
 }

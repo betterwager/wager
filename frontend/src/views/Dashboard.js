@@ -148,7 +148,7 @@ function Dashboard() {
       try {
         await WagerFactory.methods
           .vote(betCode, optionChose)
-          .send({ from: magicUser.address })
+          .send({ from: magicUser.publicAddress })
           .then(() => {
             toast({
               title: "Voting Success!",
@@ -171,20 +171,19 @@ function Dashboard() {
 
   const handlePayout = async () => {};
 
-  const getBets = useCallback(async () => {
-    if (magicUser.address == null) {
+  const getBets = useCallback(async (address) => {
+    console.log("Address: " + address)
+    if (address == null) {
       setUserBets([]);
     } else {
-      const fromAddress = (await web3.eth.getAccounts())[0];
       await WagerFactory.methods
         .getUserWagers()
-        .call({ from: fromAddress })
+        .call({ from: address })
         .then((res) => {
-          let userWagers = [];
-          res.forEach((wager) => {
-            let newWager = {
+          let userWagers = res.map((wager) => {
+            return {
               creator: wager.creator,
-              name: wager.name,
+              name: web3.eth.abi.decodeParameter('string', wager.name), // Assuming `name` is of type 'string' in the contract
               state: wager.state,
               minBet: wager.minBet,
               maxBet: wager.maxBet,
@@ -196,9 +195,8 @@ function Dashboard() {
               bets: wager.bets,
               votes: wager.votes,
             };
-            userWagers.push(newWager);
           });
-          setUserBets(userWagers);
+          console.log(userWagers);
         });
     }
     //let news;
@@ -245,11 +243,12 @@ function Dashboard() {
                     ...userData,
                     identityId: user.id,
                   });
+                  console.log(userData.publicAddress)
                   getUser(userData.phoneNumber)
                     .catch(console.error)
                     .then((res) => {
                       setCurrentUser(res.data.getUser);
-                      getBets(magicUser.address).catch(console.error);
+                      getBets(userData.publicAddress).catch(console.error);
                       let url = getUserProfilePicture(
                         res.data.getUser.phonenumber
                       );
@@ -307,7 +306,7 @@ function Dashboard() {
       />
       <Box
         ml={!variants.navigationButton && 250}
-        bg="#F7F8FC"
+        bg="#FBFBFE"
         style={{ height: "100vh" }}
       >
         <Header
@@ -458,11 +457,11 @@ function Dashboard() {
                     variant="ghost"
                     rightIcon={<RepeatIcon />}
                     onClick={() => {
-                      if (magicUser.address == null) {
+                      if (magicUser.publicAddress == null) {
                         setWalletIsOpen(true);
                         getBets(null);
                       } else {
-                        getBets(magicUser.address);
+                        getBets(magicUser.publicAddress);
                       }
                     }}
                     style={{ marginBottom: "100px" }}
@@ -526,7 +525,7 @@ function Dashboard() {
       />
 
       <WalletEntryModal
-        publicKey={magicUser.address}
+        publicKey={magicUser.publicAddress}
         toast={toast}
         isOpen={walletIsOpen}
         setIsOpen={setWalletIsOpen}

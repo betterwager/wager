@@ -82,6 +82,7 @@ function CreateBetModal(props) {
 
   const handlemaxBetChange = (e) => {
     setMaxBet(e);
+    console.log(magicUser)
   };
 
   const handleOptionNewChange = (e) => {
@@ -116,15 +117,15 @@ function CreateBetModal(props) {
       try {
         await WagerFactory.methods
           .createWager(
-            minBet,
-            maxBet,
-            minPlayers,
-            maxPlayers,
+            parseFloat(minBet),
+            parseFloat(maxBet),
+            parseInt(minPlayers),
+            parseInt(maxPlayers),
             betName,
             OptionsList,
             Math.floor(time.getTime() / 1000) //Miliseconds from 1970
           )
-          .send({ from: magicUser.address })
+          .send({ from: magicUser.publicAddress })
           .then(() => {
             toast({
               title: "Bet Created",
@@ -143,7 +144,7 @@ function CreateBetModal(props) {
         console.log(error);
         toast({
           title: "Bet Failed",
-          status: "success",
+          status: "error",
           duration: 9000,
           isClosable: true,
         });

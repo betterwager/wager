@@ -12,10 +12,12 @@ const { definePartsStyle, defineMultiStyleConfig } =
 export const allColors = {
   //another color 6E260E
   primaryColor: "#195F50",
-  accentColor: "#3E36D9",
+  accentColor: "#5E2BFF",
   buttonTextColor: "#fff",
+  background: "#FBFBFE",
+  error: "#C42021",
   textColor: "#000000",
-  hoverColor: "#7DC3B4",
+  hoverColor: "#82D4BB",
   formLabelColor: "#344054",
   formDescriptionColor: "#475467",
   formTitleColor: "#101828",
