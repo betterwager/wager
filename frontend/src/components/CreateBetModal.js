@@ -124,7 +124,7 @@ function CreateBetModal(props) {
             OptionsList,
             Math.floor(time.getTime() / 1000) //Miliseconds from 1970
           )
-          .send({ from: magicUser.address })
+          .send({ from: magicUser.publicAddress })
           .then(() => {
             toast({
               title: "Bet Created",

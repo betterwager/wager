@@ -249,7 +249,7 @@ function Dashboard() {
                     .catch(console.error)
                     .then((res) => {
                       setCurrentUser(res.data.getUser);
-                      getBets(magicUser.address).catch(console.error);
+                      getBets(userData.publicAddress).catch(console.error);
                       let url = getUserProfilePicture(
                         res.data.getUser.phonenumber
                       );

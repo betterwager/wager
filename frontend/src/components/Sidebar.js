@@ -153,13 +153,9 @@ export function SidebarContent(props) {
 
   const magicUser = props.magicUser;
 
-
-
   const getBets = () => {
     props.refresh(publicKey);
   };
-
-
 
   const [addIsOpen, setAddIsOpen] = useState(false);
   const [joinIsOpen, setJoinIsOpen] = useState(false);
@@ -167,10 +163,8 @@ export function SidebarContent(props) {
   const [joinLeaderIsOpen, setJoinLeaderIsOpen] = useState(false);
   //Handling Methods
 
-
-  return (
-    (props.shrink == false) ? (
-      <div style={{ overflow: "hidden", height: "100%" }}>
+  return props.shrink == false ? (
+    <div style={{ overflow: "hidden", height: "100%" }}>
       <Container
         style={{
           marginLeft: "1vh",
@@ -251,13 +245,13 @@ export function SidebarContent(props) {
             </Menu.Item>
 
             <CreateBetModal
-                    getBets={getBets}
-                    toast={toast}
-                    sendTransaction={sendTransaction}
-                    isOpen={addIsOpen}
-                    setIsOpen={setAddIsOpen}
-                  />
-
+              magicUser={magicUser}
+              getBets={getBets}
+              toast={toast}
+              sendTransaction={sendTransaction}
+              isOpen={addIsOpen}
+              setIsOpen={setAddIsOpen}
+            />
 
             <Menu.Item
               onClick={() => setJoinIsOpen(true)}
@@ -266,15 +260,15 @@ export function SidebarContent(props) {
               Join Wager
             </Menu.Item>
             <JoinBetModal
-                    getBets={getBets}
-                    toast={toast}
-                    magicUser={magicUser}
-                    sendTransaction={sendTransaction}
-                    isOpen={joinIsOpen}
-                    setIsOpen={setJoinIsOpen}
-                    walletIsOpen={props.walletIsOpen}
-                    setWalletIsOpen={props.setWalletIsOpen}
-                  />
+              getBets={getBets}
+              toast={toast}
+              magicUser={magicUser}
+              sendTransaction={sendTransaction}
+              isOpen={joinIsOpen}
+              setIsOpen={setJoinIsOpen}
+              walletIsOpen={props.walletIsOpen}
+              setWalletIsOpen={props.setWalletIsOpen}
+            />
             <Menu.Item
               onClick={() => setAddLeaderIsOpen(true)}
               icon={<MdAddToPhotos />}
@@ -282,13 +276,13 @@ export function SidebarContent(props) {
               Create Leaderboard
             </Menu.Item>
             <CreateLeaderModal
-                    isOpen={addLeaderIsOpen}
-                    setIsOpen={setAddLeaderIsOpen}
-                    user={user}
-                    boardIDs={props.boardIDs}
-                    setBoardIDs={props.setBoardIDs}
-                    userUpdate={userUpdate}
-                  />
+              isOpen={addLeaderIsOpen}
+              setIsOpen={setAddLeaderIsOpen}
+              user={user}
+              boardIDs={props.boardIDs}
+              setBoardIDs={props.setBoardIDs}
+              userUpdate={userUpdate}
+            />
             <Menu.Item
               onClick={() => setJoinLeaderIsOpen(true)}
               icon={<MdLeaderboard />}
@@ -296,13 +290,13 @@ export function SidebarContent(props) {
               Join Leaderboard
             </Menu.Item>
             <JoinLeaderModal
-                    isOpen={joinLeaderIsOpen}
-                    setIsOpen={setJoinLeaderIsOpen}
-                    user={user}
-                    boardIDs={props.boardIDs}
-                    setBoardIDs={props.setBoardIDs}
-                    userUpdate={userUpdate}
-                  />
+              isOpen={joinLeaderIsOpen}
+              setIsOpen={setJoinLeaderIsOpen}
+              user={user}
+              boardIDs={props.boardIDs}
+              setBoardIDs={props.setBoardIDs}
+              userUpdate={userUpdate}
+            />
           </Menu>
         </Box>
         <Box
@@ -360,9 +354,8 @@ export function SidebarContent(props) {
         </Box>
       </Box>
     </div>
-    ) :
-    (
-      <div style={{ overflow: "hidden", height: "100%" }}>
+  ) : (
+    <div style={{ overflow: "hidden", height: "100%" }}>
       <Container
         style={{
           marginLeft: "1vh",
@@ -405,11 +398,8 @@ export function SidebarContent(props) {
             }
             mode="inline"
           >
-            
-            
-            <Menu.Item key="1" href={DASHBOARD} icon={
-            <DashboardOutlined />}/>
-            <Menu.Item key="2" icon={<CrownOutlined />} href={LEADERBOARD}/>
+            <Menu.Item key="1" href={DASHBOARD} icon={<DashboardOutlined />} />
+            <Menu.Item key="2" icon={<CrownOutlined />} href={LEADERBOARD} />
           </Menu>
         </Box>
         <Box
@@ -437,52 +427,51 @@ export function SidebarContent(props) {
             />
 
             <CreateBetModal
-                    getBets={getBets}
-                    toast={toast}
-                    sendTransaction={sendTransaction}
-                    isOpen={addIsOpen}
-                    setIsOpen={setAddIsOpen}
-                  />
-
+              getBets={getBets}
+              toast={toast}
+              sendTransaction={sendTransaction}
+              isOpen={addIsOpen}
+              setIsOpen={setAddIsOpen}
+            />
 
             <Menu.Item
               onClick={() => setJoinIsOpen(true)}
               icon={<FaMoneyBill />}
             />
             <JoinBetModal
-                    getBets={getBets}
-                    toast={toast}
-                    magicUser={magicUser}
-                    sendTransaction={sendTransaction}
-                    isOpen={joinIsOpen}
-                    setIsOpen={setJoinIsOpen}
-                    walletIsOpen={props.walletIsOpen}
-                    setWalletIsOpen={props.setWalletIsOpen}
-                  />
+              getBets={getBets}
+              toast={toast}
+              magicUser={magicUser}
+              sendTransaction={sendTransaction}
+              isOpen={joinIsOpen}
+              setIsOpen={setJoinIsOpen}
+              walletIsOpen={props.walletIsOpen}
+              setWalletIsOpen={props.setWalletIsOpen}
+            />
             <Menu.Item
               onClick={() => setAddLeaderIsOpen(true)}
               icon={<MdAddToPhotos />}
             />
             <CreateLeaderModal
-                    isOpen={addLeaderIsOpen}
-                    setIsOpen={setAddLeaderIsOpen}
-                    user={user}
-                    boardIDs={props.boardIDs}
-                    setBoardIDs={props.setBoardIDs}
-                    userUpdate={userUpdate}
-                  />
+              isOpen={addLeaderIsOpen}
+              setIsOpen={setAddLeaderIsOpen}
+              user={user}
+              boardIDs={props.boardIDs}
+              setBoardIDs={props.setBoardIDs}
+              userUpdate={userUpdate}
+            />
             <Menu.Item
               onClick={() => setJoinLeaderIsOpen(true)}
               icon={<MdLeaderboard />}
             />
             <JoinLeaderModal
-                    isOpen={joinLeaderIsOpen}
-                    setIsOpen={setJoinLeaderIsOpen}
-                    user={user}
-                    boardIDs={props.boardIDs}
-                    setBoardIDs={props.setBoardIDs}
-                    userUpdate={userUpdate}
-                  />
+              isOpen={joinLeaderIsOpen}
+              setIsOpen={setJoinLeaderIsOpen}
+              user={user}
+              boardIDs={props.boardIDs}
+              setBoardIDs={props.setBoardIDs}
+              userUpdate={userUpdate}
+            />
           </Menu>
         </Box>
         <Box
@@ -527,12 +516,18 @@ export function SidebarContent(props) {
               setIsOpen={setWalletIsOpen}
             />
 
-            <Menu.Item icon={<ExclamationCircleOutlined href="https://forms.gle/r288veKH6uAU6spUA" target="_blank"/>}/>
+            <Menu.Item
+              icon={
+                <ExclamationCircleOutlined
+                  href="https://forms.gle/r288veKH6uAU6spUA"
+                  target="_blank"
+                />
+              }
+            />
           </Menu>
         </Box>
       </Box>
     </div>
-    )
   );
 }
 
@@ -548,7 +543,7 @@ const Sidebar = (props) => {
       bg="primaryColor"
     >
       <SidebarContent
-        shrink = {false}
+        shrink={false}
         refresh={props.refresh}
         magicUser={props.magicUser}
         user={props.user}
@@ -558,32 +553,28 @@ const Sidebar = (props) => {
         setIsOpen={props.setIsOpen}
       />
     </Box>
-  ) : 
-    
-    
-  props.isOpen  == true ? 
+  ) : props.isOpen == true ? (
     <Drawer isOpen={props.isOpen} placement="left" onClose={props.onClose}>
-      <DrawerOverlay/>
-        <DrawerContent style={{ backgroundColor: "primaryColor" }}>
-          <DrawerCloseButton style={{ color: "#ffffff" }} />
-          <DrawerBody>
-            <SidebarContent
-            shrink = {false}
-            variant = {props.variant}
-              refresh={props.refresh}
-              user={props.user}
-              magicUser={props.magicUser}
-              isOpen={props.isOpen}
-              setIsOpen={props.onClose}
-              boardIDs={props.boardIDs}
-              setBoardIDs={props.setBoardIDs}
-            />
-          </DrawerBody>
-        </DrawerContent>
+      <DrawerOverlay />
+      <DrawerContent style={{ backgroundColor: "primaryColor" }}>
+        <DrawerCloseButton style={{ color: "#ffffff" }} />
+        <DrawerBody>
+          <SidebarContent
+            shrink={false}
+            variant={props.variant}
+            refresh={props.refresh}
+            user={props.user}
+            magicUser={props.magicUser}
+            isOpen={props.isOpen}
+            setIsOpen={props.onClose}
+            boardIDs={props.boardIDs}
+            setBoardIDs={props.setBoardIDs}
+          />
+        </DrawerBody>
+      </DrawerContent>
     </Drawer>
-    :
-    (
-      <Box
+  ) : (
+    <Box
       position="fixed"
       left={0}
       p={2}
@@ -592,21 +583,18 @@ const Sidebar = (props) => {
       h="100%"
       bg="primaryColor"
     >
-    <SidebarContent
-    shrink = {true}
-              refresh={props.refresh}
-              user={props.user}
-              magicUser={props.magicUser}
-              isOpen={props.isOpen}
-              setIsOpen={props.onClose}
-              boardIDs={props.boardIDs}
-              setBoardIDs={props.setBoardIDs}
-            />
-
-      </Box>
-    )
-    
-  
+      <SidebarContent
+        shrink={true}
+        refresh={props.refresh}
+        user={props.user}
+        magicUser={props.magicUser}
+        isOpen={props.isOpen}
+        setIsOpen={props.onClose}
+        boardIDs={props.boardIDs}
+        setBoardIDs={props.setBoardIDs}
+      />
+    </Box>
+  );
 };
 
 export default Sidebar;
