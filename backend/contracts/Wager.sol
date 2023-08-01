@@ -2,15 +2,7 @@
 pragma solidity >=0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Wager {
-    IERC20 public usdcToken;
-    enum WagerState {
-        Betting,
-        Voting,
-        Closed
-    }
-
-    struct WagerData {
+struct WagerData {
         address creator;
         string name;
         WagerState state;
@@ -20,12 +12,15 @@ contract Wager {
         uint256 maxPlayers;
         string[] outcomes;
         uint256 bettingEndTime;
-        mapping(address => Bet[]) bets;
+        Bet[] bets;
         Vote[] votes;
         address[] participants;
     }
-    //Wager Identifier = Hash of Creator Address & Wager Name
-
+enum WagerState {
+        Betting,
+        Voting,
+        Closed
+    }
     struct Vote {
         address creator;
         string option;
@@ -36,6 +31,11 @@ contract Wager {
         string option;
         uint256 betAmount;
     }
+
+contract Wager {
+    IERC20 public usdcToken;
+    //Wager Identifier = Hash of Creator Address & Wager Name
+
 
     WagerData public wagerData;
 
@@ -114,7 +114,7 @@ contract Wager {
     function getTotalPool() public view returns (uint) {
         uint total = 0;
         for (uint i = 0; i < wagerData.participants.length; i++) {
-            total += wagerData.bets[wagerData.participants[i]][0].betAmount;
+            total += wagerData.bets[i].betAmount;
         }
         return total;
     }
@@ -184,7 +184,9 @@ contract Wager {
 
     //Functions
 
-
+    function viewWager() external view returns (WagerData memory) {
+        return wagerData;
+    }
 
     function joinWager() external {
         require(
@@ -216,7 +218,7 @@ contract Wager {
         userBet.option = option;
 
 
-        wagerData.bets[msg.sender].push(userBet);
+        wagerData.bets.push(userBet);
 
         uint wagerHash = uint(
             keccak256(abi.encodePacked(wagerData.creator, wagerData.name))
@@ -228,7 +230,17 @@ contract Wager {
 
     function vote(string memory _outcome) external {
         require(
-            wagerData.bets[msg.sender][0].betAmount > 0,
+            wagerData.state == WagerState.Voting,
+            "Cannot vote, not in the voting phase"
+        );
+        bool hasBet = false;
+        for (uint i = 0; i < wagerData.bets.length; i ++){
+            if (wagerData.bets[i].creator == msg.sender){
+               hasBet = true;
+            }
+        }
+        require(
+            hasBet == true,
             "Participant has not placed a bet"
         );
         require(checkIfVoted(msg.sender), "Participant has already voted");
@@ -261,8 +273,7 @@ contract Wager {
             
             uint winningParticipantsTotal = 0;
             for (uint i = 0; i < wagerData.participants.length; i ++){
-                address participant = wagerData.participants[i];
-                Bet memory bet = wagerData.bets[participant][0];
+                Bet memory bet = wagerData.bets[i];
                 if (keccak256(abi.encodePacked(bet.option)) == keccak256(abi.encodePacked(result))){
                     winningParticipants[i] = bet;
                     winningParticipantsTotal += bet.betAmount;

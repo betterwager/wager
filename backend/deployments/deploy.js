@@ -1,4 +1,4 @@
-const hre = require("hardhat");
+let hre = require("hardhat");
 
 async function main() {
   //Wager Contract Deployment

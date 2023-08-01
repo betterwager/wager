@@ -245,13 +245,13 @@ export function SidebarContent(props) {
             </Menu.Item>
 
             <CreateBetModal
-              magicUser={magicUser}
-              getBets={getBets}
-              toast={toast}
-              sendTransaction={sendTransaction}
-              isOpen={addIsOpen}
-              setIsOpen={setAddIsOpen}
-            />
+                    getBets={getBets}
+                    toast={toast}
+                    magicUser={magicUser}
+                    sendTransaction={sendTransaction}
+                    isOpen={addIsOpen}
+                    setIsOpen={setAddIsOpen}
+                  />
 
             <Menu.Item
               onClick={() => setJoinIsOpen(true)}
@@ -427,12 +427,13 @@ export function SidebarContent(props) {
             />
 
             <CreateBetModal
-              getBets={getBets}
-              toast={toast}
-              sendTransaction={sendTransaction}
-              isOpen={addIsOpen}
-              setIsOpen={setAddIsOpen}
-            />
+                    getBets={getBets}
+                    toast={toast}
+                    magicUser={magicUser}
+                    sendTransaction={sendTransaction}
+                    isOpen={addIsOpen}
+                    setIsOpen={setAddIsOpen}
+                  />
 
             <Menu.Item
               onClick={() => setJoinIsOpen(true)}
